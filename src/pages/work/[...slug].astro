@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const items = await getCollection('work', ({ data }) => !data.draft);
+  return items.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<Base title={d.title} description={d.summary}>
+  <h1>{d.title}</h1>
+  <p class="muted">{[d.company, d.role, d.period].filter(Boolean).join(' · ')}</p>
+  <div class="tags">{d.tags.map((t) => <span>{t}</span>)}</div>
+  <article class="prose"><Content /></article>
+</Base>
