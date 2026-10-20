@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../../lib/url';
+
+const items = (await getCollection('archive', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Base title="Archive">
+  <h1>Archive</h1>
+  <p class="muted">작업 노트, 레퍼런스, 기록을 모아두는 개인 저장소.</p>
+  <ul class="list">
+    {items.map((n) => (
+      <li><a href={url(`/archive/${n.id}`)}>
+        <strong>{n.data.title}</strong>
+        <div class="muted">{n.data.date.toISOString().slice(0, 10)}{n.data.description && ` · ${n.data.description}`}</div>
+      </a></li>
+    ))}
+  </ul>
+</Base>
