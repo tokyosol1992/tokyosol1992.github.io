@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../../lib/url';
+
+const items = (await getCollection('work', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.order - a.data.order);
+---
+<Base title="Work">
+  <h1>Work</h1>
+  <ul class="list">
+    {items.map((w) => (
+      <li><a href={url(`/work/${w.id}`)}>
+        <strong>{w.data.title}</strong>
+        <div class="muted">{[w.data.company, w.data.period].filter(Boolean).join(' · ')}</div>
+        <div>{w.data.summary}</div>
+        <div class="tags">{w.data.tags.map((t) => <span>{t}</span>)}</div>
+      </a></li>
+    ))}
+  </ul>
+</Base>
