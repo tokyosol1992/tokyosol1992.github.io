@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../lib/url';
+
+const work = (await getCollection('work', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.order - a.data.order)
+  .slice(0, 3);
+const notes = (await getCollection('archive', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
+---
+<Base>
+  <h1>플랫폼과 디자인 시스템을 만드는<br />프로덕트 디자이너 솔길입니다.</h1>
+  <p class="muted">B2B SaaS · 양면 마켓플레이스 · O2O · 교육 서비스 8년.</p>
+
+  <h2>Selected Work</h2>
+  <ul class="list">
+    {work.map((w) => (
+      <li><a href={url(`/work/${w.id}`)}>
+        <strong>{w.data.title}</strong>
+        <div class="muted">{w.data.summary}</div>
+      </a></li>
+    ))}
+  </ul>
+  <p><a href={url('/work')}>전체 보기 →</a></p>
+
+  <h2>Archive</h2>
+  <ul class="list">
+    {notes.map((n) => (
+      <li><a href={url(`/archive/${n.id}`)}>
+        <strong>{n.data.title}</strong>
+        <div class="muted">{n.data.date.toISOString().slice(0, 10)}</div>
+      </a></li>
+    ))}
+  </ul>
+</Base>
