@@ -1,0 +1,38 @@
+---
+import { Image } from 'astro:assets';
+import Card from './Card.astro';
+import { getCategory } from '../lib/categories';
+import { getItems, kindLabel, type Item } from '../lib/items';
+import { url } from '../lib/url';
+
+/** 케이스 스터디·노트 상세 페이지 공통 틀 */
+interface Props { item: Item; meta?: string; }
+const { item, meta } = Astro.props;
+const cat = getCategory(item.category);
+const related = (await getItems())
+  .filter((i) => i.category === item.category && !(i.kind === item.kind && i.id === item.id))
+  .slice(0, 3);
+---
+<article class="entry" style={`--h: ${cat.hue}`}>
+  <header class="narrow">
+    <div class="meta">
+      <a class="badge" href={url(`/category/${cat.slug}`)}>{cat.label}</a>
+      <span>{kindLabel[item.kind]}</span>
+    </div>
+    <h1>{item.title}</h1>
+    {item.summary && <p class="lead">{item.summary}</p>}
+    {meta && <p class="muted">{meta}</p>}
+    {item.tags.length > 0 && <div class="tags">{item.tags.map((t) => <span>{t}</span>)}</div>}
+  </header>
+  {item.cover && (
+    <div class="cover"><Image src={item.cover} alt="" widths={[720, 1120, 1600]} sizes="(max-width: 1160px) 100vw, 1120px" loading="eager" /></div>
+  )}
+  <div class="narrow prose"><slot /></div>
+</article>
+
+{related.length > 0 && (
+  <section class="related">
+    <h2>{cat.label}의 다른 글</h2>
+    <div class="grid">{related.map((r) => <Card item={r} />)}</div>
+  </section>
+)}

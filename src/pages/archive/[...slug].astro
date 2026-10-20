@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Entry from '../../components/Entry.astro';
 import { getCollection, render } from 'astro:content';
+import { getItems, formatDate } from '../../lib/items';
 
 export async function getStaticPaths() {
   const items = await getCollection('archive', ({ data }) => !data.draft);
@@ -9,9 +11,10 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const item = (await getItems()).find((i) => i.kind === 'archive' && i.id === entry.id)!;
 ---
 <Base title={d.title} description={d.description}>
-  <h1>{d.title}</h1>
-  <p class="muted">{d.date.toISOString().slice(0, 10)}</p>
-  <article class="prose"><Content /></article>
+  <Entry item={item} meta={formatDate(d.date)}>
+    <Content />
+  </Entry>
 </Base>
