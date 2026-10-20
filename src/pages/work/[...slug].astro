@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Entry from '../../components/Entry.astro';
 import { getCollection, render } from 'astro:content';
+import { getItems } from '../../lib/items';
 
 export async function getStaticPaths() {
   const items = await getCollection('work', ({ data }) => !data.draft);
@@ -9,10 +11,10 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const item = (await getItems()).find((i) => i.kind === 'work' && i.id === entry.id)!;
 ---
 <Base title={d.title} description={d.summary}>
-  <h1>{d.title}</h1>
-  <p class="muted">{[d.company, d.role, d.period].filter(Boolean).join(' · ')}</p>
-  <div class="tags">{d.tags.map((t) => <span>{t}</span>)}</div>
-  <article class="prose"><Content /></article>
+  <Entry item={item} meta={[d.company, d.role, d.period].filter(Boolean).join(' · ')}>
+    <Content />
+  </Entry>
 </Base>

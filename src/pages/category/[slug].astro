@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+import Library from '../../components/Library.astro';
+import { categories, getCategory, type CategorySlug } from '../../lib/categories';
+import { getItems } from '../../lib/items';
+
+export function getStaticPaths() {
+  return categories.map((c) => ({ params: { slug: c.slug } }));
+}
+const slug = Astro.params.slug as CategorySlug;
+const cat = getCategory(slug);
+const all = await getItems();
+const items = all.filter((i) => i.category === slug);
+---
+<Base title={cat.label} description={cat.description}>
+  <section class="hero">
+    <h1>{cat.label}</h1>
+    <p class="muted">{cat.description}</p>
+  </section>
+  <Library items={items} all={all} active={slug} />
+</Base>

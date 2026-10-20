@@ -1,20 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
-import { url } from '../../lib/url';
+import Library from '../../components/Library.astro';
+import { getItems } from '../../lib/items';
 
-const items = (await getCollection('archive', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const items = (await getItems()).filter((i) => i.kind === 'archive');
 ---
-<Base title="Archive">
-  <h1>Archive</h1>
-  <p class="muted">작업 노트, 레퍼런스, 기록을 모아두는 개인 저장소.</p>
-  <ul class="list">
-    {items.map((n) => (
-      <li><a href={url(`/archive/${n.id}`)}>
-        <strong>{n.data.title}</strong>
-        <div class="muted">{n.data.date.toISOString().slice(0, 10)}{n.data.description && ` · ${n.data.description}`}</div>
-      </a></li>
-    ))}
-  </ul>
+<Base title="Notes">
+  <section class="hero">
+    <h1>Notes</h1>
+    <p class="muted">팁, AI 활용법, 툴, 작업 기록을 모아두는 노트.</p>
+  </section>
+  <Library items={items} kindFilter={false} />
 </Base>

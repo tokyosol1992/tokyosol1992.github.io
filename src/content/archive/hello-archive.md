@@ -2,6 +2,7 @@
 title: '저장소 시작'
 date: 2026-10-20
 description: '첫 기록'
+category: 'notes'
 tags: ['note']
 ---
 
