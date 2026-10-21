@@ -16,3 +16,6 @@ npm-debug.log*
 # OS / editor
 .DS_Store
 .idea/
+
+# lockfile은 커밋하지 않음 (워크플로가 npm install 사용, AGENTS.md 참고)
+package-lock.json
