@@ -29,7 +29,8 @@
   - 요소: 차콜 테크웨어 후디(지퍼에 얇은 블루 라인), 헤드셋+마이크, 가슴 스트랩 미러리스 카메라, (사이트에서) 홀로그램 UI 패널
   - 이미지는 **사용자가 직접 생성해서 업로드** (Midjourney 등). 3D 변환용은 정면 A포즈·단색 배경·전신, 가능하면 측면·후면도
   - ✅ 1차 확정 이미지: `src/assets/persona/portrait.webp` (상반신, 1142×1377, 은색 후디·오렌지 바이저·헤드셋·카메라). 3D 모델은 아직 없음 → 사진을 셰이더 평면으로 사용 중
-  - 홀로그램 패널은 모델에 포함하지 않고 Three.js로 따로 만들어 손 위에 띄울 예정
+  - 홀로그램 패널은 사진에 포함하지 않고 Three.js 캔버스로 따로 그려 페르소나 왼쪽 앞에 띄움
+  - 실사 프롬프트 핵심(재생성 시 참고): `ultra photorealistic studio portrait photograph of an androgynous adult person in their late 20s, gender-ambiguous face, neutral calm expression, looking directly into the camera, perfectly frontal symmetrical pose, oversized techwear hoodie with the hood up, long bangs covering the eyebrows, neck gaiter up to the jawline, over-ear headset over the hood, mirrorless camera on a chest strap, real skin texture with visible pores, Hasselblad 90mm, dark #15151c backdrop` / 네거티브: `cartoon, anime, 3d render, cgi, doll, toy, plastic skin, childish, teenager, heavy neon, overtly masculine or feminine features`
 - 사용자가 정한 글 구분 원칙: **글은 항목별로, 형식은 '케이스 스터디' 또는 '노트(아카이브)'로 구분해서 적절히 배치.**
 
 ## 2. 기술 스택 · 배포
@@ -127,21 +128,35 @@ src/
 ## 6. 현재 상태 (2026-10-21 기준)
 
 - ✅ PR #1, #2 머지 · 배포됨 (카드 라이브러리 + 인수인계 노트)
-- ✅ PR #3 머지 (2026-10-21): **다크 HUD + 페르소나 히어로(타이틀 "GEEK") + huddling식 메뉴·리스트**
+- ✅ PR #3 머지 · **배포 성공** (2026-10-21, Actions run #4): **다크 HUD + 페르소나 히어로(타이틀 "GEEK") + huddling식 메뉴·리스트**
+  - 헤더 로고는 `SOLGIL_`, 얼굴 라벨은 `SUBJ: SOLGIL.EXE` 그대로 (사용자는 히어로 타이틀만 GEEK으로 바꿈)
   - 메뉴가 항목 기준으로 바뀌어 `/work`, `/archive` 페이지는 메뉴에서 빠짐 (주소는 살아 있음)
+  - 사용자 실기기 확인 결과는 아직 못 받음
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
+- ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- ⚠️ About 페이지는 경력 3곳(원스글로벌, 마켓보로(식봄), 휴넷 그로우포웍스)과 이메일만 있음
+- ⚠️ About 페이지는 경력 3곳(원스글로벌, 마켓보로(식봄), 휴넷 그로우포웍스)과 이메일만 있음, 스타일도 예전 그대로
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-1. 배포된 사이트 실기기 확인 (WebGL 성능, 모바일 RGB 분리 효과 거슬리는지)
-2. (선택) 페르소나 고도화: 깊이맵(depth map)으로 2.5D 시차, 또는 전신 이미지로 3D .glb 변환 → 회전·시선 추적
-3. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것
-4. 항목 구성 확정 (현재 5개는 임시), About 페이지 다크 HUD 스타일로 다듬기
+1. 사용자 실기기 피드백 반영 (WebGL 부드러움, 모바일 RGB 분리, 패널 위치·문구 크기 등)
+2. 연출 고도화: 글자 스크램블 hover(메뉴·제목), 페이지 전환(Astro View Transitions + HUD 와이프), 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
+3. About 페이지 다크 HUD 스타일로 다듬기 (경력 타임라인), 항목 구성 확정 (현재 5개는 임시)
+4. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것. 대표작 2~3개부터
 5. 샘플 글 삭제, OG 이미지(페르소나 활용)·파비콘·메타 태그 정리
-6. 연출 고도화: 글자 스크램블 hover, 페이지 전환, HUD 커서, 상세 페이지 스크롤 연출
+6. (선택) 페르소나 고도화: 깊이맵으로 2.5D 시차, 또는 전신 이미지 → 3D .glb (`hero-scene.ts`에서 사진 평면 대신 GLTFLoader)
 7. (선택) 사운드 — 사용자가 일단 제외함
+
+### 작업 환경 메모 (클라우드 세션)
+
+- 에이전트 프록시 때문에 **배포된 사이트(tokyosol1992.github.io)는 curl로 열리지 않음(403)** → 배포 확인은 GitHub Actions 실행 결과로 할 것
+- 화면 확인: `npm run build` → `npx astro preview --port 4321`(백그라운드) → Playwright로 스크린샷
+  - 전역 playwright 사용: `NODE_PATH=$(npm root -g) node shot.cjs` (CJS로 작성, ESM import는 NODE_PATH를 무시함)
+  - 크로미움: `executablePath: '/opt/pw-browsers/chromium'`, WebGL은 `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist`
+  - 진입 화면이 있으니 홈은 한 번 클릭 후 2~3초 기다려 찍을 것. 데스크톱 1440×860, 모바일 390×844 권장
+  - Google Fonts·jsDelivr 폰트 로드가 프록시에 막혀 콘솔 에러가 날 수 있음(정상)
+- `pkill -f "astro preview"`처럼 명령 문자열에 패턴이 들어가면 셸 자신이 죽음 → 프리뷰는 그냥 두거나 PID로 종료
+- `git add -A`에 무시된 파일(package-lock.json)을 명시하면 add가 실패해 뒤 명령이 안 돌 수 있음 → 커밋 후 `git log`로 꼭 확인
 
 ## 8. 작업 규칙
 
@@ -155,4 +170,5 @@ src/
 ## 9. 새 대화를 시작할 때 붙여넣을 프롬프트 예시
 
 > tokyosol1992.github.io 저장소의 `AGENTS.md`를 먼저 읽고 이어서 작업해줘.
-> 이번에는 홈페이지 디자인을 다듬고 싶어. 참고 사이트 스크린샷을 첨부할게.
+> 이번에는 (예: 7번의 연출 고도화 / About 페이지 / 케이스 스터디 작성)을 하고 싶어.
+> 작업 후 데스크톱·모바일 스크린샷 보내주고, 내가 보고 머지할지 정할게.
