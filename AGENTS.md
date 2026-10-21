@@ -138,11 +138,13 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`, 사용자 확인 대기
+- 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`에 저장(push)만 함, **PR은 아직 안 만듦** (사용자 지시). 다음 작업도 이 브랜치에서 이어서
   - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
   - 스펙표·focus 문구는 기존 소개 문단에서만 가져옴. 'ONLINE'·'ID // SUBJ_01'은 장식
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
+
+> 단계별 상세 플랜과 진행 상태는 **`PLAN.md`** 참고. 작업 방식(아티팩트 시안 → Figma 수정 → 코드 반영 → 머지)도 거기에 있음.
 
 1. 사용자 실기기 피드백 반영 (WebGL 부드러움, 모바일 RGB 분리, 패널 위치·문구 크기 등)
 2. About 경력 기간·역할·한 줄 설명 채우기 (사용자 입력 필요)
@@ -165,6 +167,8 @@ src/
 - `git add -A`에 무시된 파일(package-lock.json)을 명시하면 add가 실패해 뒤 명령이 안 돌 수 있음 → 커밋 후 `git log`로 꼭 확인
 
 ## 8. 작업 규칙
+
+- **작업 방식 (2026-10-21 사용자 결정)**: 플랜(`PLAN.md`) 중 하나를 골라 **아티팩트(HTML 시안)로 먼저 구성** → 사용자가 필요하면 Figma로 옮겨 수정 → 그 디자인을 코드에 반영 → 사용자 확인 후 머지. 바로 코드부터 짜지 말 것
 
 - 변경 후 반드시 `npm run build` 통과 확인. 가능하면 브라우저로 데스크톱(1280)·모바일(390)·다크 모드 확인
 - 디자인은 `global.css` 토큰을 우선 수정하고, 컴포넌트에 색을 하드코딩하지 말 것
