@@ -14,15 +14,22 @@
 8년 차 프로덕트 디자이너 **솔길**의 개인 사이트.
 포트폴리오(케이스 스터디)뿐 아니라 **본인이 쓰는 팁, AI 활용법·프롬프트, 툴, 작업 기록**처럼 다른 사람이 보고 배울 수 있는 글을 **항목(카테고리)별로 모아 보여주는 라이브러리** 형태.
 
-- 사용자가 준 참고 사이트: https://huddling.ai/prompt-pedia
-  - ⚠️ 지금까지 작업한 클라우드 환경에서는 네트워크 정책으로 이 사이트에 접속하지 못해 **실제 화면을 본 적이 없음**.
-    현재 디자인은 사용자의 설명만으로 잡은 구조임. 참고 사이트 스타일에 맞추려면 사용자에게 스크린샷을 받거나, 접속 가능한 환경에서 직접 확인할 것.
+- 레퍼런스 (2026-10-21 확정)
+  - **https://chronothreads.webflow.io/** — 전체 분위기: 3D 연출·인터랙션, 어두운 톤, HUD 디테일(코너 브래킷, `[01]` 번호, 수치, 터미널 로딩, 시계)
+    - 원본 스택: Three.js, GSAP+ScrollTrigger, Lenis, Howler, Splitting / 색 `#15151c` `#f0ebe5` `#575558` `#0583f2` / 폰트 PP NeueBit·Mori·Mondwest(유료 → 무료 대체)
+  - **https://huddling.ai/** — **메뉴 구성과 메뉴 진입 시 리스트만** 참고 (상단 가로 메뉴 = 항목, 목록 = 제목·설명 → 유형 필터+개수 → "N개의 항목" → 한 줄 리스트)
+  - 클라우드 환경에서 접속하려면 환경 설정 Network access에 `chronothreads.webflow.io`, `cdn.prod.website-files.com`, `huddling.ai` 허용 필요 (현재 허용됨)
+- 실제 포트폴리오 원본(Figma, **아직 사이트에 넣지 말고 참고만**): https://www.figma.com/design/WqDqO6r4ukeLLNhAm4qIRl
+  - 표지 "A Bit Nerdy — Design by Oh Sol Gil", 2016–2025
+  - 프로젝트: 그로우(포웍스), 마켓보로, 던킨 키오스크, 할인꾹, 바르미, 해피오더, 해피포인트, 배스킨 키오스크 (페이지 `포폴`, 1920×1080 슬라이드)
+- 사용자 결정: **가상 캐릭터 페르소나**, **다크 고정**, **사운드 없음(일단)**
 - 사용자가 정한 글 구분 원칙: **글은 항목별로, 형식은 '케이스 스터디' 또는 '노트(아카이브)'로 구분해서 적절히 배치.**
 
 ## 2. 기술 스택 · 배포
 
-- **Astro 7** (정적 사이트), Node 22 (`.nvmrc`), 의존성은 `astro` 하나뿐
-- 폰트: Pretendard (jsDelivr CDN, `src/layouts/Base.astro`)
+- **Astro 7** (정적 사이트), Node 22 (`.nvmrc`)
+- 의존성: `astro`, `three`(홈 3D, 지연 로드 ~550KB), `gsap`(+ScrollTrigger), `lenis`(부드러운 스크롤) / dev: `@types/three`
+- 폰트: Pretendard (jsDelivr), JetBrains Mono(HUD) + Silkscreen(픽셀 로고·타이틀) (Google Fonts) — `src/layouts/Base.astro`
 - 배포: `.github/workflows/deploy.yml` — **`main`에 push되면** GitHub Actions가 빌드해서 GitHub Pages에 배포 (1분 내외)
   - PR에는 자동 검사가 없음. 머지 전에 로컬에서 `npm run build`로 확인할 것
   - `SITE`/`BASE`는 워크플로에서 자동 주입. 내부 링크는 반드시 `url()` 헬퍼(`src/lib/url.ts`)로 만들 것
@@ -31,7 +38,7 @@
 ```
 npm install
 npm run dev      # http://localhost:4321
-npm run build    # dist/ — 현재 15페이지
+npm run build    # dist/ — 현재 15페이지 (three 청크 크기 경고는 정상)
 ```
 
 ## 3. 구조
@@ -47,12 +54,17 @@ src/
     items.ts               ← work+archive를 하나의 Item 목록으로 합치는 헬퍼, 정렬, 날짜 포맷
     url.ts                 ← base 경로 붙이는 링크 헬퍼
   components/
-    Card.astro             ← 카드 (썸네일/플레이스홀더, 배지, 형식, 날짜, 요약, 태그)
-    Library.astro          ← 항목 탭 + 형식 필터 칩 + 검색 + 카드 그리드 (클라이언트 필터 스크립트 포함)
+    Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
+    Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
-  layouts/Base.astro       ← <head>, 헤더 내비(Work / Notes / About), 푸터
+    Intro.astro            ← 홈 진입 화면 (부팅 로그 → click anywhere to start, 세션당 1회, 모션 줄이기면 생략)
+    Hero.astro             ← 홈 3D 히어로 + HUD (재질 버튼 [01]~[03], 키보드 1·2·3)
+  scripts/
+    hero-scene.ts          ← Three.js 씬. createCore()가 임시 오브젝트 → 페르소나 .glb 나오면 여기만 교체
+    hero-materials.ts      ← 재질 프리셋 이름·HUD 수치
+  layouts/Base.astro       ← <head>, 헤더(로고 · 항목 메뉴 + About · 서울 시계), 화면 코너 HUD, 푸터, Lenis. slot="full"은 .wrap 밖(풀폭)
   pages/
-    index.astro            ← 홈: 히어로 + Library(active="all")
+    index.astro            ← 홈: Intro + Hero + 전체 리스트
     category/[slug].astro  ← 항목별 페이지
     work/index.astro, work/[...slug].astro
     archive/index.astro (제목 "Notes"), archive/[...slug].astro
@@ -92,32 +104,36 @@ src/
 
 ## 5. 디자인 시스템 (현재)
 
-방향: **미니멀 · 카드 그리드 · 작업물(이미지) 중심**, 라이트/다크 자동(`prefers-color-scheme`).
+방향: **다크 고정 · HUD · 3D 히어로** (chronothreads) + **리스트형 목록** (huddling).
 
-- 토큰 (`src/styles/global.css` `:root`)
-  - 라이트: `--bg #fafaf9` `--surface #fff` `--fg #1c1917` `--muted #78716c` `--line #e7e5e4` `--accent #2563eb`
-  - 다크: `--bg #0c0a09` `--surface #1c1917` `--fg #f5f5f4` `--muted #a8a29e` `--line #292524` `--accent #60a5fa`
-  - 레이아웃: `--max 1120px`(목록), `--narrow 720px`(본문), `--radius 14px`
-  - 항목 색: 요소에 `style="--h: <hue>"`를 주면 `oklch(var(--tint-l) var(--tint-c) var(--h))`로 배경, `oklch(var(--ink-l) 0.12 var(--h))`로 글자색
-- 타이포: h1 `clamp(26px, 4vw, 36px)`, 자간 -0.025em / 카드 제목 17px / 본문 16px, `word-break: keep-all`
-- 그리드: 3열 → 2열(≤1024px) → 1열(≤640px), gap 24px, 썸네일 16:10
-- 헤더: sticky + 반투명 blur
-- 홈 히어로 문구: "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다."
+- 토큰 (`src/styles/global.css` `:root`, 다크만 있음)
+  - `--bg #15151c` `--surface #1c1c25` `--raise #23232e` `--fg #f0ebe5` `--muted #8d8992` `--dim #575558` `--line #2c2c37` `--accent #2895f7`
+  - 폰트: `--font` Pretendard / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px)
+  - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
+  - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
+- HUD: `.hud-frame`(화면 네 귀퉁이, 모바일 숨김), `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
+- 홈 히어로: 픽셀 "SOLGIL" + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 3D 오브젝트(포인터 따라 기울기, 스크롤 시 멀어짐), 재질 3종 holographic · prism glass · liquid metal, 우상단 재질 수치(장식)
+- 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
+- 모션: GSAP reveal(`.reveal`), Lenis. `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
-## 6. 현재 상태 (2026-10-20 기준)
+## 6. 현재 상태 (2026-10-21 기준)
 
-- ✅ PR #1 머지 · 배포 성공 — 카테고리별 카드 라이브러리 리뉴얼 반영됨
-- ✅ 빌드 확인, 데스크톱·모바일·다크 모드 스크린샷 확인, 필터·검색 동작 확인
-- ⚠️ 모든 글이 **샘플**임: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
+- ✅ PR #1, #2 머지 · 배포됨 (카드 라이브러리 + 인수인계 노트)
+- 🚧 브랜치 `claude/exciting-wozniak-texxqj`: **다크 HUD + 3D 히어로 + huddling식 메뉴·리스트** 리뉴얼 (PR 전, 사용자 확인 대기)
+  - 빌드 통과, 데스크톱(1280/1680)·모바일(390) 스크린샷 확인, 재질 전환·필터 동작 확인
+  - 메뉴가 항목 기준으로 바뀌어 `/work`, `/archive` 페이지는 메뉴에서 빠짐 (주소는 살아 있음)
+- ⚠️ 3D 오브젝트는 **임시 코어**(일렁이는 구 + 와이어 케이지 + 링). 가상 캐릭터 페르소나로 교체 예정
+- ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
 - ⚠️ About 페이지는 경력 3곳(원스글로벌, 마켓보로(식봄), 휴넷 그로우포웍스)과 이메일만 있음
-- ⚠️ 참고 사이트(huddling.ai/prompt-pedia) 스타일은 아직 반영 못 함 (위 1번 참고)
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-1. **홈페이지 디자인 다듬기** — 참고 사이트 스크린샷을 받아 레이아웃·카드·타이포를 맞추기 (사용자가 다음 대화에서 진행 예정)
-2. 실제 콘텐츠 작성 — 사용자에게 프로젝트 정보(회사, 역할, 기간, 문제, 성과)를 받아 케이스 스터디로 정리. **성과·수치를 지어내지 말 것**
-3. 항목 구성 확정 (현재 5개는 임시 제안)
-4. 샘플 글 삭제, OG 이미지·파비콘·메타 태그 정리
+1. 이번 리뉴얼 사용자 확인 → PR → 머지
+2. **가상 캐릭터 페르소나**: 콘셉트 확정 → 이미지 생성 → 리터칭 → (Tripo 등으로) 3D `.glb` 변환 → `hero-scene.ts`의 `createCore()`를 GLTFLoader로 교체. 무거우면 Draco 압축
+3. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것
+4. 항목 구성 확정 (현재 5개는 임시), About 페이지 다크 HUD 스타일로 다듬기
+5. 샘플 글 삭제, OG 이미지·파비콘·메타 태그 정리
+6. (선택) 사운드 — 사용자가 일단 제외함
 
 ## 8. 작업 규칙
 

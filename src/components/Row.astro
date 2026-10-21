@@ -1,0 +1,27 @@
+---
+import { Image } from 'astro:assets';
+import { getCategory } from '../lib/categories';
+import { kindLabel, formatDate, type Item } from '../lib/items';
+import { url } from '../lib/url';
+
+/** 목록 한 줄: [번호] 항목 배지 · 제목/요약 · 날짜 · → (레퍼런스: huddling.ai 목록) */
+interface Props { item: Item; index: number; }
+const { item, index } = Astro.props;
+const cat = getCategory(item.category);
+const search = [item.title, item.summary, cat.label, kindLabel[item.kind], ...item.tags].join(' ').toLowerCase();
+---
+<li data-kind={item.kind} data-search={search}>
+  <a class="row" href={url(item.href)} style={`--h: ${cat.hue}`}>
+    <span class="no mono">[{String(index + 1).padStart(2, '0')}]</span>
+    <span class="badge">{cat.label}</span>
+    <span class="title">
+      <h3>{item.title}</h3>
+      {item.summary && <p>{item.summary}</p>}
+    </span>
+    <span class="date mono">{item.date ? formatDate(item.date) : kindLabel[item.kind]}</span>
+    <span class="arrow mono" aria-hidden="true">→</span>
+    {item.cover && (
+      <span class="thumb" aria-hidden="true"><Image src={item.cover} alt="" widths={[440]} sizes="220px" /></span>
+    )}
+  </a>
+</li>

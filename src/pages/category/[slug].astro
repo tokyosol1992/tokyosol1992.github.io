@@ -9,13 +9,14 @@ export function getStaticPaths() {
 }
 const slug = Astro.params.slug as CategorySlug;
 const cat = getCategory(slug);
-const all = await getItems();
-const items = all.filter((i) => i.category === slug);
+const items = (await getItems()).filter((i) => i.category === slug);
+const no = String(categories.indexOf(cat) + 1).padStart(2, '0');
 ---
 <Base title={cat.label} description={cat.description}>
-  <section class="hero">
+  <section class="page-head">
+    <span class="mono">[{no}] / {cat.slug}</span>
     <h1>{cat.label}</h1>
-    <p class="muted">{cat.description}</p>
+    <p>{cat.description}</p>
   </section>
-  <Library items={items} all={all} active={slug} />
+  <Library items={items} />
 </Base>
