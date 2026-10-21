@@ -1,131 +1,299 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** 재질 프리셋 (순서는 hero-materials.ts와 같음) */
-function createMaterials() {
-  return [
-    new THREE.MeshPhysicalMaterial({
-      color: 0xb8b0d8, metalness: 0.75, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.08,
-      iridescence: 1, iridescenceIOR: 2.2, iridescenceThicknessRange: [250, 1100],
-    }),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xdde8ff, metalness: 0, roughness: 0.04, transmission: 1, thickness: 1.6, ior: 1.6, dispersion: 6,
-      clearcoat: 1, attenuationColor: new THREE.Color(0x8fb0ff), attenuationDistance: 2.5,
-    }),
-    new THREE.MeshPhysicalMaterial({ color: 0xc9c4d6, metalness: 1, roughness: 0.22, clearcoat: 0.6 }),
-  ];
+const BLUE = 0x2895f7;
+const BLANK = 3; // 모드 셰이더에서 "아무것도 안 그림"
+
+/** 사진 속 얼굴 영역 (uv, 아래가 0). 사진을 바꾸면 여기만 맞추면 됨 */
+const FACE = { x: 0.5, y: 0.74, w: 0.36, h: 0.32 };
+
+const vertex = /* glsl */ `
+  varying vec2 vUv;
+  void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+`;
+
+/** 페르소나 셰이더: 0 visual / 1 thermal / 2 edge scan, 위→아래 스윕으로 전환 */
+const fragment = /* glsl */ `
+  uniform sampler2D uTex;
+  uniform vec2 uTexel;
+  uniform float uTime;
+  uniform float uMode;
+  uniform float uPrev;
+  uniform float uSweep;
+  uniform float uFade;
+  uniform vec3 uBg;
+  varying vec2 vUv;
+
+  float lum(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+
+  vec3 thermal(float t) {
+    vec3 c = mix(vec3(0.02, 0.02, 0.08), vec3(0.25, 0.05, 0.55), smoothstep(0.0, 0.25, t));
+    c = mix(c, vec3(0.85, 0.1, 0.45), smoothstep(0.2, 0.45, t));
+    c = mix(c, vec3(1.0, 0.55, 0.05), smoothstep(0.4, 0.7, t));
+    return mix(c, vec3(1.0, 0.97, 0.8), smoothstep(0.7, 1.0, t));
+  }
+
+  float sobel(vec2 uv) {
+    float tl = lum(texture2D(uTex, uv + uTexel * vec2(-1., 1.)).rgb);
+    float t  = lum(texture2D(uTex, uv + uTexel * vec2(0., 1.)).rgb);
+    float tr = lum(texture2D(uTex, uv + uTexel * vec2(1., 1.)).rgb);
+    float l  = lum(texture2D(uTex, uv + uTexel * vec2(-1., 0.)).rgb);
+    float r  = lum(texture2D(uTex, uv + uTexel * vec2(1., 0.)).rgb);
+    float bl = lum(texture2D(uTex, uv + uTexel * vec2(-1., -1.)).rgb);
+    float b  = lum(texture2D(uTex, uv + uTexel * vec2(0., -1.)).rgb);
+    float br = lum(texture2D(uTex, uv + uTexel * vec2(1., -1.)).rgb);
+    float gx = -tl - 2.*l - bl + tr + 2.*r + br;
+    float gy = -tl - 2.*t - tr + bl + 2.*b + br;
+    return length(vec2(gx, gy));
+  }
+
+  vec4 shade(float m, vec2 uv) {
+    vec3 base = texture2D(uTex, uv).rgb;
+    if (m < 0.5) {
+      // 아주 약한 RGB 분리 + 주사선
+      float s = 0.0012;
+      vec3 c = vec3(texture2D(uTex, uv + vec2(s, 0.)).r, base.g, texture2D(uTex, uv - vec2(s, 0.)).b);
+      c *= 0.96 + 0.04 * sin(uv.y * 900.0);
+      return vec4(c, 1.0);
+    }
+    if (m < 1.5) {
+      float t = pow(lum(base), 0.8);
+      return vec4(thermal(t) * (0.95 + 0.05 * sin(uv.y * 600.0 + uTime * 4.0)), 1.0);
+    }
+    if (m < 2.5) {
+      float e = smoothstep(0.08, 0.45, sobel(uv));
+      vec2 g = fract(uv * vec2(70.0, 84.0));
+      float dots = step(0.92, g.x) * step(0.92, g.y) * 0.25;
+      vec3 c = vec3(0.157, 0.584, 0.969) * (e + dots) + base * 0.08;
+      return vec4(c, 1.0);
+    }
+    return vec4(0.0);
+  }
+
+  void main() {
+    vec2 uv = vUv;
+    float line = 1.0 - uSweep;                // 스윕 경계 (위에서 아래로)
+    float near = 1.0 - smoothstep(0.0, 0.04, abs(uv.y - line));
+    // 경계 근처 줄 단위 글리치
+    float row = floor(uv.y * 120.0);
+    uv.x += (hash(vec2(row, floor(uTime * 20.0))) - 0.5) * 0.04 * near * step(0.001, uSweep) * step(uSweep, 0.999);
+
+    vec4 col = uv.y > line ? shade(uMode, uv) : shade(uPrev, uv);
+    col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * step(0.001, uSweep) * step(uSweep, 0.999);
+    col.a = max(col.a, near * step(0.001, uSweep) * step(uSweep, 0.999));
+
+    // 천천히 내려가는 밝은 스캔 밴드 + 그레인
+    float band = smoothstep(0.03, 0.0, abs(fract(vUv.y - uTime * 0.06) - 0.5) - 0.47);
+    // 어두운 배경에는 얹지 않음 (사각형 경계가 비치지 않게)
+    float body = smoothstep(0.04, 0.16, lum(texture2D(uTex, vUv).rgb));
+    col.rgb += band * 0.035 * body;
+    col.rgb += (hash(vUv * 800.0 + uTime) - 0.5) * 0.03 * body;
+
+    // 사진 배경(어두운 부분)을 사이트 배경색으로 올려 경계를 없앰
+    col.rgb = max(col.rgb, uBg);
+    // 가장자리를 타원형으로 녹임
+    vec2 q = (vUv - vec2(0.5, 0.6)) / vec2(0.55, 0.62);
+    float edge = 1.0 - smoothstep(0.62, 1.0, length(q));
+    edge *= smoothstep(0.0, 0.18, vUv.y) * smoothstep(1.0, 0.92, vUv.y);
+    gl_FragColor = vec4(col.rgb, col.a * edge * uFade);
+    #include <colorspace_fragment>
+  }
+`;
+
+/** 얼굴 레티클: 코너 브래킷 + 십자 */
+function createReticle(w: number, h: number) {
+  const s = Math.min(w, h) * 0.18;
+  const x = w / 2, y = h / 2;
+  const pts = [
+    [-x, y - s, -x, y], [-x, y, -x + s, y],
+    [x - s, y, x, y], [x, y, x, y - s],
+    [-x, -y + s, -x, -y], [-x, -y, -x + s, -y],
+    [x - s, -y, x, -y], [x, -y, x, -y + s],
+    [-0.04, 0, 0.04, 0], [0, -0.04, 0, 0.04],
+  ].flatMap(([a, b, c, d]) => [a, b, 0, c, d, 0]);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  return new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: BLUE, transparent: true, opacity: 0.9 }));
 }
 
-/** 표면이 천천히 일렁이도록 버텍스를 사인파로 흔듦 */
-function addWobble(mat: THREE.MeshPhysicalMaterial, uniforms: { uTime: { value: number }; uAmp: { value: number } }) {
-  mat.onBeforeCompile = (shader) => {
-    Object.assign(shader.uniforms, uniforms);
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nuniform float uTime;\nuniform float uAmp;')
-      .replace(
-        '#include <begin_vertex>',
-        `vec3 transformed = position + normal * uAmp *
-          sin(position.x * 2.6 + uTime) * sin(position.y * 2.2 + uTime * 1.3) * sin(position.z * 2.0 + uTime * 0.8);`,
-      );
+/** 캔버스로 그리는 HUD 텍스트 판 */
+function createLabel(width: number, height: number) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d')!;
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return { canvas, ctx, tex };
+}
+
+/** 홀로그램 UI 패널: 와이어프레임 레이아웃 + 움직이는 커서 */
+function createPanel() {
+  const W = 640, H = 440;
+  const { ctx, tex } = createLabel(W, H);
+  const draw = (t: number) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(40,149,247,0.9)';
+    ctx.fillStyle = 'rgba(40,149,247,0.08)';
+    ctx.lineWidth = 2;
+    ctx.fillRect(4, 4, W - 8, H - 8);
+    ctx.strokeRect(4, 4, W - 8, H - 8);
+    // 헤더
+    ctx.fillStyle = 'rgba(40,149,247,0.9)';
+    ctx.font = '500 20px "JetBrains Mono", monospace';
+    ctx.fillText('COMPONENT / Card.default', 24, 40);
+    ctx.fillText(`v${(2 + (t % 10) / 10).toFixed(1)}`, W - 80, 40);
+    ctx.beginPath(); ctx.moveTo(4, 58); ctx.lineTo(W - 4, 58); ctx.stroke();
+    // 레이아웃 블록
+    ctx.strokeStyle = 'rgba(40,149,247,0.75)';
+    ctx.strokeRect(24, 80, 260, 160);
+    ctx.beginPath(); ctx.moveTo(24, 80); ctx.lineTo(284, 240); ctx.moveTo(284, 80); ctx.lineTo(24, 240); ctx.stroke();
+    ctx.fillStyle = 'rgba(40,149,247,0.55)';
+    ctx.fillRect(310, 84, 300, 18);
+    ctx.fillRect(310, 116, 220, 12);
+    ctx.fillRect(310, 138, 260, 12);
+    ctx.fillRect(310, 160, 180, 12);
+    ctx.strokeRect(310, 196, 130, 44);
+    ctx.fillText('Button', 334, 226);
+    // 그리드 행
+    for (let i = 0; i < 3; i++) {
+      const y = 270 + i * 50;
+      ctx.strokeRect(24, y, 586, 38);
+      ctx.fillRect(40, y + 13, 120 + ((i * 70) % 160), 12);
+    }
+    // 커서 (8자로 움직임)
+    const cx = 330 + Math.sin(t * 0.9) * 200, cy = 250 + Math.sin(t * 1.8) * 90;
+    ctx.fillStyle = '#f0ebe5';
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + 26); ctx.lineTo(cx + 7, cy + 20); ctx.lineTo(cx + 18, cy + 20); ctx.closePath(); ctx.fill();
+    tex.needsUpdate = true;
   };
-}
-
-/** 페르소나가 준비되기 전 임시 오브젝트. 나중에 GLTFLoader로 모델을 불러와 이 그룹에 넣으면 됨 */
-function createCore(materials: THREE.MeshPhysicalMaterial[]) {
-  const group = new THREE.Group();
-  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.25, 48), materials[0]);
-  const cage = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.9, 1)),
-    new THREE.LineBasicMaterial({ color: 0x575558, transparent: true, opacity: 0.55 }),
-  );
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(2.4, 0.004, 8, 200),
-    new THREE.MeshBasicMaterial({ color: 0x2895f7, transparent: true, opacity: 0.7 }),
-  );
-  ring.rotation.x = Math.PI / 2.3;
-  group.add(core, cage, ring);
-  return { group, core, cage, ring };
+  draw(0);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.1), mat);
+  return { mesh, draw };
 }
 
 function createDust() {
-  const n = 600;
+  const n = 500;
   const pos = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const r = 4 + Math.random() * 8;
-    const t = Math.random() * Math.PI * 2;
-    const p = Math.acos(2 * Math.random() - 1);
-    pos.set([r * Math.sin(p) * Math.cos(t), r * Math.sin(p) * Math.sin(t), r * Math.cos(p)], i * 3);
-  }
+  for (let i = 0; i < n; i++) pos.set([(Math.random() - 0.5) * 16, (Math.random() - 0.5) * 10, -2 - Math.random() * 4], i * 3);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xf0ebe5, size: 0.018, transparent: true, opacity: 0.6 }));
+  return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xf0ebe5, size: 0.016, transparent: true, opacity: 0.5 }));
 }
 
-export function mountHero(root: HTMLElement) {
+export async function mountHero(root: HTMLElement, src: string) {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
   } catch {
-    return null; // WebGL 미지원 → CSS 대체 이미지 유지
+    return null; // WebGL 미지원 → <Image> 대체 유지
   }
+  const texture = await new THREE.TextureLoader().loadAsync(src).catch(() => null);
+  if (!texture) { renderer.dispose(); return null; }
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  const img = texture.image as HTMLImageElement;
+
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
   root.prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  // 프리즘 재질은 뒤가 비쳐야 해서 배경 패널을 둠
-  const back = new THREE.Mesh(
-    new THREE.PlaneGeometry(30, 30),
-    new THREE.ShaderMaterial({
-      uniforms: {},
-      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
-      fragmentShader: `varying vec2 vUv; void main(){
-        float d = distance(vUv, vec2(0.5));
-        vec3 c = mix(vec3(0.17,0.16,0.27), vec3(0.082,0.082,0.11), smoothstep(0.0, 0.32, d));
-        gl_FragColor = vec4(c, 1.0); }`,
-    }),
-  );
-  back.position.z = -6;
-  scene.add(back);
-
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   camera.position.set(0, 0, 8.5);
 
-  const key = new THREE.DirectionalLight(0xffffff, 2.2);
-  key.position.set(3, 4, 5);
-  const rim = new THREE.DirectionalLight(0x6f8bff, 3);
-  rim.position.set(-5, -2, -3);
-  scene.add(key, rim);
-
-  const uniforms = { uTime: { value: 0 }, uAmp: { value: reduced ? 0 : 0.09 } };
-  const mats = createMaterials();
-  mats.forEach((m) => addWobble(m, uniforms));
-  const { group, core, cage, ring } = createCore(mats);
+  // 배경 그라데이션 패널
+  const back = new THREE.Mesh(
+    new THREE.PlaneGeometry(40, 40),
+    new THREE.ShaderMaterial({
+      vertexShader: vertex,
+      fragmentShader: `varying vec2 vUv; void main(){
+        float d = distance(vUv, vec2(0.42, 0.47));
+        vec3 c = mix(vec3(0.12,0.12,0.19), vec3(0.082,0.082,0.11), smoothstep(0.0, 0.14, d));
+        gl_FragColor = vec4(c, 1.0); }`,
+    }),
+  );
+  back.position.z = -8;
   const dust = createDust();
-  scene.add(group, dust);
+  scene.add(back, dust);
+
+  // 페르소나
+  const H = 5.1, W = H * (img.width / img.height);
+  const uniforms = {
+    uTex: { value: texture },
+    uTexel: { value: new THREE.Vector2(1 / img.width, 1 / img.height) },
+    uTime: { value: 0 },
+    uMode: { value: 0 },
+    uPrev: { value: BLANK },
+    uSweep: { value: reduced ? 1 : 0 },
+    uFade: { value: 1 },
+    uBg: { value: new THREE.Color(0x15151c) },
+  };
+  const persona = new THREE.Group();
+  const photo = new THREE.Mesh(
+    new THREE.PlaneGeometry(W, H),
+    new THREE.ShaderMaterial({ uniforms, vertexShader: vertex, fragmentShader: fragment, transparent: true, depthWrite: false }),
+  );
+  persona.add(photo);
+
+  // 얼굴 레티클 + 라벨
+  const face = new THREE.Group();
+  face.position.set((FACE.x - 0.5) * W, (FACE.y - 0.5) * H, 0.05);
+  const reticle = createReticle(FACE.w * W, FACE.h * H);
+  const label = createLabel(512, 96);
+  label.ctx.font = '500 26px "JetBrains Mono", monospace';
+  label.ctx.fillStyle = '#2895f7';
+  label.ctx.fillText('SUBJ: SOLGIL.EXE', 0, 34);
+  label.ctx.fillStyle = 'rgba(240,235,229,0.75)';
+  label.ctx.fillText('ID MATCH 98.2% · OK', 0, 76);
+  label.tex.needsUpdate = true;
+  const labelMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.2, 0.225),
+    new THREE.MeshBasicMaterial({ map: label.tex, transparent: true, depthWrite: false }),
+  );
+  labelMesh.position.set((FACE.w * W) / 2 + 0.7, (FACE.h * H) / 2 - 0.1, 0);
+  face.add(reticle, labelMesh);
+  persona.add(face);
+  scene.add(persona);
+
+  // 홀로그램 패널 (페르소나 왼쪽 앞에 떠 있음)
+  const panel = createPanel();
+  scene.add(panel.mesh);
 
   // 레이아웃: 데스크톱은 오른쪽, 모바일은 가운데 위
+  let mobile = false;
+  const panelBase = new THREE.Vector3();
   const layout = () => {
     const w = root.clientWidth, h = root.clientHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    const mobile = w < 760;
-    group.position.set(mobile ? 0 : 1.6, mobile ? 0.55 : 0.15, 0);
-    group.scale.setScalar(mobile ? 0.8 : 1);
+    const visH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const visW = visH * camera.aspect;
+    mobile = w < 760;
+    if (mobile) {
+      const s = Math.min(1, (visH * 0.62) / H);
+      persona.scale.setScalar(s);
+      persona.position.set(0, visH / 2 - (H * s) / 2 - 0.05, 0);
+      panelBase.set(visW * 0.22, visH * 0.02, 1.2);
+      panel.mesh.scale.setScalar(0.55);
+      labelMesh.visible = false;
+    } else {
+      persona.scale.setScalar(1);
+      persona.position.set(Math.max(0.9, visW / 2 - W / 2 - visW * 0.04), -0.1, 0);
+      panelBase.set(persona.position.x - W * 0.6, 0.35, 1.4);
+      panel.mesh.scale.setScalar(1);
+      labelMesh.visible = true;
+    }
   };
   layout();
   new ResizeObserver(layout).observe(root);
 
-  // 포인터 따라 기울이기
+  // 포인터 시차
   const pointer = { x: 0, y: 0 };
   const tilt = { x: 0, y: 0 };
   root.addEventListener('pointermove', (e) => {
@@ -135,7 +303,7 @@ export function mountHero(root: HTMLElement) {
   });
   root.addEventListener('pointerleave', () => { pointer.x = 0; pointer.y = 0; });
 
-  // 스크롤하면 오브젝트가 물러나고 문구가 흐려짐
+  // 스크롤: 카메라가 물러나고 페르소나가 흐려짐
   const scroll = { p: 0 };
   ScrollTrigger.create({
     trigger: root, start: 'top top', end: 'bottom top', scrub: true,
@@ -144,11 +312,15 @@ export function mountHero(root: HTMLElement) {
   const copy = root.querySelector('[data-hero-copy]');
   if (copy) gsap.to(copy, { y: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: root, start: 'top top', end: '60% top', scrub: true } });
 
-  // 진입 연출: 인트로가 끝나면 (또는 바로) 등장
-  group.scale.multiplyScalar(0.001);
+  // 등장: 빈 화면 → visual 로 스캔
+  const hud = [reticle.material, labelMesh.material, panel.mesh.material] as THREE.Material[];
+  hud.forEach((m) => { m.opacity = reduced ? 1 : 0; });
   const appear = () => {
-    const s = root.clientWidth < 760 ? 0.8 : 1;
-    gsap.to(group.scale, { x: s, y: s, z: s, duration: reduced ? 0 : 1.6, ease: 'expo.out' });
+    if (reduced) return;
+    gsap.timeline()
+      .to(uniforms.uSweep, { value: 1, duration: 1.6, ease: 'power2.inOut' })
+      .to(hud, { opacity: 1, duration: 0.5, stagger: 0.15 }, '-=0.4')
+      .from(face.scale, { x: 1.4, y: 1.4, duration: 0.6, ease: 'expo.out' }, '<');
   };
   if (document.documentElement.classList.contains('intro-on')) window.addEventListener('intro:done', appear, { once: true });
   else appear();
@@ -158,30 +330,35 @@ export function mountHero(root: HTMLElement) {
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(root);
 
   const clock = new THREE.Clock();
+  let lastDraw = 0;
   renderer.setAnimationLoop(() => {
     if (!visible || document.hidden) return;
     const t = reduced ? 0 : clock.getElapsedTime();
-    uniforms.uTime.value = t * 0.9;
-    tilt.x += (pointer.y * 0.35 - tilt.x) * 0.05;
-    tilt.y += (pointer.x * 0.5 - tilt.y) * 0.05;
-    core.rotation.set(tilt.x + t * 0.08, tilt.y + t * 0.12, 0);
-    cage.rotation.set(-t * 0.05 + tilt.x * 0.5, t * 0.07 + tilt.y * 0.5, 0);
-    ring.rotation.z = t * 0.15;
-    dust.rotation.y = t * 0.01 + tilt.y * 0.1;
-    group.rotation.z = -scroll.p * 0.6;
-    camera.position.z = 8.5 + scroll.p * 4;
+    uniforms.uTime.value = t;
+    tilt.x += (pointer.y * 0.08 - tilt.x) * 0.06;
+    tilt.y += (pointer.x * 0.12 - tilt.y) * 0.06;
+    persona.rotation.set(tilt.x, tilt.y, 0);
+    face.position.z = 0.05 + Math.sin(t * 2) * 0.02;
+    reticle.scale.setScalar(1 + Math.sin(t * 2.4) * 0.015);
+    panel.mesh.position.set(
+      panelBase.x - tilt.y * 3, panelBase.y + Math.sin(t * 1.1) * 0.06 + tilt.x * 2, panelBase.z,
+    );
+    panel.mesh.rotation.set(-0.08 + tilt.x * 1.5, (mobile ? -0.2 : 0.38) + tilt.y * 2, 0);
+    if (t - lastDraw > 1 / 20) { panel.draw(t); lastDraw = t; }
+    dust.position.x = -tilt.y * 1.5;
+    uniforms.uFade.value = 1 - scroll.p * 0.85;
+    camera.position.z = 8.5 + scroll.p * 3;
     renderer.render(scene, camera);
   });
 
   return {
-    setMaterial(i: number) {
-      const next = mats[i];
-      if (!next || core.material === next) return;
-      // 순간적으로 쪼그라들었다가 바뀜
-      gsap.timeline()
-        .to(uniforms.uAmp, { value: reduced ? 0 : 0.35, duration: 0.25, ease: 'power2.in' })
-        .call(() => { core.material = next; })
-        .to(uniforms.uAmp, { value: reduced ? 0 : 0.09, duration: 0.9, ease: 'elastic.out(1, 0.4)' });
+    setMode(i: number) {
+      if (uniforms.uMode.value === i) return;
+      uniforms.uPrev.value = uniforms.uMode.value;
+      uniforms.uMode.value = i;
+      gsap.killTweensOf(uniforms.uSweep);
+      uniforms.uSweep.value = reduced ? 1 : 0;
+      if (!reduced) gsap.to(uniforms.uSweep, { value: 1, duration: 0.9, ease: 'power2.inOut' });
     },
   };
 }
