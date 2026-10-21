@@ -70,6 +70,8 @@ src/
   scripts/
     hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(visual/thermal/edge, 스윕 전환), 얼굴 레티클(FACE 좌표), 홀로그램 UI 패널(캔버스), 먼지
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
+    scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
+    reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진
   layouts/Base.astro       ← <head>, 헤더(로고 · 항목 메뉴 + About · 서울 시계), 화면 코너 HUD, 푸터, Lenis. slot="full"은 .wrap 밖(풀폭)
   pages/
@@ -77,7 +79,8 @@ src/
     category/[slug].astro  ← 항목별 페이지
     work/index.astro, work/[...slug].astro
     archive/index.astro (제목 "Notes"), archive/[...slug].astro
-    about.astro, 404.astro
+    about.astro            ← HUD 프로필: 페르소나 카드(레티클·스캔라인) + 스펙표 + [01] 경력 · [02] focus · [03] contact
+    404.astro
   styles/global.css        ← 전역 스타일 전부 (디자인 토큰 포함)
 ```
 
@@ -123,7 +126,7 @@ src/
 - HUD: `.hud-frame`(화면 네 귀퉁이, 모바일 숨김), `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
 - 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 왼쪽 홀로그램 컴포넌트 패널(커서 움직임), 좌상단 모드 수치(장식). 포인터 시차, 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
-- 모션: GSAP reveal(`.reveal`), Lenis. `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
+- 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
 ## 6. 현재 상태 (2026-10-21 기준)
 
@@ -135,17 +138,20 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- ⚠️ About 페이지는 경력 3곳(원스글로벌, 마켓보로(식봄), 휴넷 그로우포웍스)과 이메일만 있음, 스타일도 예전 그대로
+- 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`, 사용자 확인 대기
+  - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
+  - 스펙표·focus 문구는 기존 소개 문단에서만 가져옴. 'ONLINE'·'ID // SUBJ_01'은 장식
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
 1. 사용자 실기기 피드백 반영 (WebGL 부드러움, 모바일 RGB 분리, 패널 위치·문구 크기 등)
-2. 연출 고도화: 글자 스크램블 hover(메뉴·제목), 페이지 전환(Astro View Transitions + HUD 와이프), 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
-3. About 페이지 다크 HUD 스타일로 다듬기 (경력 타임라인), 항목 구성 확정 (현재 5개는 임시)
-4. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것. 대표작 2~3개부터
-5. 샘플 글 삭제, OG 이미지(페르소나 활용)·파비콘·메타 태그 정리
-6. (선택) 페르소나 고도화: 깊이맵으로 2.5D 시차, 또는 전신 이미지 → 3D .glb (`hero-scene.ts`에서 사진 평면 대신 GLTFLoader)
-7. (선택) 사운드 — 사용자가 일단 제외함
+2. About 경력 기간·역할·한 줄 설명 채우기 (사용자 입력 필요)
+3. 연출 고도화: 페이지 전환(Astro View Transitions + HUD 와이프), 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
+4. 항목 구성 확정 (현재 5개는 임시)
+5. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것. 대표작 2~3개부터
+6. 샘플 글 삭제, OG 이미지(페르소나 활용)·파비콘·메타 태그 정리
+7. (선택) 페르소나 고도화: 깊이맵으로 2.5D 시차, 또는 전신 이미지 → 3D .glb (`hero-scene.ts`에서 사진 평면 대신 GLTFLoader)
+8. (선택) 사운드 — 사용자가 일단 제외함
 
 ### 작업 환경 메모 (클라우드 세션)
 

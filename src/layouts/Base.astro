@@ -32,10 +32,10 @@ const menu = [
     <div class="hud-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <header class="site">
       <div class="wrap">
-        <a class="logo" href={url('/')}>SOLGIL<b>_</b></a>
+        <a class="logo" href={url('/')} data-scramble>SOLGIL<b>_</b></a>
         <nav class="menu" aria-label="메뉴">
           {menu.map((m) => (
-            <a href={url(m.href)} aria-current={path.startsWith(m.href) ? 'page' : undefined}>{m.label}</a>
+            <a href={url(m.href)} aria-current={path.startsWith(m.href) ? 'page' : undefined} data-scramble="fixed">{m.label}</a>
           ))}
         </nav>
         <span class="clock mono" data-clock>SEOUL --:--:--</span>
@@ -45,7 +45,7 @@ const menu = [
     <footer class="site">
       <div class="wrap mono">
         <span>© {new Date().getFullYear()} {siteName} · Product Designer</span>
-        <a href="mailto:tokyosol1992@gmail.com">tokyosol1992@gmail.com</a>
+        <a href="mailto:tokyosol1992@gmail.com" data-scramble>tokyosol1992@gmail.com</a>
       </div>
     </footer>
   </body>
@@ -53,6 +53,7 @@ const menu = [
 
 <script>
   import Lenis from 'lenis';
+  import { initScramble } from '../scripts/scramble';
 
   // 서울 시각 HUD
   const clock = document.querySelector<HTMLElement>('[data-clock]');
@@ -60,6 +61,9 @@ const menu = [
   const tick = () => { if (clock) clock.textContent = `SEOUL ${fmt.format(new Date())}`; };
   tick();
   setInterval(tick, 1000);
+
+  // 메뉴·제목 글자 스크램블 hover (data-scramble)
+  initScramble();
 
   // 부드러운 스크롤 (모션 줄이기 설정이면 끔)
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {

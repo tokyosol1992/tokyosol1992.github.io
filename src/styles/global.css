@@ -137,7 +137,8 @@ h2 { font-size: 20px; margin: 48px 0 16px; letter-spacing: -0.01em; }
 }
 .modes button:hover { color: var(--fg); }
 .modes button[aria-pressed='true'] { color: var(--fg); border-color: var(--line); background: color-mix(in srgb, var(--surface) 70%, transparent); }
-.modes button span { color: var(--accent); margin-right: 8px; }
+.modes button span:first-child { color: var(--accent); margin-right: 8px; }
+.modes button .label { display: inline-block; white-space: nowrap; }
 .scroll-cue { color: var(--muted); }
 .persona-tag { color: var(--dim); }
 @media (max-width: 640px) {
@@ -234,3 +235,85 @@ h2 { font-size: 20px; margin: 48px 0 16px; letter-spacing: -0.01em; }
 .prose code:not(pre code) { font-family: var(--mono); font-size: 0.88em; padding: 2px 6px; background: var(--raise); }
 .prose blockquote { margin: 24px 0; padding: 4px 20px; border-left: 2px solid var(--accent); color: var(--muted); }
 .prose hr { border: 0; border-top: 1px solid var(--line); margin: 48px 0; }
+
+/* ── About (HUD 프로필) ── */
+.about { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+.subject-col { position: sticky; top: calc(var(--header) + 32px); }
+.subject { margin: 0; border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+.subject img {
+  width: 100%;
+  -webkit-mask-image: linear-gradient(#000 70%, transparent);
+  mask-image: linear-gradient(#000 70%, transparent);
+}
+/* 얼굴 레티클: 위치는 hero-scene.ts의 FACE와 맞춤 */
+.subject .reticle { position: absolute; left: 32%; top: 10%; width: 36%; height: 32%; pointer-events: none; }
+.subject .reticle i { position: absolute; width: 12px; height: 12px; border: 0 solid var(--accent); }
+.subject .reticle i:nth-child(1) { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
+.subject .reticle i:nth-child(2) { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
+.subject .reticle i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
+.subject .reticle i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+.subject .reticle span { position: absolute; left: calc(100% + 8px); top: 0; font-size: 10px; color: var(--accent); white-space: nowrap; }
+.subject .scanline {
+  position: absolute; left: 0; right: 0; top: 0; height: 1px; pointer-events: none;
+  background: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 12px var(--accent);
+  animation: scan 4.5s linear infinite;
+}
+@keyframes scan { from { top: 0; opacity: 0.9; } 70% { opacity: 0.9; } to { top: 100%; opacity: 0; } }
+.subject figcaption {
+  display: flex; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--line); color: var(--muted);
+}
+.subject .dot { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: var(--accent); vertical-align: 1px; animation: blink 1.6s steps(2) infinite; }
+
+.about-body .page-head { margin-bottom: 32px; }
+.about-body .page-head p { color: var(--fg); max-width: 34em; line-height: 1.8; }
+.spec { margin: 0 0 72px; border-top: 1px solid var(--line); }
+.spec > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.spec dt { color: var(--dim); }
+.spec dd { margin: 0; }
+.spec .domains { display: flex; flex-wrap: wrap; gap: 6px; }
+.spec .domains span { padding: 0 8px; border: 1px solid var(--line); color: var(--muted); text-transform: none; }
+
+.about-section { margin-bottom: 72px; }
+.section-label { margin: 0 0 16px; font-weight: 400; color: var(--muted); }
+.section-label span { color: var(--accent); margin-right: 6px; }
+
+.timeline { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.timeline li {
+  position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: baseline; gap: 16px;
+  padding: 22px 8px; border-bottom: 1px solid var(--line); transition: background 0.2s;
+}
+.timeline li:hover { background: var(--surface); }
+.timeline .no { color: var(--dim); }
+.timeline h3 { margin: 0; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.35; font-weight: 600; letter-spacing: -0.02em; }
+.timeline h3 small { margin-left: 10px; font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.timeline .role { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+.timeline .desc { margin: 8px 0 0; font-size: 15px; }
+.timeline .period { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.focus { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.focus li { display: grid; gap: 28px; padding: 18px; border: 1px solid var(--line); background: var(--surface); font-size: 17px; font-weight: 600; }
+.focus li .mono { color: var(--dim); font-weight: 400; }
+
+.contact {
+  display: grid; gap: 8px; padding: 24px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-decoration: none;
+}
+.contact .mono { color: var(--accent); }
+.contact b { font-family: var(--mono); font-weight: 400; font-size: clamp(20px, 3.4vw, 36px); letter-spacing: -0.02em; overflow-wrap: anywhere; transition: color 0.2s; }
+.contact:hover b { color: var(--accent); }
+.more { display: inline-block; margin-top: 20px; color: var(--muted); text-decoration: none; }
+.more:hover { color: var(--fg); }
+
+@media (max-width: 860px) {
+  .about { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .subject-col { position: static; max-width: 360px; width: 100%; justify-self: center; }
+  .focus { grid-template-columns: minmax(0, 1fr); }
+  .focus li { grid-template-columns: 48px 1fr; gap: 0; align-items: baseline; }
+}
+@media (max-width: 640px) {
+  .timeline li { grid-template-columns: minmax(0, 1fr) auto; padding: 18px 4px; }
+  .timeline .no { display: none; }
+  .spec > div { grid-template-columns: 80px minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .subject .scanline, .subject .dot { animation: none; }
+}
