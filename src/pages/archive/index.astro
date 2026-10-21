@@ -6,9 +6,10 @@ import { getItems } from '../../lib/items';
 const items = (await getItems()).filter((i) => i.kind === 'archive');
 ---
 <Base title="Notes">
-  <section class="hero">
+  <section class="page-head">
+    <span class="mono">[--] / notes</span>
     <h1>Notes</h1>
-    <p class="muted">팁, AI 활용법, 툴, 작업 기록을 모아두는 노트.</p>
+    <p>팁, AI 활용법, 툴, 작업 기록을 모아두는 노트.</p>
   </section>
   <Library items={items} kindFilter={false} />
 </Base>

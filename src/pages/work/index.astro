@@ -6,9 +6,10 @@ import { getItems } from '../../lib/items';
 const items = (await getItems()).filter((i) => i.kind === 'work');
 ---
 <Base title="Work">
-  <section class="hero">
+  <section class="page-head">
+    <span class="mono">[--] / work</span>
     <h1>Work</h1>
-    <p class="muted">문제 · 과정 · 결과로 정리한 케이스 스터디.</p>
+    <p>문제 · 과정 · 결과로 정리한 케이스 스터디.</p>
   </section>
   <Library items={items} kindFilter={false} />
 </Base>

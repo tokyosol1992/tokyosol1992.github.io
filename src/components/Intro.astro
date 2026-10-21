@@ -1,0 +1,73 @@
+---
+/** 진입 화면: 부팅 로그 → "Click anywhere to start". 세션당 한 번만 보여줌 (레퍼런스: chronothreads) */
+---
+<script is:inline>
+  // 첫 페인트 전에 결정해야 홈이 잠깐 비치지 않음
+  try {
+    if (!sessionStorage.getItem('intro-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('intro-on');
+    }
+  } catch (e) {}
+</script>
+<style is:global>
+  .intro { display: none; }
+  html.intro-on .intro { display: grid; }
+  html.intro-on { overflow: hidden; }
+</style>
+<div class="intro" data-intro role="button" tabindex="0" aria-label="사이트 시작하기">
+  <div class="inner">
+    <pre class="boot" data-boot></pre>
+    <div class="bar"><i data-bar></i></div>
+    <div class="start"><span>solgil.portfolio</span><b data-ready="false">click anywhere to start</b></div>
+  </div>
+</div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const intro = document.querySelector<HTMLElement>('[data-intro]');
+  if (intro && document.documentElement.classList.contains('intro-on')) {
+    const boot = intro.querySelector<HTMLElement>('[data-boot]')!;
+    const bar = intro.querySelector<HTMLElement>('[data-bar]')!;
+    const ready = intro.querySelector<HTMLElement>('[data-ready]')!;
+    const lines = [
+      'initializing workspace...',
+      'loading design system tokens...',
+      'mounting case studies...',
+      'calibrating persona.core...',
+    ];
+
+    // 뒤 페이지가 같이 스크롤되지 않게 (Lenis는 window에서 wheel을 받음)
+    const block = (e: Event) => { e.preventDefault(); e.stopPropagation(); };
+    intro.addEventListener('wheel', block, { passive: false });
+    intro.addEventListener('touchmove', block, { passive: false });
+
+    const tl = gsap.timeline();
+    lines.forEach((line, i) => {
+      tl.call(() => { boot.innerHTML += `<span>&gt;</span> ${line}\n`; }, [], i * 0.35);
+      tl.to(bar, { width: `${((i + 1) / lines.length) * 100}%`, duration: 0.3, ease: 'power1.out' }, i * 0.35);
+    });
+    tl.call(() => { boot.innerHTML += `<span>&gt;</span> ready.`; ready.dataset.ready = 'true'; });
+
+    let done = false;
+    const start = () => {
+      if (done) return;
+      done = true;
+      tl.progress(1);
+      try { sessionStorage.setItem('intro-seen', '1'); } catch {}
+      gsap.to(intro, {
+        opacity: 0, duration: 0.6, ease: 'power2.inOut',
+        onComplete: () => {
+          intro.remove();
+          document.documentElement.classList.remove('intro-on');
+          window.dispatchEvent(new Event('intro:done'));
+        },
+      });
+    };
+    intro.addEventListener('click', start);
+    intro.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); start(); } });
+    intro.focus();
+  } else {
+    intro?.remove();
+  }
+</script>

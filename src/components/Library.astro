@@ -1,68 +1,60 @@
 ---
-import Card from './Card.astro';
-import { categories, type CategorySlug } from '../lib/categories';
-import type { Item } from '../lib/items';
-import { url } from '../lib/url';
+import Row from './Row.astro';
+import { kindLabel, type Item } from '../lib/items';
 
 interface Props {
   items: Item[];
-  /** 카테고리 탭을 보여줄 때 현재 선택된 탭. 없으면 탭 숨김 */
-  active?: CategorySlug | 'all';
   /** 케이스 스터디 / 노트 필터 칩 표시 여부 */
   kindFilter?: boolean;
-  /** 탭 개수 표시에 쓰는 전체 목록 (기본: items) */
-  all?: Item[];
+  /** 검색창 표시 여부 */
+  search?: boolean;
 }
-const { items, active, kindFilter = true, all = items } = Astro.props;
-const count = (slug: CategorySlug) => all.filter((i) => i.category === slug).length;
-const kinds = new Set(items.map((i) => i.kind));
+const { items, kindFilter = true, search = true } = Astro.props;
+const kinds = (['work', 'archive'] as const)
+  .map((k) => ({ kind: k, label: kindLabel[k], count: items.filter((i) => i.kind === k).length }))
+  .filter((k) => k.count > 0);
 ---
 <section class="library" data-library>
-  {active && (
-    <nav class="tabs" aria-label="항목">
-      <a href={url('/')} aria-current={active === 'all' ? 'page' : undefined}>전체 <small>{all.length}</small></a>
-      {categories.map((c) => (
-        <a href={url(`/category/${c.slug}`)} aria-current={active === c.slug ? 'page' : undefined} style={`--h: ${c.hue}`}>
-          {c.label} <small>{count(c.slug)}</small>
-        </a>
-      ))}
-    </nav>
+  {(kindFilter && kinds.length > 1 || search) && (
+    <div class="toolbar">
+      {kindFilter && kinds.length > 1 && (
+        <div class="chips" role="group" aria-label="글 형식">
+          <button type="button" data-kind-btn="" aria-pressed="true">전체<small>{items.length}</small></button>
+          {kinds.map((k) => (
+            <button type="button" data-kind-btn={k.kind} aria-pressed="false">{k.label}<small>{k.count}</small></button>
+          ))}
+        </div>
+      )}
+      {search && <input class="search" type="search" placeholder="검색 (제목, 태그…)" aria-label="검색" data-search-input />}
+    </div>
   )}
-
-  <div class="toolbar">
-    {kindFilter && kinds.size > 1 && (
-      <div class="chips" role="group" aria-label="글 형식">
-        <button type="button" data-kind-btn="" aria-pressed="true">전체</button>
-        <button type="button" data-kind-btn="work" aria-pressed="false">케이스 스터디</button>
-        <button type="button" data-kind-btn="archive" aria-pressed="false">노트</button>
-      </div>
-    )}
-    <input class="search" type="search" placeholder="검색 (제목, 태그…)" aria-label="검색" data-search-input />
-  </div>
+  <p class="count mono"><b data-count>{items.length}</b> 개의 항목</p>
 
   {items.length > 0
-    ? <div class="grid">{items.map((item) => <Card item={item} />)}</div>
+    ? <ul class="list">{items.map((item, i) => <Row item={item} index={i} />)}</ul>
     : <p class="empty muted">아직 글이 없어요.</p>}
   <p class="empty muted" data-no-result hidden>조건에 맞는 글이 없어요.</p>
 </section>
 
 <script>
   for (const root of document.querySelectorAll<HTMLElement>('[data-library]')) {
-    const cards = [...root.querySelectorAll<HTMLElement>('.card')];
+    const rows = [...root.querySelectorAll<HTMLElement>('li[data-kind]')];
     const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-kind-btn]')];
     const input = root.querySelector<HTMLInputElement>('[data-search-input]');
+    const count = root.querySelector<HTMLElement>('[data-count]');
     const noResult = root.querySelector<HTMLElement>('[data-no-result]');
     let kind = '';
 
     const apply = () => {
       const q = (input?.value ?? '').trim().toLowerCase();
       let shown = 0;
-      for (const card of cards) {
-        const ok = (!kind || card.dataset.kind === kind) && (!q || card.dataset.search!.includes(q));
-        card.hidden = !ok;
+      for (const row of rows) {
+        const ok = (!kind || row.dataset.kind === kind) && (!q || row.dataset.search!.includes(q));
+        row.hidden = !ok;
         if (ok) shown++;
       }
-      if (noResult) noResult.hidden = shown > 0 || cards.length === 0;
+      if (count) count.textContent = String(shown);
+      if (noResult) noResult.hidden = shown > 0 || rows.length === 0;
     };
 
     for (const btn of buttons) {
