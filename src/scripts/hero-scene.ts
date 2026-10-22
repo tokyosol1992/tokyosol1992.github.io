@@ -206,14 +206,14 @@ export async function mountHero(root: HTMLElement, src: string) {
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   camera.position.set(0, 0, 8.5);
 
-  // 배경 그라데이션 패널
+  // 배경 그라데이션 패널: 바깥은 --bg(#0b0b0d)와 같은 값, 가운데만 살짝 밝은 무채색 글로우
   const back = new THREE.Mesh(
     new THREE.PlaneGeometry(40, 40),
     new THREE.ShaderMaterial({
       vertexShader: vertex,
       fragmentShader: `varying vec2 vUv; void main(){
         float d = distance(vUv, vec2(0.42, 0.47));
-        vec3 c = mix(vec3(0.12,0.12,0.19), vec3(0.082,0.082,0.11), smoothstep(0.0, 0.14, d));
+        vec3 c = mix(vec3(0.075,0.075,0.085), vec3(0.043,0.043,0.051), smoothstep(0.0, 0.14, d));
         gl_FragColor = vec4(c, 1.0); }`,
     }),
   );
@@ -231,7 +231,8 @@ export async function mountHero(root: HTMLElement, src: string) {
     uPrev: { value: BLANK },
     uSweep: { value: reduced ? 1 : 0 },
     uFade: { value: 1 },
-    uBg: { value: new THREE.Color(0x15151c) },
+    // 사진 배경을 사이트 배경(--bg)에 녹임
+    uBg: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0b0b0d') },
   };
   const persona = new THREE.Group();
   const photo = new THREE.Mesh(

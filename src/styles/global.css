@@ -1,12 +1,12 @@
 /* 다크 고정 · HUD 톤 (레퍼런스: chronothreads.webflow.io) */
 :root {
-  --bg: #15151c;
-  --surface: #1c1c25;
-  --raise: #23232e;
+  --bg: #0b0b0d;
+  --surface: #131316;
+  --raise: #1a1a1e;
   --fg: #f0ebe5;
   --muted: #8d8992;
-  --dim: #575558;
-  --line: #2c2c37;
+  --dim: #55545a;
+  --line: #242429;
   --accent: #2895f7;
   --max: 1200px;
   --narrow: 720px;

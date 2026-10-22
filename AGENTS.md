@@ -28,7 +28,7 @@
   - 성별 드러나는 요소는 깊은 후드, 눈썹 덮는 앞머리, 넥 게이터·하이넥, 후드 위 헤드셋으로 가림. 20대 후반 성숙한 인상, 네온 최소
   - 요소: 차콜 테크웨어 후디(지퍼에 얇은 블루 라인), 헤드셋+마이크, 가슴 스트랩 미러리스 카메라, (사이트에서) 홀로그램 UI 패널
   - 이미지는 **사용자가 직접 생성해서 업로드** (Midjourney 등). 3D 변환용은 정면 A포즈·단색 배경·전신, 가능하면 측면·후면도
-  - ✅ 1차 확정 이미지: `src/assets/persona/portrait.webp` (상반신, 1142×1377, 은색 후디·오렌지 바이저·헤드셋·카메라). 3D 모델은 아직 없음 → 사진을 셰이더 평면으로 사용 중
+  - ✅ 확정 이미지: `src/assets/persona/portrait.webp` (상반신, 1142×1377, 은색 후디·오렌지 바이저·후드 안쪽 파란 글로우·카메라, 검정 배경). 2026-10-22 사용자가 준 새 버전으로 교체 (홈 히어로·About 공용). 3D 모델은 아직 없음 → 사진을 셰이더 평면으로 사용 중
   - 홀로그램 패널은 사진에 포함하지 않고 Three.js 캔버스로 따로 그려 페르소나 왼쪽 앞에 띄움
   - 실사 프롬프트 핵심(재생성 시 참고): `ultra photorealistic studio portrait photograph of an androgynous adult person in their late 20s, gender-ambiguous face, neutral calm expression, looking directly into the camera, perfectly frontal symmetrical pose, oversized techwear hoodie with the hood up, long bangs covering the eyebrows, neck gaiter up to the jawline, over-ear headset over the hood, mirrorless camera on a chest strap, real skin texture with visible pores, Hasselblad 90mm, dark #15151c backdrop` / 네거티브: `cartoon, anime, 3d render, cgi, doll, toy, plastic skin, childish, teenager, heavy neon, overtly masculine or feminine features`
 - 사용자가 정한 글 구분 원칙: **글은 항목별로, 형식은 '케이스 스터디' 또는 '노트(아카이브)'로 구분해서 적절히 배치.**
@@ -120,7 +120,8 @@ src/
 방향: **다크 고정 · HUD · 3D 히어로** (chronothreads) + **리스트형 목록** (huddling).
 
 - 토큰 (`src/styles/global.css` `:root`, 다크만 있음)
-  - `--bg #15151c` `--surface #1c1c25` `--raise #23232e` `--fg #f0ebe5` `--muted #8d8992` `--dim #575558` `--line #2c2c37` `--accent #2895f7`
+  - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f0ebe5` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
+  - (2026-10-22) 배경을 남색 기가 도는 `#15151c`에서 무채색에 가까운 `#0b0b0d`로 더 어둡게 바꿈. 히어로 3D 배경 패널(`hero-scene.ts` back 셰이더)과 사진 블렌딩 `uBg`(CSS `--bg`를 읽음), `theme-color`도 함께 맞춤
   - 폰트: `--font` Pretendard / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px)
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
@@ -139,6 +140,7 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
+- 🔄 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`) — 브랜치 `claude/admiring-ride-q2c1zu`, PR 미생성, 사용자 확인 대기
 - 🔄 페이지 전환 **시안(아티팩트) v2** — https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck (원본 `mockups/page-transition.html`, 사이트 빌드와 무관). v2에서 A 느리게·B 작은 블랙 픽셀·C 쉐입 정리 (상세는 PLAN.md). A 스캔 와이프 / B 픽셀 디졸브 / C 레티클 포커스 중 **사용자 선택 대기**. 코드는 아직 안 짬
   - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋, PR 미생성)
 - 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`에 저장(push)만 함, **PR은 아직 안 만듦** (사용자 지시). 다음 작업도 이 브랜치에서 이어서
