@@ -238,10 +238,11 @@
     uv.x += glitch;
     float split = glitch * 0.5 + (hash(vec2(jt, 9.1)) - 0.5) * 0.014 * uBurst;
     float sweeping = step(0.001, uSweep) * step(uSweep, 0.999); float line = 1.0 - uSweep;
-    float near = 1.0 - smoothstep(0.0, 0.04, abs(uv.y - line));
+    float near = 1.0 - smoothstep(0.0, 0.03, abs(uv.y - line));
+    float beam = 1.0 - smoothstep(0.0, 0.006, abs(uv.y - line)); // 파란 스캔선 (얇게)
     uv.x += (hash(vec2(floor(uv.y * 120.0), floor(uTime * 20.0))) - 0.5) * 0.04 * near * sweeping;
     vec4 col = uv.y > line ? shade(uMode, uv, split) : shade(uPrev, uv, split);
-    col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * sweeping; col.a = max(col.a, near * sweeping);
+    col.rgb += vec3(0.157, 0.584, 0.969) * beam * 1.1 * sweeping; col.a = max(col.a, beam * sweeping);
     float noiseRow = step(0.82, hash(vec2(floor(vUv.y * 90.0), jt + 1.0)));
     col.rgb += (hash(vec2(floor(vUv.y * 400.0), jt)) - 0.5) * 0.35 * noiseRow * uBurst;
     col.rgb *= 1.0 - 0.2 * uBurst * hash(vec2(jt, 5.0));
@@ -310,10 +311,10 @@
       gl.uniform2f(U('uTexel'), 1 / img.width, 1 / img.height);
       gl.uniform3f(U('uBg'), 11 / 255, 11 / 255, 13 / 255);
       const uTime = U('uTime'), uMode = U('uMode'), uPrev = U('uPrev'), uSweep = U('uSweep'), uMouse = U('uMouse'), uBurst = U('uBurst');
-      // 지지직: 랜딩 뒤 2.5~7초 간격으로 0.12~0.4초씩, 가끔 연달아 두 번
+      // 지지직: 랜딩 뒤 1.2~3.5초 간격으로 0.12~0.4초씩, 45% 확률로 연달아 두 번
       let landed = false;
       const burst = { start: 0, end: 0 };
-      const schedule = (t, again) => { burst.start = again ? t + 0.08 + Math.random() * 0.1 : t + 2.5 + Math.random() * 4.5; burst.end = burst.start + 0.12 + Math.random() * 0.28; };
+      const schedule = (t, again) => { burst.start = again ? t + 0.08 + Math.random() * 0.1 : t + 1.2 + Math.random() * 2.3; burst.end = burst.start + 0.12 + Math.random() * 0.28; };
       setTimeout(() => { landed = true; schedule(now(), false); }, 1700);
       root.querySelector('.fallback')?.remove();
       root.prepend(boxEl);
@@ -336,7 +337,7 @@
         let b = 0;
         if (landed && !reduced() && t >= burst.start) {
           if (t < burst.end) b = 0.45 + 0.55 * Math.random();
-          else schedule(t, Math.random() < 0.35);
+          else schedule(t, Math.random() < 0.45);
         }
         if (uni.sweep < 1) b = 0;
         gl.uniform1f(uBurst, b);

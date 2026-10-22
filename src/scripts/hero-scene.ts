@@ -124,13 +124,14 @@ const fragment = /* glsl */ `
     // 모드 전환 스윕 (위에서 아래로)
     float sweeping = step(0.001, uSweep) * step(uSweep, 0.999);
     float line = 1.0 - uSweep;
-    float near = 1.0 - smoothstep(0.0, 0.04, abs(uv.y - line));
+    float near = 1.0 - smoothstep(0.0, 0.03, abs(uv.y - line));
+    float beam = 1.0 - smoothstep(0.0, 0.006, abs(uv.y - line)); // 파란 스캔선 (얇게)
     float srow = floor(uv.y * 120.0);
     uv.x += (hash(vec2(srow, floor(uTime * 20.0))) - 0.5) * 0.04 * near * sweeping;
 
     vec4 col = uv.y > line ? shade(uMode, uv, split) : shade(uPrev, uv, split);
-    col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * sweeping;
-    col.a = max(col.a, near * sweeping);
+    col.rgb += vec3(0.157, 0.584, 0.969) * beam * 1.1 * sweeping;
+    col.a = max(col.a, beam * sweeping);
 
     // 지지직 동안: 가로 노이즈 줄 + 밝기 깜박임
     float noiseRow = step(0.82, hash(vec2(floor(vUv.y * 90.0), jt + 1.0)));
@@ -320,11 +321,11 @@ export async function mountHero(root: HTMLElement, src: string, depthSrc: string
   // 등장: 빈 화면 → visual 로 스캔
   const hud = [reticle.material, labelMesh.material] as THREE.Material[];
   hud.forEach((m) => { m.opacity = reduced ? 1 : 0; });
-  // 지지직: 등장이 끝난(랜딩) 뒤부터 2.5~7초 간격으로 0.12~0.4초씩, 가끔 연달아 두 번
+  // 지지직: 등장이 끝난(랜딩) 뒤부터 1.2~3.5초 간격으로 0.12~0.4초씩, 45% 확률로 연달아 두 번
   let landed = false;
   const burst = { start: 0, end: 0, next: 0 };
   const scheduleBurst = (t: number, again = false) => {
-    burst.start = again ? t + 0.08 + Math.random() * 0.1 : t + 2.5 + Math.random() * 4.5;
+    burst.start = again ? t + 0.08 + Math.random() * 0.1 : t + 1.2 + Math.random() * 2.3;
     burst.end = burst.start + 0.12 + Math.random() * 0.28;
   };
   const appear = () => {
@@ -348,7 +349,7 @@ export async function mountHero(root: HTMLElement, src: string, depthSrc: string
     let b = 0;
     if (landed && t >= burst.start) {
       if (t < burst.end) b = 0.45 + 0.55 * Math.random(); // 매 프레임 세기가 들쭉날쭉
-      else scheduleBurst(t, Math.random() < 0.35);
+      else scheduleBurst(t, Math.random() < 0.45);
     }
     // 모드 전환 스윕 중엔 쉼
     uniforms.uBurst.value = uniforms.uSweep.value < 1 ? 0 : b;
