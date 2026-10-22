@@ -29,7 +29,8 @@
   - 요소: 차콜 테크웨어 후디(지퍼에 얇은 블루 라인), 헤드셋+마이크, 가슴 스트랩 미러리스 카메라, (사이트에서) 홀로그램 UI 패널
   - 이미지는 **사용자가 직접 생성해서 업로드** (Midjourney 등). 3D 변환용은 정면 A포즈·단색 배경·전신, 가능하면 측면·후면도
   - ✅ 확정 이미지: `src/assets/persona/portrait.webp` (상반신, 1142×1377, 은색 후디·오렌지 바이저·후드 안쪽 파란 글로우·카메라, 검정 배경). 2026-10-22 사용자가 준 새 버전으로 교체 (홈 히어로·About 공용). 3D 모델은 아직 없음 → 사진을 셰이더 평면으로 사용 중
-  - 홀로그램 패널은 사진에 포함하지 않고 Three.js 캔버스로 따로 그려 페르소나 왼쪽 앞에 띄움
+  - 깊이맵 `src/assets/persona/depth.png`(밝을수록 가까움, 얼굴이 가장 가까움): 사진에서 인물 윤곽을 따고 타원으로 몸통·후드·얼굴·카메라 깊이를 얹어 만든 근사치. 사진을 바꾸면 다시 만들어야 함
+  - (2026-10-22) 홀로그램 UI 패널은 "촌스럽다"는 피드백으로 삭제
   - 실사 프롬프트 핵심(재생성 시 참고): `ultra photorealistic studio portrait photograph of an androgynous adult person in their late 20s, gender-ambiguous face, neutral calm expression, looking directly into the camera, perfectly frontal symmetrical pose, oversized techwear hoodie with the hood up, long bangs covering the eyebrows, neck gaiter up to the jawline, over-ear headset over the hood, mirrorless camera on a chest strap, real skin texture with visible pores, Hasselblad 90mm, dark #15151c backdrop` / 네거티브: `cartoon, anime, 3d render, cgi, doll, toy, plastic skin, childish, teenager, heavy neon, overtly masculine or feminine features`
 - 사용자가 정한 글 구분 원칙: **글은 항목별로, 형식은 '케이스 스터디' 또는 '노트(아카이브)'로 구분해서 적절히 배치.**
 
@@ -67,14 +68,15 @@ src/
     Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
     Intro.astro            ← 홈 진입 화면 (부팅 로그 → click anywhere to start, 세션당 1회, 모션 줄이기면 생략)
-    Hero.astro             ← 홈 히어로: 페르소나 사진 + HUD (스캔 모드 버튼 [01]~[03], 키보드 1·2·3). WebGL 전엔 <Image>로 같은 사진
+    Hero.astro             ← 홈 히어로: 페르소나 사진 + HUD (스캔 모드 버튼 [01]~[03], 키보드 1·2·3). WebGL 전엔 <Image>로 같은 사진. 홈에 올 때마다 mount, 떠날 때 destroy
   scripts/
-    hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(visual/thermal/edge, 스윕 전환), 얼굴 레티클(FACE 좌표), 홀로그램 UI 패널(캔버스), 먼지
+    hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(레퍼런스 효과 스택 + visual/thermal/edge 스윕 전환), 깊이맵 마우스 시차, 얼굴 레티클(FACE 좌표), 먼지
+    page-transition.ts     ← 페이지 전환 C · 레티클 포커스 (ClientRouter 이벤트에 연결, Base에서 initPageTransition())
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
     scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
-  assets/persona/portrait.webp ← 페르소나 사진
-  layouts/Base.astro       ← <head>, 헤더(로고 · 항목 메뉴 + About · 서울 시계), 화면 코너 HUD, 푸터, Lenis. slot="full"은 .wrap 밖(풀폭)
+  assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
+  layouts/Base.astro       ← <head>(ClientRouter), 헤더(로고 · 항목 메뉴 + About · 서울 시계), 화면 코너 HUD, 전환 레이어, 푸터, Lenis. 헤더·HUD·전환 레이어는 transition:persist. slot="full"은 .wrap 밖(풀폭)
   pages/
     index.astro            ← 홈: Intro + Hero + 전체 리스트
     category/[slug].astro  ← 항목별 페이지
@@ -126,8 +128,11 @@ src/
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
 - HUD: `.hud-frame`(화면 네 귀퉁이, 모바일 숨김), `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
-- 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 왼쪽 홀로그램 컴포넌트 패널(커서 움직임), 좌상단 모드 수치(장식). 포인터 시차, 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
+- 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 좌상단 모드 수치(장식). 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
+  - 사진 효과 (2026-10-22, chronothreads 히어로의 Unicorn Studio 효과 스택을 셰이더 하나로 재현): ① 깊이맵 시차 — 가까운 곳(얼굴)이 마우스 쪽으로, 관성 0.05 ② 가는 가로 블라인드 결 ③ 가끔 몇 줄이 밀리는 글리치+색 분리 ④ 블룸(visual 모드만) ⑤ 오버레이 그레인 0.18 ⑥ 마우스를 조금 따라가는 비네트. 마우스가 3초 멈추거나 터치 기기면 천천히 떠다님. 레티클은 얼굴 시차만큼 같이 이동
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
+- 페이지 전환 C · 레티클 포커스 (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
+  - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
 - 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
 ## 6. 현재 상태 (2026-10-22 기준)
@@ -140,8 +145,10 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- 🔄 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`) — 브랜치 `claude/admiring-ride-q2c1zu`, PR 미생성, 사용자 확인 대기
-- 🔄 페이지 전환 **시안(아티팩트) v2** — https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck (원본 `mockups/page-transition.html`, 사이트 빌드와 무관). v2에서 A 느리게·B 작은 블랙 픽셀·C 쉐입 정리 (상세는 PLAN.md). A 스캔 와이프 / B 픽셀 디졸브 / C 레티클 포커스 중 **사용자 선택 대기**. 코드는 아직 안 짬
+- 🔄 브랜치 `claude/admiring-ride-q2c1zu` (PR 미생성, 사용자 확인 대기)에 아래가 들어 있음
+  - 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`)
+  - **페이지 전환 C 구현** (시안 v2 https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck , 원본 `mockups/page-transition.html`)
+  - **히어로 리터칭**: 레퍼런스 효과 스택 + 깊이맵 마우스 시차, 홀로그램 패널 삭제
   - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋, PR 미생성)
 - 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`에 저장(push)만 함, **PR은 아직 안 만듦** (사용자 지시). 다음 작업도 이 브랜치에서 이어서
   - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
@@ -153,7 +160,7 @@ src/
 
 1. 사용자 실기기 피드백 반영 (WebGL 부드러움, 모바일 RGB 분리, 패널 위치·문구 크기 등)
 2. About 경력 기간·역할·한 줄 설명 채우기 (사용자 입력 필요)
-3. 연출 고도화: 페이지 전환(시안 v2 나옴 → 선택 후 Astro ClientRouter로 구현), 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
+3. 히어로 효과 강도 조정(사용자 피드백: 블라인드 결·글리치 빈도·시차 세기는 `hero-scene.ts` 셰이더 상수) / 연출 고도화: 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
 4. 항목 구성 확정 (현재 5개는 임시)
 5. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것. 대표작 2~3개부터
 6. 샘플 글 삭제, OG 이미지(페르소나 활용)·파비콘·메타 태그 정리

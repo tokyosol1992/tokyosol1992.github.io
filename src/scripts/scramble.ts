@@ -32,13 +32,13 @@ function textNodes(el: HTMLElement) {
 
 const running = new WeakSet<HTMLElement>();
 
-function scramble(el: HTMLElement) {
+export function scramble(el: HTMLElement, ms?: number) {
   if (running.has(el)) return;
   running.add(el);
 
   const nodes = textNodes(el).map((node) => ({ node, text: node.data }));
   const total = nodes.reduce((n, t) => n + t.text.length, 0);
-  const duration = Math.min(700, Math.max(320, total * 28));
+  const duration = ms ?? Math.min(700, Math.max(320, total * 28));
   // 글자마다 원래대로 돌아오는 시점: 왼쪽부터 순서대로 + 약간의 흔들림
   let i = 0;
   const settle = nodes.map((t) => [...t.text].map(() => ((i++ / total) * 0.75 + Math.random() * 0.25) * duration));
@@ -67,10 +67,15 @@ function scramble(el: HTMLElement) {
   requestAnimationFrame(frame);
 }
 
+const bound = new WeakSet<HTMLElement>();
+
+/** 페이지마다(astro:page-load) 다시 불러도 됨. 유지되는 헤더처럼 이미 연결된 요소는 건너뜀 */
 export function initScramble(root: ParentNode = document) {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   for (const el of root.querySelectorAll<HTMLElement>('[data-scramble]')) {
+    if (bound.has(el)) continue;
+    bound.add(el);
     const trigger = el.closest<HTMLElement>('a, button') ?? el;
     trigger.addEventListener('pointerenter', () => scramble(el));
   }
