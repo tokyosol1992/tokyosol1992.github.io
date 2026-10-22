@@ -53,6 +53,7 @@ npm run build    # dist/ — 현재 15페이지 (three 청크 크기 경고는 �
 ## 3. 구조
 
 ```
+HISTORY.md                 ← 날짜별 작업 히스토리 (요청 → 반영, 최신이 위)
 mockups/                   ← 아티팩트 시안 원본 (빌드에 안 들어감)
   page-transition.html     ← 페이지 전환 A/B/C 비교 시안
   site/                    ← 사이트 전체 아티팩트 생성기: `npm run build` 후 `python3 -I mockups/site/build.py dist` → mockups/site/solgil-site.html (커밋 안 함)
@@ -148,7 +149,7 @@ src/
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
 - ✅ PR #6 머지 (줄무늬·글리치 약하게 + 아티팩트 생성기)
-- 🔄 히어로 지지직 효과 — 브랜치 `claude/admiring-ride-q2c1zu`, PR 생성 후 사용자 확인 대기
+- ✅ PR #7 머지 · 배포 (2026-10-22): 히어로 지지직 효과(1.2~3.5초 간격), 등장 스캔선 얇게·조금 어둡게
 - ✅ PR #5 머지 · **배포 성공** (2026-10-22, Actions run #6) — 아래 항목 모두 사이트에 반영됨
   - 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`)
   - **페이지 전환 C 구현** (시안 v2 https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck , 원본 `mockups/page-transition.html`)
@@ -193,7 +194,7 @@ src/
 - 내부 링크는 `url('/path')`, 이미지는 `astro:assets`의 `<Image>` 사용
 - 커밋 메시지는 한국어로, 무엇을 왜 바꿨는지 요약
 - `main`에 직접 push하지 말고 작업 브랜치 → PR → 사용자 확인 후 머지
-- 작업을 마치면 이 파일의 6·7번을 갱신
+- 작업을 마치면 이 파일의 6·7번을 갱신하고, **`HISTORY.md`에 날짜별로 요청 → 반영 내용을 위에 추가** (사용자가 git에서 히스토리를 보려고 요청, 2026-10-22)
 
 ## 9. 새 대화를 시작할 때 붙여넣을 프롬프트 예시
 
