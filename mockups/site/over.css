@@ -1,0 +1,54 @@
+/* ── 아티팩트용 덧붙임: 글꼴 대체(Pretendard → Noto Sans KR), 보기 전환, 히어로 캔버스 자리 ── */
+:root { --font: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif; font-family: var(--font); }
+body { background: var(--bg); color: var(--fg); }
+.reveal { opacity: 1; transform: none; }
+
+.docbar { border-bottom: 1px solid var(--line); background: var(--surface); }
+.docbar .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-block: 10px; }
+.docbar .mono { color: var(--muted); }
+.views { display: flex; gap: 6px; flex-wrap: wrap; }
+.views button {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; text-transform: uppercase;
+  background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 6px 10px; cursor: pointer;
+}
+.views button:hover { color: var(--fg); }
+.views button[aria-pressed='true'] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.views button:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+.docnote { display: none; margin: 0 auto; padding-block: 16px; color: var(--muted); font-size: 14px; }
+
+body[data-view='all'] #site { display: none; }
+body:not([data-view='all']) #sheets { display: none; }
+body[data-view='all'] .docnote { display: block; }
+
+/* 히어로 페르소나 자리 (사이트의 .fallback과 같은 위치) */
+.persona-box {
+  position: absolute; right: max(var(--gutter), (100% - var(--max)) / 2); bottom: 0; height: 96%; aspect-ratio: 1142 / 1377;
+}
+.hero3d .persona-box canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+.persona-box.still img {
+  width: 100%; height: 100%; max-width: none;
+  -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 40%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 60% at 50% 40%, #000 55%, transparent 100%);
+}
+.persona-box .face { position: absolute; left: 32%; top: 10%; width: 36%; height: 32%; pointer-events: none; }
+.persona-box .face i { position: absolute; width: 18%; height: 14%; border: 0 solid var(--accent); }
+.persona-box .face i:nth-child(1) { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
+.persona-box .face i:nth-child(2) { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
+.persona-box .face i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
+.persona-box .face i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+.persona-box .face span { position: absolute; left: calc(100% + 10px); top: 0; font-size: 10px; line-height: 1.6; color: var(--accent); white-space: nowrap; }
+.persona-box .face em { font-style: normal; color: color-mix(in srgb, var(--fg) 75%, transparent); }
+@media (max-width: 760px) {
+  .persona-box { right: 50%; transform: translateX(50%); height: 72%; top: 0; bottom: auto; }
+  .persona-box .face span { display: none; }
+}
+
+/* 전체 펼치기: 페이지마다 헤더·본문·푸터를 한 덩어리로 */
+#sheets { display: grid; gap: 64px; padding-bottom: 96px; }
+.sheet-label { max-width: var(--max); margin: 0 auto 10px; padding: 0 var(--gutter); color: var(--accent); }
+.sheet-frame { position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg); }
+.sheet header.site { position: relative; }
+.sheet .hero3d { height: 800px; min-height: 0; }
+@media (max-width: 760px) { .sheet .hero3d { height: 760px; } }
+body[data-view='all'] .hud-frame { display: none; }
+@media (max-width: 860px) { header.site .wrap { height: auto; align-content: flex-start; } }

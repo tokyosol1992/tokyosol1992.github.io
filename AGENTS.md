@@ -53,7 +53,9 @@ npm run build    # dist/ — 현재 15페이지 (three 청크 크기 경고는 �
 ## 3. 구조
 
 ```
-mockups/                   ← 아티팩트 시안 원본 HTML (빌드에 안 들어감)
+mockups/                   ← 아티팩트 시안 원본 (빌드에 안 들어감)
+  page-transition.html     ← 페이지 전환 A/B/C 비교 시안
+  site/                    ← 사이트 전체 아티팩트 생성기: `npm run build` 후 `python3 -I mockups/site/build.py dist` → mockups/site/solgil-site.html (커밋 안 함)
 src/
   content.config.ts        ← 글 스키마 (work / archive 두 컬렉션)
   content/
@@ -145,12 +147,14 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- 🔄 브랜치 `claude/admiring-ride-q2c1zu` (PR 미생성, 사용자 확인 대기)에 아래가 들어 있음
+- ✅ PR #5 머지 · **배포 성공** (2026-10-22, Actions run #6) — 아래 항목 모두 사이트에 반영됨
   - 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`)
   - **페이지 전환 C 구현** (시안 v2 https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck , 원본 `mockups/page-transition.html`)
   - **히어로 리터칭**: 레퍼런스 효과 스택 + 깊이맵 마우스 시차, 홀로그램 패널 삭제
   - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋, PR 미생성)
-- 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`에 저장(push)만 함, **PR은 아직 안 만듦** (사용자 지시). 다음 작업도 이 브랜치에서 이어서
+  - About 다크 HUD 리뉴얼 + 글자 스크램블 hover (원래 `claude/clever-franklin-ubf6l1`에 있던 작업)도 함께 머지됨
+- 🔄 **사이트 전체 아티팩트** https://claude.ai/artifact/JKTeEaKxqu2ymSz9ysdE7p — 배포본 dist 마크업·CSS 그대로 + 히어로 셰이더(WebGL 직접 구현)·전환 C. 「전체 펼치기 · Figma용」은 14페이지를 정지 화면으로 세로로 펼침. **사용자가 Figma로 옮겨 수정 → 그 디자인을 받아 코드 반영** 단계. 사이트를 바꾸면 생성기로 다시 만들어 같은 URL로 재게시
+  - 아티팩트에선 Pretendard를 못 불러와(CSP) Noto Sans KR로 대체됨 — Figma에서 Pretendard로 바꿔 쓰면 됨
   - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
   - 스펙표·focus 문구는 기존 소개 문단에서만 가져옴. 'ONLINE'·'ID // SUBJ_01'은 장식
 
