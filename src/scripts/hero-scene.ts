@@ -17,7 +17,7 @@ const vertex = /* glsl */ `
 
 /**
  * 페르소나 셰이더 (레퍼런스: chronothreads.webflow.io 히어로의 효과 스택)
- * 깊이맵 시차(마우스) → 가는 가로 블라인드 → 가끔 줄 단위 글리치+색 분리 → 블룸 → 그레인 → 마우스를 따라가는 비네트
+ * 깊이맵 시차(마우스) → 가는 가로 블라인드 → 지지직(랜덤 간격으로 짧게 흔들림·줄 찢김·색 분리) → 블룸 → 그레인 → 마우스를 따라가는 비네트
  * 모드: 0 visual / 1 thermal / 2 edge scan, 위→아래 스윕으로 전환
  */
 const fragment = /* glsl */ `
@@ -30,6 +30,7 @@ const fragment = /* glsl */ `
   uniform float uSweep;
   uniform float uFade;
   uniform vec2 uMouse;   // -1..1, 오른쪽·위가 +
+  uniform float uBurst;  // 0..1 지지직 세기 (JS가 랜덤하게 켜고 끔)
   uniform vec3 uBg;
   varying vec2 vUv;
 
@@ -70,14 +71,14 @@ const fragment = /* glsl */ `
     return acc / 12.0;
   }
 
-  // glitch: 줄 단위로 밀린 양. 그 줄에서만 R/B를 반대로 벌려 색 분리
-  vec4 shade(float m, vec2 uv, float glitch) {
+  // split: R/B를 반대로 벌리는 양 (색 분리)
+  vec4 shade(float m, vec2 uv, float split) {
     vec3 base = texture2D(uTex, uv).rgb;
     if (m < 0.5) {
       vec3 c = base;
-      if (glitch != 0.0) {
-        c.r = texture2D(uTex, uv + vec2(glitch * 2.0, 0.)).r;
-        c.b = texture2D(uTex, uv - vec2(glitch * 2.0, 0.)).b;
+      if (split != 0.0) {
+        c.r = texture2D(uTex, uv + vec2(split, 0.)).r;
+        c.b = texture2D(uTex, uv - vec2(split, 0.)).b;
       }
       c += bloom(uv) * 0.7;
       return vec4(c, 1.0);
@@ -110,13 +111,15 @@ const fragment = /* glsl */ `
     float seg = fract(uv.y * bands + uTime * 0.4);
     uv.y -= (seg - 0.5) / bands * 0.2;
 
-    // 3) 가끔 몇 줄이 옆으로 밀리는 글리치
-    float tick = floor(uTime * 6.0);
-    float rowSize = 0.008 + 0.03 * hash(vec2(tick, 3.1));
+    // 3) 지지직: 터지는 동안 30fps로 끊어서 이미지 전체가 흔들리고, 몇 줄이 옆으로 찢기고, 색이 갈라짐
+    float jt = floor(uTime * 30.0);
+    uv += (vec2(hash(vec2(jt, 1.3)), hash(vec2(jt, 7.9))) - 0.5) * vec2(0.024, 0.01) * uBurst;
+    float rowSize = 0.01 + 0.05 * hash(vec2(jt, 3.1));
     float row = floor(uv.y / rowSize);
-    float on = step(0.99, hash(vec2(row, tick)));
-    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.003 * on;
+    float tear = step(1.0 - 0.35 * uBurst, hash(vec2(row, jt)));
+    float glitch = (hash(vec2(row + 7.0, jt)) - 0.5) * 0.07 * tear * uBurst;
     uv.x += glitch;
+    float split = glitch * 0.5 + (hash(vec2(jt, 9.1)) - 0.5) * 0.014 * uBurst;
 
     // 모드 전환 스윕 (위에서 아래로)
     float sweeping = step(0.001, uSweep) * step(uSweep, 0.999);
@@ -125,9 +128,14 @@ const fragment = /* glsl */ `
     float srow = floor(uv.y * 120.0);
     uv.x += (hash(vec2(srow, floor(uTime * 20.0))) - 0.5) * 0.04 * near * sweeping;
 
-    vec4 col = uv.y > line ? shade(uMode, uv, glitch) : shade(uPrev, uv, glitch);
+    vec4 col = uv.y > line ? shade(uMode, uv, split) : shade(uPrev, uv, split);
     col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * sweeping;
     col.a = max(col.a, near * sweeping);
+
+    // 지지직 동안: 가로 노이즈 줄 + 밝기 깜박임
+    float noiseRow = step(0.82, hash(vec2(floor(vUv.y * 90.0), jt + 1.0)));
+    col.rgb += (hash(vec2(floor(vUv.y * 400.0), jt)) - 0.5) * 0.35 * noiseRow * uBurst;
+    col.rgb *= 1.0 - 0.2 * uBurst * hash(vec2(jt, 5.0));
 
     // 4) 그레인 (오버레이 블렌드라 검은 배경엔 얹히지 않음)
     float grain = hash(floor(vUv * vec2(1100.0, 1330.0)) + fract(floor(uTime * 12.0) * 0.137) * 100.0);
@@ -232,6 +240,7 @@ export async function mountHero(root: HTMLElement, src: string, depthSrc: string
     uFade: { value: 1 },
     uDepth: { value: depthMap },
     uMouse: { value: new THREE.Vector2() },
+    uBurst: { value: 0 },
     // 사진 배경을 사이트 배경(--bg)에 녹임
     uBg: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0b0b0d') },
   };
@@ -311,9 +320,16 @@ export async function mountHero(root: HTMLElement, src: string, depthSrc: string
   // 등장: 빈 화면 → visual 로 스캔
   const hud = [reticle.material, labelMesh.material] as THREE.Material[];
   hud.forEach((m) => { m.opacity = reduced ? 1 : 0; });
+  // 지지직: 등장이 끝난(랜딩) 뒤부터 2.5~7초 간격으로 0.12~0.4초씩, 가끔 연달아 두 번
+  let landed = false;
+  const burst = { start: 0, end: 0, next: 0 };
+  const scheduleBurst = (t: number, again = false) => {
+    burst.start = again ? t + 0.08 + Math.random() * 0.1 : t + 2.5 + Math.random() * 4.5;
+    burst.end = burst.start + 0.12 + Math.random() * 0.28;
+  };
   const appear = () => {
     if (reduced) return;
-    gsap.timeline()
+    gsap.timeline({ onComplete: () => { landed = true; scheduleBurst(clock.getElapsedTime()); } })
       .to(uniforms.uSweep, { value: 1, duration: 1.6, ease: 'power2.inOut' })
       .to(hud, { opacity: 1, duration: 0.5, stagger: 0.15 }, '-=0.4')
       .from(face.scale, { x: 1.4, y: 1.4, duration: 0.6, ease: 'expo.out' }, '<');
@@ -329,6 +345,13 @@ export async function mountHero(root: HTMLElement, src: string, depthSrc: string
     if (!visible || document.hidden) return;
     const t = reduced ? 0 : clock.getElapsedTime();
     uniforms.uTime.value = t;
+    let b = 0;
+    if (landed && t >= burst.start) {
+      if (t < burst.end) b = 0.45 + 0.55 * Math.random(); // 매 프레임 세기가 들쭉날쭉
+      else scheduleBurst(t, Math.random() < 0.35);
+    }
+    // 모드 전환 스윕 중엔 쉼
+    uniforms.uBurst.value = uniforms.uSweep.value < 1 ? 0 : b;
     const idle = reduced || t - lastMove > 3;
     const tx = idle ? Math.sin(t * 0.35) * 0.45 : pointer.x;
     const ty = idle ? Math.cos(t * 0.27) * 0.3 : pointer.y;
@@ -340,6 +363,7 @@ export async function mountHero(root: HTMLElement, src: string, depthSrc: string
     // 레티클은 얼굴(깊이 ≈ 0.85)이 시차로 움직인 만큼 같이 이동
     face.position.set(faceBase.x + 0.35 * 0.045 * mouse.x * W, faceBase.y + 0.35 * 0.045 * mouse.y * H, 0.05 + Math.sin(t * 2) * 0.02);
     reticle.scale.setScalar(1 + Math.sin(t * 2.4) * 0.015);
+    if (uniforms.uBurst.value > 0) face.position.x += (Math.random() - 0.5) * 0.08 * uniforms.uBurst.value;
     dust.position.set(-mouse.x * 0.25, -mouse.y * 0.15, 0);
     uniforms.uFade.value = 1 - scroll.p * 0.85;
     camera.position.z = 8.5 + scroll.p * 3;
