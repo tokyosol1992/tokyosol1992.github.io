@@ -53,7 +53,9 @@ npm run build    # dist/ — 현재 15페이지 (three 청크 크기 경고는 �
 ## 3. 구조
 
 ```
-mockups/                   ← 아티팩트 시안 원본 HTML (빌드에 안 들어감)
+mockups/                   ← 아티팩트 시안 원본 (빌드에 안 들어감)
+  page-transition.html     ← 페이지 전환 A/B/C 비교 시안
+  site/                    ← 사이트 전체 아티팩트 생성기: `npm run build` 후 `python3 -I mockups/site/build.py dist` → mockups/site/solgil-site.html (커밋 안 함)
 src/
   content.config.ts        ← 글 스키마 (work / archive 두 컬렉션)
   content/
@@ -129,7 +131,7 @@ src/
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
 - HUD: `.hud-frame`(화면 네 귀퉁이, 모바일 숨김), `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
 - 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 좌상단 모드 수치(장식). 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
-  - 사진 효과 (2026-10-22, chronothreads 히어로의 Unicorn Studio 효과 스택을 셰이더 하나로 재현): ① 깊이맵 시차 — 가까운 곳(얼굴)이 마우스 쪽으로, 관성 0.05 ② 가는 가로 블라인드 결 ③ 가끔 몇 줄이 밀리는 글리치+색 분리 ④ 블룸(visual 모드만) ⑤ 오버레이 그레인 0.18 ⑥ 마우스를 조금 따라가는 비네트. 마우스가 3초 멈추거나 터치 기기면 천천히 떠다님. 레티클은 얼굴 시차만큼 같이 이동
+  - 사진 효과 (2026-10-22, chronothreads 히어로의 Unicorn Studio 효과 스택을 셰이더 하나로 재현): ① 깊이맵 시차 — 가까운 곳(얼굴)이 마우스 쪽으로, 관성 0.05 ② 가는 가로 블라인드 결(세기 0.2) ③ 가끔 몇 줄이 밀리는 글리치+색 분리(줄 1%, 밀림 0.003). 2026-10-22 사용자 요청으로 줄무늬·글리치를 약하게 낮춤(이전 0.45 / 2.5% / 0.005) ④ 블룸(visual 모드만) ⑤ 오버레이 그레인 0.18 ⑥ 마우스를 조금 따라가는 비네트. 마우스가 3초 멈추거나 터치 기기면 천천히 떠다님. 레티클은 얼굴 시차만큼 같이 이동
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
 - 페이지 전환 C · 레티클 포커스 (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
@@ -145,12 +147,14 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- 🔄 브랜치 `claude/admiring-ride-q2c1zu` (PR 미생성, 사용자 확인 대기)에 아래가 들어 있음
+- ✅ PR #5 머지 · **배포 성공** (2026-10-22, Actions run #6) — 아래 항목 모두 사이트에 반영됨
   - 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`)
   - **페이지 전환 C 구현** (시안 v2 https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck , 원본 `mockups/page-transition.html`)
   - **히어로 리터칭**: 레퍼런스 효과 스택 + 깊이맵 마우스 시차, 홀로그램 패널 삭제
   - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋, PR 미생성)
-- 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`에 저장(push)만 함, **PR은 아직 안 만듦** (사용자 지시). 다음 작업도 이 브랜치에서 이어서
+  - About 다크 HUD 리뉴얼 + 글자 스크램블 hover (원래 `claude/clever-franklin-ubf6l1`에 있던 작업)도 함께 머지됨
+- 🔄 **사이트 전체 아티팩트** https://claude.ai/artifact/JKTeEaKxqu2ymSz9ysdE7p — 배포본 dist 마크업·CSS 그대로 + 히어로 셰이더(WebGL 직접 구현)·전환 C. 「전체 펼치기 · Figma용」은 14페이지를 정지 화면으로 세로로 펼침. **사용자가 Figma로 옮겨 수정 → 그 디자인을 받아 코드 반영** 단계. 사이트를 바꾸면 생성기로 다시 만들어 같은 URL로 재게시
+  - 아티팩트에선 Pretendard를 못 불러와(CSP) Noto Sans KR로 대체됨 — Figma에서 Pretendard로 바꿔 쓰면 됨
   - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
   - 스펙표·focus 문구는 기존 소개 문단에서만 가져옴. 'ONLINE'·'ID // SUBJ_01'은 장식
 
