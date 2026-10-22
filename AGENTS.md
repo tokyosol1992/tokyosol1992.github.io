@@ -139,7 +139,7 @@ src/
 - ⚠️ 페르소나는 **사진(2D) 기반**. 진짜 3D(회전)를 원하면 전신 정면/측면/후면 이미지 → Tripo로 .glb 변환 필요
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
-- 🔄 페이지 전환 **시안(아티팩트) v1** — https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck (원본 `mockups/page-transition.html`, 사이트 빌드와 무관). A 스캔 와이프 / B 픽셀 디졸브 / C 레티클 포커스 중 **사용자 선택 대기**. 코드는 아직 안 짬
+- 🔄 페이지 전환 **시안(아티팩트) v2** — https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck (원본 `mockups/page-transition.html`, 사이트 빌드와 무관). v2에서 A 느리게·B 작은 블랙 픽셀·C 쉐입 정리 (상세는 PLAN.md). A 스캔 와이프 / B 픽셀 디졸브 / C 레티클 포커스 중 **사용자 선택 대기**. 코드는 아직 안 짬
   - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋, PR 미생성)
 - 🔄 About 다크 HUD 리뉴얼 + 글자 스크램블 hover — 브랜치 `claude/clever-franklin-ubf6l1`에 저장(push)만 함, **PR은 아직 안 만듦** (사용자 지시). 다음 작업도 이 브랜치에서 이어서
   - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
@@ -151,7 +151,7 @@ src/
 
 1. 사용자 실기기 피드백 반영 (WebGL 부드러움, 모바일 RGB 분리, 패널 위치·문구 크기 등)
 2. About 경력 기간·역할·한 줄 설명 채우기 (사용자 입력 필요)
-3. 연출 고도화: 페이지 전환(시안 v1 나옴 → 선택 후 Astro ClientRouter로 구현), 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
+3. 연출 고도화: 페이지 전환(시안 v2 나옴 → 선택 후 Astro ClientRouter로 구현), 십자선 HUD 커서, 상세 페이지 스크롤 연출(이미지 고정·확대, `[02/05]` 진행률)
 4. 항목 구성 확정 (현재 5개는 임시)
 5. 실제 콘텐츠: Figma 포트폴리오(위 1번 링크) 기준으로 케이스 스터디 작성 — **사용자 지시 전엔 넣지 말 것**, 성과·수치 지어내지 말 것. 대표작 2~3개부터
 6. 샘플 글 삭제, OG 이미지(페르소나 활용)·파비콘·메타 태그 정리

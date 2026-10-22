@@ -14,6 +14,11 @@
   --dim: #575558;
   --line: #2c2c37;
   --accent: #2895f7;
+  /* B 픽셀 디졸브 블랙 톤 */
+  --px-0: #000000;
+  --px-1: #07070a;
+  --px-2: #0d0d13;
+  --px-edge: #2c2c37;
   --max: 1200px;
   --radius: 4px;
   --gutter: clamp(16px, 4vw, 40px);
@@ -215,8 +220,19 @@ button { font: inherit; color: inherit; }
 /* C 레티클 포커스 */
 .dim { position: absolute; inset: 0; background: var(--bg); opacity: 0; }
 .ret { position: absolute; z-index: 31; pointer-events: none; }
-.ret i { border-color: var(--accent); }
-.ret .tag { position: absolute; left: 0; top: calc(100% + 8px); color: var(--accent); white-space: nowrap; font-size: 11px; }
+/* 안쪽 가는 테두리 + 굵은 코너 + 변 가운데 눈금 */
+.ret::before { content: ''; position: absolute; inset: 0; border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+.ret i { width: 18px; height: 18px; border-color: var(--accent); }
+.ret i:nth-child(1) { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.ret i:nth-child(2) { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
+.ret i:nth-child(3) { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; }
+.ret i:nth-child(4) { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+.ret u { position: absolute; background: var(--accent); }
+.ret u:nth-of-type(1) { top: -4px; left: 50%; width: 1px; height: 7px; }
+.ret u:nth-of-type(2) { bottom: -4px; left: 50%; width: 1px; height: 7px; }
+.ret u:nth-of-type(3) { left: -4px; top: 50%; width: 7px; height: 1px; }
+.ret u:nth-of-type(4) { right: -4px; top: 50%; width: 7px; height: 1px; }
+.ret .tag { position: absolute; left: -1px; top: calc(100% + 6px); padding: 1px 6px; background: var(--accent); color: var(--bg); white-space: nowrap; font-size: 10px; line-height: 1.6; }
 
 /* ── 타임라인 ── */
 .panel-title { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; margin: 0 0 6px; }
@@ -264,7 +280,7 @@ tr.on td { background: var(--surface); }
 
 <div class="doc">
   <header class="doc-head">
-    <span class="mono">plan 3-2 / page transition · 시안 v1</span>
+    <span class="mono">plan 3-2 / page transition · 시안 v2</span>
     <h1>페이지 전환 시안</h1>
     <p>아래 화면은 사이트 미니어처예요. <b>메뉴, 리스트 한 줄, 로고</b>를 누르거나 <b>다음 페이지</b> 버튼을 눌러 보세요. 헤더와 화면 귀퉁이 HUD는 그대로 두고 본문만 바뀝니다. 위에서 시안을 바꾸고, 느리게 재생해 프레임을 확인할 수 있어요.</p>
   </header>
@@ -302,7 +318,7 @@ tr.on td { background: var(--surface); }
     <div class="fx wipe" id="fx-A" hidden><div class="panel"></div><div class="edge"></div><pre class="readout"></pre></div>
     <div class="fx pix" id="fx-B" hidden><canvas></canvas><div class="label"><strong></strong><span class="mono">loading</span></div></div>
     <div class="fx" id="fx-C" hidden><div class="dim"></div></div>
-    <div class="ret" id="ret" hidden><i></i><i></i><i></i><i></i><span class="tag mono"></span></div>
+    <div class="ret" id="ret" hidden><i></i><i></i><i></i><i></i><u></u><u></u><u></u><u></u><span class="tag mono"></span></div>
   </div>
 
   <section aria-labelledby="tl-title">
@@ -362,11 +378,11 @@ tr.on td { background: var(--surface); }
 
   // 시안별 길이(ms, 1× 기준). HOLD는 최소값이고 실제로는 다음 페이지 로딩이 끝날 때까지
   const V = {
-    A: { name: '스캔 와이프', out: 340, hold: 160, in: 420,
+    A: { name: '스캔 와이프', out: 510, hold: 240, in: 630,
       note: '히어로 스캔 모드 전환과 같은 위→아래 스윕. 파란 선이 화면을 덮고 내려간 뒤, 한 번 더 내려가며 새 페이지를 드러내요. 덮인 동안 이동할 주소와 글 개수를 로그처럼 보여줘요.',
       good: '히어로·인트로 부팅 로그와 같은 언어라 사이트가 하나로 이어짐', bad: '매번 화면 전체를 덮어서 자주 오가면 길게 느껴질 수 있음' },
     B: { name: '픽셀 디졸브', out: 320, hold: 140, in: 380,
-      note: '화면이 픽셀 칸으로 무작위로 채워졌다가, 왼쪽 위에서 오른쪽 아래로 대각선을 그리며 지워져요. 채워지는 가장자리 칸은 파란색으로 깜박여요. 덮인 동안 이동할 주소를 픽셀 글꼴로 띄워요.',
+      note: '화면이 아주 작은 검은 픽셀로 무작위로 채워졌다가, 왼쪽 위에서 오른쪽 아래로 대각선을 그리며 지워져요. 픽셀은 몇 가지 블랙 톤이 섞여 노이즈처럼 보이고, 덮인 동안 이동할 주소를 픽셀 글꼴로 띄워요.',
       good: '로고·GEEK 픽셀 글꼴과 짝이 맞고, 가장 눈에 띄는 연출', bad: '캔버스로 그려 저사양 휴대폰에서 끊길 수 있고, 오래 보면 피로함' },
     C: { name: '레티클 포커스', out: 360, hold: 120, in: 440,
       note: '화면 귀퉁이 HUD 브래킷이 누른 링크로 모여 조준하고, 다시 화면 전체로 펼쳐지면서 새 페이지가 초점이 맞듯 선명해져요. 누른 위치에서 시작해서 어디로 가는지 맥락이 이어져요.',
@@ -601,24 +617,36 @@ tr.on td { background: var(--surface); }
     canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const size = w < 640 ? 18 : 24;
+    const size = w < 640 ? 3 : 4;
     const cols = Math.ceil(w / size), rows = Math.ceil(h / size);
-    const cells = [];
+    const n = cols * rows;
+    const rOut = new Float32Array(n), rIn = new Float32Array(n), tone = new Uint8Array(n);
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      cells.push({ x, y, out: Math.random(), in: ((x / cols) + (y / rows)) / 2 * 0.75 + Math.random() * 0.25 });
+      const i = y * cols + x;
+      rOut[i] = Math.random();
+      rIn[i] = ((x / cols) + (y / rows)) / 2 * 0.75 + Math.random() * 0.25;
+      tone[i] = Math.floor(Math.random() * 3);
     }
-    const surface = cssVar('--surface'), accent = cssVar('--accent');
+    // 칸 하나 = 비트맵 1px, 화면에는 size배로 키워서 그림 (칸 수가 많아도 가볍게)
+    const hex = (v) => { const c = parseInt(cssVar(v).slice(1), 16); return [c >> 16, (c >> 8) & 255, c & 255]; };
+    const tones = [hex('--px-0'), hex('--px-1'), hex('--px-2')], edgeTone = hex('--px-edge');
+    const bmp = document.createElement('canvas'); bmp.width = cols; bmp.height = rows;
+    const bctx = bmp.getContext('2d');
+    const img = bctx.createImageData(cols, rows), px = img.data;
+    ctx.imageSmoothingEnabled = false;
     const draw = (p, mode) => {
-      ctx.clearRect(0, 0, w, h);
-      const edge = 0.07;
-      for (const c of cells) {
-        const r = c[mode];
-        const filled = mode === 'out' ? r < p : r >= p;
-        if (!filled) continue;
-        const lead = mode === 'out' ? r > p - edge : r < p + edge;
-        ctx.fillStyle = lead ? accent : surface;
-        ctx.fillRect(c.x * size, c.y * size, size - (lead ? 2 : 0), size - (lead ? 2 : 0));
+      const r = mode === 'out' ? rOut : rIn, edge = 0.05;
+      for (let i = 0; i < n; i++) {
+        const v = r[i], o = i * 4;
+        const filled = mode === 'out' ? v < p : v >= p;
+        if (!filled) { px[o + 3] = 0; continue; }
+        const lead = mode === 'out' ? v > p - edge : v < p + edge;
+        const c = lead ? edgeTone : tones[tone[i]];
+        px[o] = c[0]; px[o + 1] = c[1]; px[o + 2] = c[2]; px[o + 3] = 255;
       }
+      bctx.putImageData(img, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(bmp, 0, 0, cols * size, rows * size);
     };
     $('strong', label).textContent = to.toUpperCase();
     await tween(d.out, 'in', (p) => draw(p, 'out'));
@@ -642,7 +670,7 @@ tr.on td { background: var(--surface); }
     let target;
     if (origin && origin.isConnected) {
       const r = stageRect(origin);
-      target = { x: r.x - 8, y: r.y - 6, w: r.w + 16, h: r.h + 12 };
+      target = { x: r.x - 10, y: r.y - 8, w: r.w + 20, h: r.h + 16 };
     } else {
       target = { x: stage.clientWidth / 2 - 70, y: stage.clientHeight / 2 - 30, w: 140, h: 60 };
     }
