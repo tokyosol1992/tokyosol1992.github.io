@@ -148,7 +148,7 @@ src/
 - ⚠️ 모바일 visual 모드에서 RGB 분리(무지개 테두리)가 조금 보임 — 사용자 의견 받으면 모바일에서 끌지 결정
 - ⚠️ 모든 글이 **샘플**: `work/sample-case-study.md`(+`cover.svg`), `archive/sample-tip.md`, `sample-ai-prompt.md`, `sample-tool.md`, `hello-archive.md`
 - ✅ PR #6 머지 (줄무늬·글리치 약하게 + 아티팩트 생성기)
-- 🔄 히어로 지지직 효과 — 브랜치 `claude/admiring-ride-q2c1zu`, PR 생성 후 사용자 확인 대기
+- ✅ PR #7 머지 · 배포 (2026-10-22): 히어로 지지직 효과(1.2~3.5초 간격), 등장 스캔선 얇게·조금 어둡게
 - ✅ PR #5 머지 · **배포 성공** (2026-10-22, Actions run #6) — 아래 항목 모두 사이트에 반영됨
   - 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`)
   - **페이지 전환 C 구현** (시안 v2 https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck , 원본 `mockups/page-transition.html`)
