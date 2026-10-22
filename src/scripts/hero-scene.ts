@@ -15,15 +15,21 @@ const vertex = /* glsl */ `
   void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
 `;
 
-/** 페르소나 셰이더: 0 visual / 1 thermal / 2 edge scan, 위→아래 스윕으로 전환 */
+/**
+ * 페르소나 셰이더 (레퍼런스: chronothreads.webflow.io 히어로의 효과 스택)
+ * 깊이맵 시차(마우스) → 가는 가로 블라인드 → 가끔 줄 단위 글리치+색 분리 → 블룸 → 그레인 → 마우스를 따라가는 비네트
+ * 모드: 0 visual / 1 thermal / 2 edge scan, 위→아래 스윕으로 전환
+ */
 const fragment = /* glsl */ `
   uniform sampler2D uTex;
+  uniform sampler2D uDepth;
   uniform vec2 uTexel;
   uniform float uTime;
   uniform float uMode;
   uniform float uPrev;
   uniform float uSweep;
   uniform float uFade;
+  uniform vec2 uMouse;   // -1..1, 오른쪽·위가 +
   uniform vec3 uBg;
   varying vec2 vUv;
 
@@ -51,13 +57,29 @@ const fragment = /* glsl */ `
     return length(vec2(gx, gy));
   }
 
-  vec4 shade(float m, vec2 uv) {
+  // 밝은 부분만 번지게 (나선형 12탭)
+  vec3 bloom(vec2 uv) {
+    vec3 acc = vec3(0.0);
+    for (int i = 0; i < 12; i++) {
+      float fi = float(i);
+      float a = fi * 2.39996;
+      vec2 o = vec2(cos(a), sin(a)) * (0.004 + 0.0022 * fi);
+      vec3 s = texture2D(uTex, uv + o).rgb;
+      acc += s * smoothstep(0.38, 0.6, lum(s));
+    }
+    return acc / 12.0;
+  }
+
+  // glitch: 줄 단위로 밀린 양. 그 줄에서만 R/B를 반대로 벌려 색 분리
+  vec4 shade(float m, vec2 uv, float glitch) {
     vec3 base = texture2D(uTex, uv).rgb;
     if (m < 0.5) {
-      // 아주 약한 RGB 분리 + 주사선
-      float s = 0.0012;
-      vec3 c = vec3(texture2D(uTex, uv + vec2(s, 0.)).r, base.g, texture2D(uTex, uv - vec2(s, 0.)).b);
-      c *= 0.96 + 0.04 * sin(uv.y * 900.0);
+      vec3 c = base;
+      if (glitch != 0.0) {
+        c.r = texture2D(uTex, uv + vec2(glitch * 2.0, 0.)).r;
+        c.b = texture2D(uTex, uv - vec2(glitch * 2.0, 0.)).b;
+      }
+      c += bloom(uv) * 0.7;
       return vec4(c, 1.0);
     }
     if (m < 1.5) {
@@ -74,31 +96,49 @@ const fragment = /* glsl */ `
     return vec4(0.0);
   }
 
+  vec3 overlay(vec3 src, vec3 dst) {
+    return mix(2.0 * src * dst, 1.0 - 2.0 * (1.0 - src) * (1.0 - dst), step(0.5, dst));
+  }
+
   void main() {
-    vec2 uv = vUv;
-    float line = 1.0 - uSweep;                // 스윕 경계 (위에서 아래로)
+    // 1) 깊이맵 시차: 가까운 곳(얼굴)은 마우스 쪽으로, 먼 곳은 반대로
+    float depth = texture2D(uDepth, vUv).r;
+    vec2 uv = vUv - (depth - 0.5) * 0.045 * uMouse;
+
+    // 2) 가는 가로 블라인드: 줄마다 세로 샘플을 살짝 눌러 결이 생김
+    float bands = 260.0;
+    float seg = fract(uv.y * bands + uTime * 0.4);
+    uv.y -= (seg - 0.5) / bands * 0.45;
+
+    // 3) 가끔 몇 줄이 옆으로 밀리는 글리치
+    float tick = floor(uTime * 6.0);
+    float rowSize = 0.008 + 0.03 * hash(vec2(tick, 3.1));
+    float row = floor(uv.y / rowSize);
+    float on = step(0.975, hash(vec2(row, tick)));
+    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.005 * on;
+    uv.x += glitch;
+
+    // 모드 전환 스윕 (위에서 아래로)
+    float sweeping = step(0.001, uSweep) * step(uSweep, 0.999);
+    float line = 1.0 - uSweep;
     float near = 1.0 - smoothstep(0.0, 0.04, abs(uv.y - line));
-    // 경계 근처 줄 단위 글리치
-    float row = floor(uv.y * 120.0);
-    uv.x += (hash(vec2(row, floor(uTime * 20.0))) - 0.5) * 0.04 * near * step(0.001, uSweep) * step(uSweep, 0.999);
+    float srow = floor(uv.y * 120.0);
+    uv.x += (hash(vec2(srow, floor(uTime * 20.0))) - 0.5) * 0.04 * near * sweeping;
 
-    vec4 col = uv.y > line ? shade(uMode, uv) : shade(uPrev, uv);
-    col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * step(0.001, uSweep) * step(uSweep, 0.999);
-    col.a = max(col.a, near * step(0.001, uSweep) * step(uSweep, 0.999));
+    vec4 col = uv.y > line ? shade(uMode, uv, glitch) : shade(uPrev, uv, glitch);
+    col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * sweeping;
+    col.a = max(col.a, near * sweeping);
 
-    // 천천히 내려가는 밝은 스캔 밴드 + 그레인
-    float band = smoothstep(0.03, 0.0, abs(fract(vUv.y - uTime * 0.06) - 0.5) - 0.47);
-    // 어두운 배경에는 얹지 않음 (사각형 경계가 비치지 않게)
-    float body = smoothstep(0.04, 0.16, lum(texture2D(uTex, vUv).rgb));
-    col.rgb += band * 0.035 * body;
-    col.rgb += (hash(vUv * 800.0 + uTime) - 0.5) * 0.03 * body;
+    // 4) 그레인 (오버레이 블렌드라 검은 배경엔 얹히지 않음)
+    float grain = hash(floor(vUv * vec2(1100.0, 1330.0)) + fract(floor(uTime * 12.0) * 0.137) * 100.0);
+    col.rgb = mix(col.rgb, overlay(vec3(grain), col.rgb), 0.18);
 
     // 사진 배경(어두운 부분)을 사이트 배경색으로 올려 경계를 없앰
     col.rgb = max(col.rgb, uBg);
-    // 가장자리를 타원형으로 녹임
-    vec2 q = (vUv - vec2(0.5, 0.6)) / vec2(0.55, 0.62);
-    float edge = 1.0 - smoothstep(0.62, 1.0, length(q));
-    edge *= smoothstep(0.0, 0.18, vUv.y) * smoothstep(1.0, 0.92, vUv.y);
+    // 5) 비네트: 중심이 마우스를 조금 따라감
+    vec2 q = (vUv - vec2(0.5, 0.6) - uMouse * vec2(0.04, 0.03)) / vec2(0.55, 0.62);
+    float edge = 1.0 - smoothstep(0.6, 1.0, length(q));
+    edge *= smoothstep(0.0, 0.2, vUv.y) * smoothstep(1.0, 0.92, vUv.y);
     gl_FragColor = vec4(col.rgb, col.a * edge * uFade);
     #include <colorspace_fragment>
   }
@@ -130,52 +170,6 @@ function createLabel(width: number, height: number) {
   return { canvas, ctx, tex };
 }
 
-/** 홀로그램 UI 패널: 와이어프레임 레이아웃 + 움직이는 커서 */
-function createPanel() {
-  const W = 640, H = 440;
-  const { ctx, tex } = createLabel(W, H);
-  const draw = (t: number) => {
-    ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = 'rgba(40,149,247,0.9)';
-    ctx.fillStyle = 'rgba(40,149,247,0.08)';
-    ctx.lineWidth = 2;
-    ctx.fillRect(4, 4, W - 8, H - 8);
-    ctx.strokeRect(4, 4, W - 8, H - 8);
-    // 헤더
-    ctx.fillStyle = 'rgba(40,149,247,0.9)';
-    ctx.font = '500 20px "JetBrains Mono", monospace';
-    ctx.fillText('COMPONENT / Card.default', 24, 40);
-    ctx.fillText(`v${(2 + (t % 10) / 10).toFixed(1)}`, W - 80, 40);
-    ctx.beginPath(); ctx.moveTo(4, 58); ctx.lineTo(W - 4, 58); ctx.stroke();
-    // 레이아웃 블록
-    ctx.strokeStyle = 'rgba(40,149,247,0.75)';
-    ctx.strokeRect(24, 80, 260, 160);
-    ctx.beginPath(); ctx.moveTo(24, 80); ctx.lineTo(284, 240); ctx.moveTo(284, 80); ctx.lineTo(24, 240); ctx.stroke();
-    ctx.fillStyle = 'rgba(40,149,247,0.55)';
-    ctx.fillRect(310, 84, 300, 18);
-    ctx.fillRect(310, 116, 220, 12);
-    ctx.fillRect(310, 138, 260, 12);
-    ctx.fillRect(310, 160, 180, 12);
-    ctx.strokeRect(310, 196, 130, 44);
-    ctx.fillText('Button', 334, 226);
-    // 그리드 행
-    for (let i = 0; i < 3; i++) {
-      const y = 270 + i * 50;
-      ctx.strokeRect(24, y, 586, 38);
-      ctx.fillRect(40, y + 13, 120 + ((i * 70) % 160), 12);
-    }
-    // 커서 (8자로 움직임)
-    const cx = 330 + Math.sin(t * 0.9) * 200, cy = 250 + Math.sin(t * 1.8) * 90;
-    ctx.fillStyle = '#f0ebe5';
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + 26); ctx.lineTo(cx + 7, cy + 20); ctx.lineTo(cx + 18, cy + 20); ctx.closePath(); ctx.fill();
-    tex.needsUpdate = true;
-  };
-  draw(0);
-  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.1), mat);
-  return { mesh, draw };
-}
-
 function createDust() {
   const n = 500;
   const pos = new Float32Array(n * 3);
@@ -185,20 +179,25 @@ function createDust() {
   return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xf0ebe5, size: 0.016, transparent: true, opacity: 0.5 }));
 }
 
-export async function mountHero(root: HTMLElement, src: string) {
+export async function mountHero(root: HTMLElement, src: string, depthSrc: string) {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
   } catch {
     return null; // WebGL 미지원 → <Image> 대체 유지
   }
-  const texture = await new THREE.TextureLoader().loadAsync(src).catch(() => null);
-  if (!texture) { renderer.dispose(); return null; }
+  const loader = new THREE.TextureLoader();
+  const [texture, depthMap] = await Promise.all([
+    loader.loadAsync(src).catch(() => null),
+    loader.loadAsync(depthSrc).catch(() => null),
+  ]);
+  if (!texture || !depthMap) { renderer.dispose(); return null; }
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.minFilter = THREE.LinearFilter;
   const img = texture.image as HTMLImageElement;
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clock = new THREE.Clock();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   root.prepend(renderer.domElement);
 
@@ -206,14 +205,14 @@ export async function mountHero(root: HTMLElement, src: string) {
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   camera.position.set(0, 0, 8.5);
 
-  // 배경 그라데이션 패널
+  // 배경 그라데이션 패널: 바깥은 --bg(#0b0b0d)와 같은 값, 가운데만 살짝 밝은 무채색 글로우
   const back = new THREE.Mesh(
     new THREE.PlaneGeometry(40, 40),
     new THREE.ShaderMaterial({
       vertexShader: vertex,
       fragmentShader: `varying vec2 vUv; void main(){
         float d = distance(vUv, vec2(0.42, 0.47));
-        vec3 c = mix(vec3(0.12,0.12,0.19), vec3(0.082,0.082,0.11), smoothstep(0.0, 0.14, d));
+        vec3 c = mix(vec3(0.075,0.075,0.085), vec3(0.043,0.043,0.051), smoothstep(0.0, 0.14, d));
         gl_FragColor = vec4(c, 1.0); }`,
     }),
   );
@@ -231,7 +230,10 @@ export async function mountHero(root: HTMLElement, src: string) {
     uPrev: { value: BLANK },
     uSweep: { value: reduced ? 1 : 0 },
     uFade: { value: 1 },
-    uBg: { value: new THREE.Color(0x15151c) },
+    uDepth: { value: depthMap },
+    uMouse: { value: new THREE.Vector2() },
+    // 사진 배경을 사이트 배경(--bg)에 녹임
+    uBg: { value: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0b0b0d') },
   };
   const persona = new THREE.Group();
   const photo = new THREE.Mesh(
@@ -260,13 +262,8 @@ export async function mountHero(root: HTMLElement, src: string) {
   persona.add(face);
   scene.add(persona);
 
-  // 홀로그램 패널 (페르소나 왼쪽 앞에 떠 있음)
-  const panel = createPanel();
-  scene.add(panel.mesh);
-
   // 레이아웃: 데스크톱은 오른쪽, 모바일은 가운데 위
-  let mobile = false;
-  const panelBase = new THREE.Vector3();
+  const faceBase = face.position.clone();
   const layout = () => {
     const w = root.clientWidth, h = root.clientHeight;
     renderer.setSize(w, h, false);
@@ -274,34 +271,33 @@ export async function mountHero(root: HTMLElement, src: string) {
     camera.updateProjectionMatrix();
     const visH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     const visW = visH * camera.aspect;
-    mobile = w < 760;
-    if (mobile) {
+    if (w < 760) {
       const s = Math.min(1, (visH * 0.62) / H);
       persona.scale.setScalar(s);
       persona.position.set(0, visH / 2 - (H * s) / 2 - 0.05, 0);
-      panelBase.set(visW * 0.22, visH * 0.02, 1.2);
-      panel.mesh.scale.setScalar(0.55);
       labelMesh.visible = false;
     } else {
       persona.scale.setScalar(1);
       persona.position.set(Math.max(0.9, visW / 2 - W / 2 - visW * 0.04), -0.1, 0);
-      panelBase.set(persona.position.x - W * 0.6, 0.35, 1.4);
-      panel.mesh.scale.setScalar(1);
       labelMesh.visible = true;
     }
   };
   layout();
-  new ResizeObserver(layout).observe(root);
+  const ro = new ResizeObserver(layout);
+  ro.observe(root);
 
-  // 포인터 시차
+  // 마우스 시차: 화면 어디서 움직여도 따라감. 관성(momentum)을 둬서 천천히 따라옴
+  // 터치 기기나 마우스를 안 움직일 땐 천천히 떠다님
   const pointer = { x: 0, y: 0 };
-  const tilt = { x: 0, y: 0 };
-  root.addEventListener('pointermove', (e) => {
-    const r = root.getBoundingClientRect();
-    pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-    pointer.y = ((e.clientY - r.top) / r.height) * 2 - 1;
-  });
-  root.addEventListener('pointerleave', () => { pointer.x = 0; pointer.y = 0; });
+  const mouse = uniforms.uMouse.value;
+  let lastMove = -10;
+  const ac = new AbortController();
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    pointer.x = (e.clientX / innerWidth) * 2 - 1;
+    pointer.y = -((e.clientY / innerHeight) * 2 - 1);
+    lastMove = clock.getElapsedTime();
+  }, { signal: ac.signal });
 
   // 스크롤: 카메라가 물러나고 페르소나가 흐려짐
   const scroll = { p: 0 };
@@ -313,7 +309,7 @@ export async function mountHero(root: HTMLElement, src: string) {
   if (copy) gsap.to(copy, { y: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: root, start: 'top top', end: '60% top', scrub: true } });
 
   // 등장: 빈 화면 → visual 로 스캔
-  const hud = [reticle.material, labelMesh.material, panel.mesh.material] as THREE.Material[];
+  const hud = [reticle.material, labelMesh.material] as THREE.Material[];
   hud.forEach((m) => { m.opacity = reduced ? 1 : 0; });
   const appear = () => {
     if (reduced) return;
@@ -322,30 +318,29 @@ export async function mountHero(root: HTMLElement, src: string) {
       .to(hud, { opacity: 1, duration: 0.5, stagger: 0.15 }, '-=0.4')
       .from(face.scale, { x: 1.4, y: 1.4, duration: 0.6, ease: 'expo.out' }, '<');
   };
-  if (document.documentElement.classList.contains('intro-on')) window.addEventListener('intro:done', appear, { once: true });
+  if (document.documentElement.classList.contains('intro-on')) window.addEventListener('intro:done', appear, { once: true, signal: ac.signal });
   else appear();
 
   // 보일 때만 렌더
   let visible = true;
-  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(root);
-
-  const clock = new THREE.Clock();
-  let lastDraw = 0;
+  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; });
+  io.observe(root);
   renderer.setAnimationLoop(() => {
     if (!visible || document.hidden) return;
     const t = reduced ? 0 : clock.getElapsedTime();
     uniforms.uTime.value = t;
-    tilt.x += (pointer.y * 0.08 - tilt.x) * 0.06;
-    tilt.y += (pointer.x * 0.12 - tilt.y) * 0.06;
-    persona.rotation.set(tilt.x, tilt.y, 0);
-    face.position.z = 0.05 + Math.sin(t * 2) * 0.02;
+    const idle = reduced || t - lastMove > 3;
+    const tx = idle ? Math.sin(t * 0.35) * 0.45 : pointer.x;
+    const ty = idle ? Math.cos(t * 0.27) * 0.3 : pointer.y;
+    if (!reduced) {
+      mouse.x += (tx - mouse.x) * 0.05;
+      mouse.y += (ty - mouse.y) * 0.05;
+    }
+    persona.rotation.set(-mouse.y * 0.03, mouse.x * 0.05, 0);
+    // 레티클은 얼굴(깊이 ≈ 0.85)이 시차로 움직인 만큼 같이 이동
+    face.position.set(faceBase.x + 0.35 * 0.045 * mouse.x * W, faceBase.y + 0.35 * 0.045 * mouse.y * H, 0.05 + Math.sin(t * 2) * 0.02);
     reticle.scale.setScalar(1 + Math.sin(t * 2.4) * 0.015);
-    panel.mesh.position.set(
-      panelBase.x - tilt.y * 3, panelBase.y + Math.sin(t * 1.1) * 0.06 + tilt.x * 2, panelBase.z,
-    );
-    panel.mesh.rotation.set(-0.08 + tilt.x * 1.5, (mobile ? -0.2 : 0.38) + tilt.y * 2, 0);
-    if (t - lastDraw > 1 / 20) { panel.draw(t); lastDraw = t; }
-    dust.position.x = -tilt.y * 1.5;
+    dust.position.set(-mouse.x * 0.25, -mouse.y * 0.15, 0);
     uniforms.uFade.value = 1 - scroll.p * 0.85;
     camera.position.z = 8.5 + scroll.p * 3;
     renderer.render(scene, camera);
@@ -359,6 +354,21 @@ export async function mountHero(root: HTMLElement, src: string) {
       gsap.killTweensOf(uniforms.uSweep);
       uniforms.uSweep.value = reduced ? 1 : 0;
       if (!reduced) gsap.to(uniforms.uSweep, { value: 1, duration: 0.9, ease: 'power2.inOut' });
+    },
+    /** 페이지를 떠날 때 (ClientRouter) 렌더 루프·GPU 자원 정리 */
+    destroy() {
+      ac.abort();
+      io.disconnect();
+      ro.disconnect();
+      renderer.setAnimationLoop(null);
+      scene.traverse((o) => {
+        const m = o as THREE.Mesh;
+        m.geometry?.dispose();
+        (Array.isArray(m.material) ? m.material : m.material ? [m.material] : []).forEach((x) => x.dispose());
+      });
+      texture.dispose(); depthMap.dispose(); label.tex.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
     },
   };
 }

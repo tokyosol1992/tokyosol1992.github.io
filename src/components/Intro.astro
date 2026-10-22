@@ -4,7 +4,7 @@
 <script is:inline>
   // 첫 페인트 전에 결정해야 홈이 잠깐 비치지 않음
   try {
-    if (!sessionStorage.getItem('intro-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!window.__ptNavigated && !sessionStorage.getItem('intro-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.classList.add('intro-on');
     }
   } catch (e) {}
@@ -25,49 +25,52 @@
 <script>
   import { gsap } from 'gsap';
 
-  const intro = document.querySelector<HTMLElement>('[data-intro]');
-  if (intro && document.documentElement.classList.contains('intro-on')) {
-    const boot = intro.querySelector<HTMLElement>('[data-boot]')!;
-    const bar = intro.querySelector<HTMLElement>('[data-bar]')!;
-    const ready = intro.querySelector<HTMLElement>('[data-ready]')!;
-    const lines = [
-      'initializing workspace...',
-      'loading design system tokens...',
-      'mounting case studies...',
-      'calibrating persona.core...',
-    ];
+  // 진입 화면은 처음 열 때만. 페이지 전환으로 홈에 오면 바로 지움
+  document.addEventListener('astro:page-load', () => {
+    const intro = document.querySelector<HTMLElement>('[data-intro]');
+    if (intro && document.documentElement.classList.contains('intro-on')) {
+      const boot = intro.querySelector<HTMLElement>('[data-boot]')!;
+      const bar = intro.querySelector<HTMLElement>('[data-bar]')!;
+      const ready = intro.querySelector<HTMLElement>('[data-ready]')!;
+      const lines = [
+        'initializing workspace...',
+        'loading design system tokens...',
+        'mounting case studies...',
+        'calibrating persona.core...',
+      ];
 
-    // 뒤 페이지가 같이 스크롤되지 않게 (Lenis는 window에서 wheel을 받음)
-    const block = (e: Event) => { e.preventDefault(); e.stopPropagation(); };
-    intro.addEventListener('wheel', block, { passive: false });
-    intro.addEventListener('touchmove', block, { passive: false });
+      // 뒤 페이지가 같이 스크롤되지 않게 (Lenis는 window에서 wheel을 받음)
+      const block = (e: Event) => { e.preventDefault(); e.stopPropagation(); };
+      intro.addEventListener('wheel', block, { passive: false });
+      intro.addEventListener('touchmove', block, { passive: false });
 
-    const tl = gsap.timeline();
-    lines.forEach((line, i) => {
-      tl.call(() => { boot.innerHTML += `<span>&gt;</span> ${line}\n`; }, [], i * 0.35);
-      tl.to(bar, { width: `${((i + 1) / lines.length) * 100}%`, duration: 0.3, ease: 'power1.out' }, i * 0.35);
-    });
-    tl.call(() => { boot.innerHTML += `<span>&gt;</span> ready.`; ready.dataset.ready = 'true'; });
-
-    let done = false;
-    const start = () => {
-      if (done) return;
-      done = true;
-      tl.progress(1);
-      try { sessionStorage.setItem('intro-seen', '1'); } catch {}
-      gsap.to(intro, {
-        opacity: 0, duration: 0.6, ease: 'power2.inOut',
-        onComplete: () => {
-          intro.remove();
-          document.documentElement.classList.remove('intro-on');
-          window.dispatchEvent(new Event('intro:done'));
-        },
+      const tl = gsap.timeline();
+      lines.forEach((line, i) => {
+        tl.call(() => { boot.innerHTML += `<span>&gt;</span> ${line}\n`; }, [], i * 0.35);
+        tl.to(bar, { width: `${((i + 1) / lines.length) * 100}%`, duration: 0.3, ease: 'power1.out' }, i * 0.35);
       });
-    };
-    intro.addEventListener('click', start);
-    intro.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); start(); } });
-    intro.focus();
-  } else {
-    intro?.remove();
-  }
+      tl.call(() => { boot.innerHTML += `<span>&gt;</span> ready.`; ready.dataset.ready = 'true'; });
+
+      let done = false;
+      const start = () => {
+        if (done) return;
+        done = true;
+        tl.progress(1);
+        try { sessionStorage.setItem('intro-seen', '1'); } catch {}
+        gsap.to(intro, {
+          opacity: 0, duration: 0.6, ease: 'power2.inOut',
+          onComplete: () => {
+            intro.remove();
+            document.documentElement.classList.remove('intro-on');
+            window.dispatchEvent(new Event('intro:done'));
+          },
+        });
+      };
+      intro.addEventListener('click', start);
+      intro.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); start(); } });
+      intro.focus();
+    } else {
+      intro?.remove();
+    }
+  });
 </script>

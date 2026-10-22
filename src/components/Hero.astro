@@ -1,14 +1,15 @@
 ---
 /**
  * 홈 히어로: 페르소나 사진(SOLGIL.EXE)을 Three.js 셰이더 평면에 올리고 HUD를 입힘.
- * 스캔 모드 전환 · 얼굴 레티클 · 홀로그램 UI 패널 → src/scripts/hero-scene.ts
+ * 스캔 모드 전환 · 얼굴 레티클 · 깊이맵 마우스 시차 → src/scripts/hero-scene.ts
  * WebGL이 없거나 로드 전에는 같은 사진을 <Image>로 보여줌.
  */
 import { Image } from 'astro:assets';
 import portrait from '../assets/persona/portrait.webp';
+import depth from '../assets/persona/depth.png';
 import { modes } from '../scripts/hero-modes';
 ---
-<section class="hero3d" data-hero data-portrait={portrait.src}>
+<section class="hero3d" data-hero data-portrait={portrait.src} data-depth={depth.src}>
   <Image class="fallback" src={portrait} alt="" widths={[600, 1100]} sizes="(max-width: 760px) 80vw, 600px" loading="eager" />
   <div class="ui">
     <div class="top mono">
@@ -32,7 +33,7 @@ import { modes } from '../scripts/hero-modes';
       <div class="modes" role="group" aria-label="스캔 모드">
         {modes.map((m, i) => (
           <button type="button" data-mode={i} aria-pressed={i === 0 ? 'true' : 'false'}>
-            <span>[{String(i + 1).padStart(2, '0')}]</span>{m.label}
+            <span>[{String(i + 1).padStart(2, '0')}]</span><span class="label" data-scramble="fixed">{m.label}</span>
           </button>
         ))}
         <a class="mono scroll-cue" href="#index">[scroll down ↓]</a>
@@ -45,36 +46,50 @@ import { modes } from '../scripts/hero-modes';
   import { modes } from '../scripts/hero-modes';
   import { gsap } from 'gsap';
 
-  const root = document.querySelector<HTMLElement>('[data-hero]')!;
-  const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
-  const statEls = [...root.querySelectorAll<HTMLElement>('[data-stats] > div')];
-  let setMode: (i: number) => void = () => {};
+  // 페이지 전환(ClientRouter) 때문에 홈에 들어올 때마다 연결하고, 떠날 때 정리함
+  let api: { setMode(i: number): void; destroy(): void } | null = null;
+  let ac: AbortController | null = null;
 
-  // 3D는 지연 로드 (첫 화면 텍스트·사진을 먼저 그림)
-  import('../scripts/hero-scene').then(async ({ mountHero }) => {
-    const api = await mountHero(root, root.dataset.portrait!);
-    if (api) {
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-hero]');
+    if (!root) return;
+    ac = new AbortController();
+    const { signal } = ac;
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+    const statEls = [...root.querySelectorAll<HTMLElement>('[data-stats] > div')];
+
+    // 3D는 지연 로드 (첫 화면 텍스트·사진을 먼저 그림)
+    import('../scripts/hero-scene').then(async ({ mountHero }) => {
+      const mounted = await mountHero(root, root.dataset.portrait!, root.dataset.depth!);
+      if (!mounted) return;
+      if (signal.aborted) { mounted.destroy(); return; }
+      api = mounted;
       root.querySelector('.fallback')?.remove();
-      setMode = api.setMode;
-    }
-  });
-
-  const select = (i: number) => {
-    buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
-    modes[i].stats.forEach((s, j) => {
-      const el = statEls[j];
-      if (!el) return;
-      el.querySelector('span')!.textContent = s.label;
-      const b = el.querySelector<HTMLElement>('[data-stat]')!;
-      const from = { v: parseInt(b.textContent ?? '0') };
-      gsap.to(from, { v: s.value, duration: 0.6, ease: 'power2.out', onUpdate: () => { b.textContent = `${Math.round(from.v)}%`; } });
     });
-    setMode(i);
-  };
-  buttons.forEach((b, i) => b.addEventListener('click', () => select(i)));
-  window.addEventListener('keydown', (e) => {
-    if ((e.target as HTMLElement).closest('input, textarea')) return;
-    const n = Number(e.key);
-    if (n >= 1 && n <= modes.length) select(n - 1);
+
+    const select = (i: number) => {
+      buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
+      modes[i].stats.forEach((s, j) => {
+        const el = statEls[j];
+        if (!el) return;
+        el.querySelector('span')!.textContent = s.label;
+        const b = el.querySelector<HTMLElement>('[data-stat]')!;
+        const from = { v: parseInt(b.textContent ?? '0') };
+        gsap.to(from, { v: s.value, duration: 0.6, ease: 'power2.out', onUpdate: () => { b.textContent = `${Math.round(from.v)}%`; } });
+      });
+      api?.setMode(i);
+    };
+    buttons.forEach((b, i) => b.addEventListener('click', () => select(i), { signal }));
+    window.addEventListener('keydown', (e) => {
+      if ((e.target as HTMLElement).closest('input, textarea')) return;
+      const n = Number(e.key);
+      if (n >= 1 && n <= modes.length) select(n - 1);
+    }, { signal });
+  }
+
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => {
+    ac?.abort(); ac = null;
+    api?.destroy(); api = null;
   });
 </script>

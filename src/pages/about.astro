@@ -1,19 +1,101 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import portrait from '../assets/persona/portrait.webp';
+import { categories } from '../lib/categories';
+import { url } from '../lib/url';
+
+// 메뉴에서 About은 항목 다음 순서
+const no = String(categories.length + 1).padStart(2, '0');
+const email = 'tokyosol1992@gmail.com';
+
+const spec = [
+  { key: 'role', value: 'Product Designer' },
+  { key: 'exp', value: '8 YRS' },
+  { key: 'focus', value: 'Platform · Design System' },
+];
+const domains = ['B2B SaaS', '양면 마켓플레이스', 'O2O', '교육 서비스'];
+
+/**
+ * 경력 (최신순). period·role·desc는 확인된 내용만 채우고, 비어 있으면 화면에 안 보임.
+ * 예) { company: '원스글로벌', period: '2023.04 — 현재', role: 'Product Designer', desc: '…' }
+ */
+const experience: { company: string; product?: string; period?: string; role?: string; desc?: string }[] = [
+  { company: '원스글로벌' },
+  { company: '마켓보로', product: '식봄' },
+  { company: '휴넷 그로우포웍스' },
+];
+
+const focus = ['플랫폼 설계', '디자인 시스템', '데이터 기반 개선'];
+const portfolio = categories[0];
 ---
-<Base title="About">
-  <div class="narrow">
-    <h1>About</h1>
-    <div class="prose">
-      <p>8년 차 프로덕트 디자이너입니다. B2B SaaS, 양면 마켓플레이스, O2O, 교육 서비스를 거치며 플랫폼 설계와 디자인 시스템, 데이터 기반 개선을 주로 해왔습니다.</p>
-      <h2>Experience</h2>
-      <ul>
-        <li>원스글로벌</li>
-        <li>마켓보로 (식봄)</li>
-        <li>휴넷 그로우포웍스</li>
-      </ul>
-      <h2>Contact</h2>
-      <p><a href="mailto:tokyosol1992@gmail.com">tokyosol1992@gmail.com</a></p>
+<Base title="About" description="8년 차 프로덕트 디자이너 솔길 소개">
+  <div class="about">
+    <aside class="subject-col">
+      <figure class="subject framed reveal">
+        <Image src={portrait} alt="솔길의 페르소나 SOLGIL.EXE" widths={[420, 760]} sizes="(max-width: 860px) 70vw, 380px" loading="eager" />
+        <div class="reticle" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+          <span class="mono">subj: solgil.exe</span>
+        </div>
+        <div class="scanline" aria-hidden="true"></div>
+        <figcaption class="mono">
+          <span>id // subj_01</span>
+          <span><b class="dot"></b>online</span>
+        </figcaption>
+      </figure>
+    </aside>
+
+    <div class="about-body">
+      <header class="page-head reveal">
+        <span class="mono">[{no}] / about</span>
+        <h1>솔길</h1>
+        <p>8년 차 프로덕트 디자이너입니다. B2B SaaS, 양면 마켓플레이스, O2O, 교육 서비스를 거치며 플랫폼 설계와 디자인 시스템, 데이터 기반 개선을 주로 해왔습니다.</p>
+      </header>
+
+      <dl class="spec mono reveal">
+        {spec.map((s) => (<div><dt>{s.key}</dt><dd>{s.value}</dd></div>))}
+        <div>
+          <dt>domain</dt>
+          <dd class="domains">{domains.map((d) => <span>{d}</span>)}</dd>
+        </div>
+      </dl>
+
+      <section class="about-section reveal" aria-labelledby="exp">
+        <h2 class="section-label mono" id="exp"><span>[01]</span> experience</h2>
+        <ol class="timeline">
+          {experience.map((e, i) => (
+            <li>
+              <span class="no mono">[{String(i + 1).padStart(2, '0')}]</span>
+              <div class="body">
+                <h3><span data-scramble>{e.company}</span>{e.product && <small>{e.product}</small>}</h3>
+                {e.role && <p class="role">{e.role}</p>}
+                {e.desc && <p class="desc">{e.desc}</p>}
+              </div>
+              {e.period && <span class="period mono">{e.period}</span>}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="about-section reveal" aria-labelledby="focus">
+        <h2 class="section-label mono" id="focus"><span>[02]</span> focus</h2>
+        <ul class="focus">
+          {focus.map((f, i) => (
+            <li class="framed"><span class="mono">[{String(i + 1).padStart(2, '0')}]</span>{f}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="about-section reveal" aria-labelledby="contact">
+        <h2 class="section-label mono" id="contact"><span>[03]</span> contact</h2>
+        <a class="contact" href={`mailto:${email}`}>
+          <span class="mono">open channel →</span>
+          <b data-scramble>{email}</b>
+        </a>
+        <a class="mono more" href={url(`/category/${portfolio.slug}`)}><span data-scramble>{portfolio.label} 보기</span> →</a>
+      </section>
     </div>
   </div>
 </Base>
+

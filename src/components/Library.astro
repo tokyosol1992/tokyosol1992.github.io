@@ -37,33 +37,36 @@ const kinds = (['work', 'archive'] as const)
 </section>
 
 <script>
-  for (const root of document.querySelectorAll<HTMLElement>('[data-library]')) {
-    const rows = [...root.querySelectorAll<HTMLElement>('li[data-kind]')];
-    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-kind-btn]')];
-    const input = root.querySelector<HTMLInputElement>('[data-search-input]');
-    const count = root.querySelector<HTMLElement>('[data-count]');
-    const noResult = root.querySelector<HTMLElement>('[data-no-result]');
-    let kind = '';
+  // 페이지 전환 뒤에도 다시 연결되도록 astro:page-load마다 실행
+  document.addEventListener('astro:page-load', () => {
+    for (const root of document.querySelectorAll<HTMLElement>('[data-library]')) {
+      const rows = [...root.querySelectorAll<HTMLElement>('li[data-kind]')];
+      const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-kind-btn]')];
+      const input = root.querySelector<HTMLInputElement>('[data-search-input]');
+      const count = root.querySelector<HTMLElement>('[data-count]');
+      const noResult = root.querySelector<HTMLElement>('[data-no-result]');
+      let kind = '';
 
-    const apply = () => {
-      const q = (input?.value ?? '').trim().toLowerCase();
-      let shown = 0;
-      for (const row of rows) {
-        const ok = (!kind || row.dataset.kind === kind) && (!q || row.dataset.search!.includes(q));
-        row.hidden = !ok;
-        if (ok) shown++;
+      const apply = () => {
+        const q = (input?.value ?? '').trim().toLowerCase();
+        let shown = 0;
+        for (const row of rows) {
+          const ok = (!kind || row.dataset.kind === kind) && (!q || row.dataset.search!.includes(q));
+          row.hidden = !ok;
+          if (ok) shown++;
+        }
+        if (count) count.textContent = String(shown);
+        if (noResult) noResult.hidden = shown > 0 || rows.length === 0;
+      };
+
+      for (const btn of buttons) {
+        btn.addEventListener('click', () => {
+          kind = btn.dataset.kindBtn ?? '';
+          for (const b of buttons) b.setAttribute('aria-pressed', String(b === btn));
+          apply();
+        });
       }
-      if (count) count.textContent = String(shown);
-      if (noResult) noResult.hidden = shown > 0 || rows.length === 0;
-    };
-
-    for (const btn of buttons) {
-      btn.addEventListener('click', () => {
-        kind = btn.dataset.kindBtn ?? '';
-        for (const b of buttons) b.setAttribute('aria-pressed', String(b === btn));
-        apply();
-      });
+      input?.addEventListener('input', apply);
     }
-    input?.addEventListener('input', apply);
-  }
+  });
 </script>

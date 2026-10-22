@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import { url } from '../lib/url';
 import { categories } from '../lib/categories';
 
@@ -19,7 +20,7 @@ const menu = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#15151c" />
+    <meta name="theme-color" content="#0b0b0d" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
@@ -27,15 +28,20 @@ const menu = [
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Silkscreen&display=swap" />
+    <ClientRouter fallback="swap" />
   </head>
   <body>
-    <div class="hud-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <header class="site">
+    <div class="hud-frame" aria-hidden="true" transition:persist="hud"><i></i><i></i><i></i><i></i></div>
+    <div class="pt" data-pt aria-hidden="true" transition:persist="pt">
+      <div class="pt-dim" data-pt-dim></div>
+      <div class="pt-ret" data-pt-ret><i></i><i></i><i></i><i></i><u></u><u></u><u></u><u></u><span class="pt-tag mono" data-pt-tag></span></div>
+    </div>
+    <header class="site" transition:persist="header">
       <div class="wrap">
-        <a class="logo" href={url('/')}>SOLGIL<b>_</b></a>
+        <a class="logo" href={url('/')} data-scramble>SOLGIL<b>_</b></a>
         <nav class="menu" aria-label="메뉴">
           {menu.map((m) => (
-            <a href={url(m.href)} aria-current={path.startsWith(m.href) ? 'page' : undefined}>{m.label}</a>
+            <a href={url(m.href)} aria-current={path.startsWith(m.href) ? 'page' : undefined} data-scramble="fixed">{m.label}</a>
           ))}
         </nav>
         <span class="clock mono" data-clock>SEOUL --:--:--</span>
@@ -45,7 +51,7 @@ const menu = [
     <footer class="site">
       <div class="wrap mono">
         <span>© {new Date().getFullYear()} {siteName} · Product Designer</span>
-        <a href="mailto:tokyosol1992@gmail.com">tokyosol1992@gmail.com</a>
+        <a href="mailto:tokyosol1992@gmail.com" data-scramble>tokyosol1992@gmail.com</a>
       </div>
     </footer>
   </body>
@@ -53,6 +59,12 @@ const menu = [
 
 <script>
   import Lenis from 'lenis';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { initScramble } from '../scripts/scramble';
+  import { initReveal } from '../scripts/reveal';
+  import { initPageTransition } from '../scripts/page-transition';
+
+  // 이 스크립트는 처음 한 번만 실행됨 (ClientRouter). 헤더·시계·HUD는 페이지를 넘어도 유지
 
   // 서울 시각 HUD
   const clock = document.querySelector<HTMLElement>('[data-clock]');
@@ -62,7 +74,19 @@ const menu = [
   setInterval(tick, 1000);
 
   // 부드러운 스크롤 (모션 줄이기 설정이면 끔)
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    new Lenis({ autoRaf: true });
-  }
+  const lenis = matchMedia('(prefers-reduced-motion: reduce)').matches ? null : new Lenis({ autoRaf: true });
+
+  // 페이지 전환 C · 레티클 포커스
+  initPageTransition();
+
+  // 페이지마다: 글자 스크램블 hover(data-scramble), 스크롤 등장(.reveal)
+  document.addEventListener('astro:page-load', () => {
+    initScramble();
+    initReveal();
+    lenis?.resize();
+  });
+  // 떠나는 페이지의 스크롤 연출 정리
+  document.addEventListener('astro:before-swap', () => {
+    ScrollTrigger.getAll().forEach((t) => t.kill());
+  });
 </script>

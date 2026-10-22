@@ -20,12 +20,3 @@ const items = await getItems();
   </section>
 </Base>
 
-<script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  gsap.registerPlugin(ScrollTrigger);
-
-  for (const el of document.querySelectorAll('.reveal')) {
-    gsap.to(el, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
-  }
-</script>
