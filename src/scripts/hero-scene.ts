@@ -108,14 +108,14 @@ const fragment = /* glsl */ `
     // 2) 가는 가로 블라인드: 줄마다 세로 샘플을 살짝 눌러 결이 생김
     float bands = 260.0;
     float seg = fract(uv.y * bands + uTime * 0.4);
-    uv.y -= (seg - 0.5) / bands * 0.45;
+    uv.y -= (seg - 0.5) / bands * 0.2;
 
     // 3) 가끔 몇 줄이 옆으로 밀리는 글리치
     float tick = floor(uTime * 6.0);
     float rowSize = 0.008 + 0.03 * hash(vec2(tick, 3.1));
     float row = floor(uv.y / rowSize);
-    float on = step(0.975, hash(vec2(row, tick)));
-    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.005 * on;
+    float on = step(0.99, hash(vec2(row, tick)));
+    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.003 * on;
     uv.x += glitch;
 
     // 모드 전환 스윕 (위에서 아래로)

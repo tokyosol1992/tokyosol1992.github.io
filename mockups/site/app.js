@@ -230,9 +230,9 @@
   void main() {
     float depth = texture2D(uDepth, vec2(vUv.x, 1.0 - vUv.y)).r;
     vec2 uv = vUv - (depth - 0.5) * 0.045 * uMouse;
-    float bands = 260.0; float seg = fract(uv.y * bands + uTime * 0.4); uv.y -= (seg - 0.5) / bands * 0.45;
+    float bands = 260.0; float seg = fract(uv.y * bands + uTime * 0.4); uv.y -= (seg - 0.5) / bands * 0.2;
     float tick = floor(uTime * 6.0); float rowSize = 0.008 + 0.03 * hash(vec2(tick, 3.1)); float row = floor(uv.y / rowSize);
-    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.005 * step(0.975, hash(vec2(row, tick)));
+    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.003 * step(0.99, hash(vec2(row, tick)));
     uv.x += glitch;
     float sweeping = step(0.001, uSweep) * step(uSweep, 0.999); float line = 1.0 - uSweep;
     float near = 1.0 - smoothstep(0.0, 0.04, abs(uv.y - line));
