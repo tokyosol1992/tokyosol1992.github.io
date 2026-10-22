@@ -194,7 +194,7 @@
   const VERT = 'attribute vec2 p; varying vec2 vUv; void main(){ vUv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }';
   const FRAG = `precision highp float;
   uniform sampler2D uTex; uniform sampler2D uDepth; uniform vec2 uTexel; uniform float uTime; uniform float uMode; uniform float uPrev;
-  uniform float uSweep; uniform vec2 uMouse; uniform vec3 uBg; varying vec2 vUv;
+  uniform float uSweep; uniform vec2 uMouse; uniform float uBurst; uniform vec3 uBg; varying vec2 vUv;
   float lum(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
   float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
   vec3 thermal(float t) {
@@ -216,10 +216,10 @@
       vec3 s = tex(uv + vec2(cos(a), sin(a)) * (0.004 + 0.0022 * fi)).rgb; acc += s * smoothstep(0.38, 0.6, lum(s)); }
     return acc / 12.0;
   }
-  vec4 shade(float m, vec2 uv, float glitch) {
+  vec4 shade(float m, vec2 uv, float split) {
     vec3 base = tex(uv).rgb;
     if (m < 0.5) { vec3 c = base;
-      if (glitch != 0.0) { c.r = tex(uv + vec2(glitch * 2.0, 0.)).r; c.b = tex(uv - vec2(glitch * 2.0, 0.)).b; }
+      if (split != 0.0) { c.r = tex(uv + vec2(split, 0.)).r; c.b = tex(uv - vec2(split, 0.)).b; }
       return vec4(c + bloom(uv) * 0.7, 1.0); }
     if (m < 1.5) return vec4(thermal(pow(lum(base), 0.8)) * (0.95 + 0.05 * sin(uv.y * 600.0 + uTime * 4.0)), 1.0);
     if (m < 2.5) { float e = smoothstep(0.08, 0.45, sobel(uv)); vec2 g = fract(uv * vec2(70.0, 84.0));
@@ -231,14 +231,21 @@
     float depth = texture2D(uDepth, vec2(vUv.x, 1.0 - vUv.y)).r;
     vec2 uv = vUv - (depth - 0.5) * 0.045 * uMouse;
     float bands = 260.0; float seg = fract(uv.y * bands + uTime * 0.4); uv.y -= (seg - 0.5) / bands * 0.2;
-    float tick = floor(uTime * 6.0); float rowSize = 0.008 + 0.03 * hash(vec2(tick, 3.1)); float row = floor(uv.y / rowSize);
-    float glitch = (hash(vec2(row + 7.0, tick)) - 0.5) * 0.003 * step(0.99, hash(vec2(row, tick)));
+    float jt = floor(uTime * 30.0);
+    uv += (vec2(hash(vec2(jt, 1.3)), hash(vec2(jt, 7.9))) - 0.5) * vec2(0.024, 0.01) * uBurst;
+    float rowSize = 0.01 + 0.05 * hash(vec2(jt, 3.1)); float row = floor(uv.y / rowSize);
+    float glitch = (hash(vec2(row + 7.0, jt)) - 0.5) * 0.07 * step(1.0 - 0.35 * uBurst, hash(vec2(row, jt))) * uBurst;
     uv.x += glitch;
+    float split = glitch * 0.5 + (hash(vec2(jt, 9.1)) - 0.5) * 0.014 * uBurst;
     float sweeping = step(0.001, uSweep) * step(uSweep, 0.999); float line = 1.0 - uSweep;
-    float near = 1.0 - smoothstep(0.0, 0.04, abs(uv.y - line));
+    float near = 1.0 - smoothstep(0.0, 0.03, abs(uv.y - line));
+    float beam = 1.0 - smoothstep(0.0, 0.006, abs(uv.y - line)); // 파란 스캔선 (얇게)
     uv.x += (hash(vec2(floor(uv.y * 120.0), floor(uTime * 20.0))) - 0.5) * 0.04 * near * sweeping;
-    vec4 col = uv.y > line ? shade(uMode, uv, glitch) : shade(uPrev, uv, glitch);
-    col.rgb += vec3(0.157, 0.584, 0.969) * near * 1.4 * sweeping; col.a = max(col.a, near * sweeping);
+    vec4 col = uv.y > line ? shade(uMode, uv, split) : shade(uPrev, uv, split);
+    col.rgb += vec3(0.157, 0.584, 0.969) * beam * 1.1 * sweeping; col.a = max(col.a, beam * sweeping);
+    float noiseRow = step(0.82, hash(vec2(floor(vUv.y * 90.0), jt + 1.0)));
+    col.rgb += (hash(vec2(floor(vUv.y * 400.0), jt)) - 0.5) * 0.35 * noiseRow * uBurst;
+    col.rgb *= 1.0 - 0.2 * uBurst * hash(vec2(jt, 5.0));
     float grain = hash(floor(vUv * vec2(1100.0, 1330.0)) + fract(floor(uTime * 12.0) * 0.137) * 100.0);
     col.rgb = mix(col.rgb, overlay(vec3(grain), col.rgb), 0.18);
     col.rgb = max(col.rgb, uBg);
@@ -303,7 +310,12 @@
       gl.uniform1i(U('uTex'), 0); gl.uniform1i(U('uDepth'), 1);
       gl.uniform2f(U('uTexel'), 1 / img.width, 1 / img.height);
       gl.uniform3f(U('uBg'), 11 / 255, 11 / 255, 13 / 255);
-      const uTime = U('uTime'), uMode = U('uMode'), uPrev = U('uPrev'), uSweep = U('uSweep'), uMouse = U('uMouse');
+      const uTime = U('uTime'), uMode = U('uMode'), uPrev = U('uPrev'), uSweep = U('uSweep'), uMouse = U('uMouse'), uBurst = U('uBurst');
+      // 지지직: 랜딩 뒤 1.2~3.5초 간격으로 0.12~0.4초씩, 45% 확률로 연달아 두 번
+      let landed = false;
+      const burst = { start: 0, end: 0 };
+      const schedule = (t, again) => { burst.start = again ? t + 0.08 + Math.random() * 0.1 : t + 1.2 + Math.random() * 2.3; burst.end = burst.start + 0.12 + Math.random() * 0.28; };
+      setTimeout(() => { landed = true; schedule(now(), false); }, 1700);
       root.querySelector('.fallback')?.remove();
       root.prepend(boxEl);
       if (!reduced()) tween(0, 1, 1600, (v) => { uni.sweep = v; });
@@ -322,10 +334,17 @@
         }
         gl.uniform1f(uTime, t); gl.uniform1f(uMode, uni.mode); gl.uniform1f(uPrev, uni.prev); gl.uniform1f(uSweep, uni.sweep);
         gl.uniform2f(uMouse, mouse.x, mouse.y);
+        let b = 0;
+        if (landed && !reduced() && t >= burst.start) {
+          if (t < burst.end) b = 0.45 + 0.55 * Math.random();
+          else schedule(t, Math.random() < 0.45);
+        }
+        if (uni.sweep < 1) b = 0;
+        gl.uniform1f(uBurst, b);
         gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         // 레티클은 얼굴(깊이 ≈ 0.85)이 시차로 움직인 만큼 같이 이동
-        face.style.translate = `${0.35 * 0.045 * mouse.x * boxEl.clientWidth}px ${-0.35 * 0.045 * mouse.y * boxEl.clientHeight}px`;
+        face.style.translate = `${0.35 * 0.045 * mouse.x * boxEl.clientWidth + (Math.random() - 0.5) * 14 * b}px ${-0.35 * 0.045 * mouse.y * boxEl.clientHeight}px`;
       };
       draw();
     }).catch(() => {});
