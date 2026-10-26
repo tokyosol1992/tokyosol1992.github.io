@@ -85,7 +85,7 @@ src/
     Hero.astro             ← 홈 히어로: 페르소나 사진 + HUD (스캔 모드 버튼 [01]~[03], 키보드 1·2·3). WebGL 전엔 <Image>로 같은 사진. 홈에 올 때마다 mount, 떠날 때 destroy
   scripts/
     hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(레퍼런스 효과 스택 + visual/thermal/edge 스윕 전환), 깊이맵 마우스 시차, 얼굴 레티클(FACE 좌표), 먼지
-    page-transition.ts     ← 페이지 전환 C · 레티클 포커스 (ClientRouter 이벤트에 연결, Base에서 initPageTransition())
+    page-transition.ts     ← 페이지 전환: 본문 페이드 + 제목 스크램블·내용 순차 등장 (ClientRouter 이벤트에 연결, Base에서 initPageTransition()). 레티클은 2026-10-26 삭제
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
     scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
@@ -145,7 +145,7 @@ src/
 - 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환, 파란 스캔선은 얇게: 폭 0.006·밝기 1.1, 주변 줄 밀림 폭 0.03), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 좌상단 모드 수치(장식). 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
   - 사진 효과 (2026-10-22, chronothreads 히어로의 Unicorn Studio 효과 스택을 셰이더 하나로 재현): ① 깊이맵 시차 — 가까운 곳(얼굴)이 마우스 쪽으로, 관성 0.05 ② 가는 가로 블라인드 결(세기 0.2) ③ **지지직**(2026-10-22 사용자 요청으로 상시 글리치 대신): 등장(랜딩)이 끝난 뒤 1.2~3.5초 간격으로 0.12~0.4초씩(45% 확률로 연달아 한 번 더), 30fps로 끊어서 이미지 전체 흔들림·줄 찢김·색 분리·가로 노이즈 줄·밝기 깜박임. `uBurst` 0~1, 모드 전환 스윕 중엔 쉼. 레티클도 살짝 같이 흔들림. 줄무늬는 0.45 → 0.2로 낮춤 ④ 블룸(visual 모드만) ⑤ 오버레이 그레인 0.18 ⑥ 마우스를 조금 따라가는 비네트. 마우스가 3초 멈추거나 터치 기기면 천천히 떠다님. 레티클은 얼굴 시차만큼 같이 이동
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
-- 페이지 전환 C · 레티클 포커스 (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
+- ~~페이지 전환 C · 레티클 포커스~~ (2026-10-26 삭제 → 단순 페이드 + 내용 순차 등장) (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
 - 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
@@ -162,7 +162,8 @@ src/
   - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
     - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
     - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
-  - 하프톤 **클릭 충격파 끔** (`shockwave={false}`, 컴포넌트에 prop 추가, 2026-10-26 사용자: "마우스 선택했을 때 표기되는 이팩트 삭제"). 마우스를 대면 점이 밀리는 효과는 유지
+  - 하프톤 클릭 충격파는 **유지** (컴포넌트에 `shockwave` prop은 있음, 기본 true). 한때 잘못 알아듣고 껐다가 되살림
+  - ⚠️ **페이지 전환 C(파란 조준 사각형·레티클 + `lock x… → /…` 태그) 삭제** (2026-10-26 사용자: "링크를 누를 때 파란 조준 사각형이 나오는 효과 제거"). `page-transition.ts`는 이제 본문 페이드 아웃(200ms) → 페이드 인(360ms) + 제목 스크램블·내용 순차 등장만. Base의 `.pt` 레이어와 CSS도 삭제
     - React Bits Pro **Chroma Halo**도 후보였지만 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
   - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
