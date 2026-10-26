@@ -10,6 +10,16 @@
 
 ## 2026-10-26
 
+### 왼쪽 위 문구 변경, 워드마크 폰트 후보 비교
+
+**요청**
+- 왼쪽 위 문구를 `moho.han design`으로
+- moho.han이 더 굵고 임팩트 있는 폰트로 보였으면 → 무엇이 좋을지
+
+**반영**
+- 왼쪽 위 문구를 `moho.han design`으로 바꿨습니다.
+- 무료 폰트 8개(SUIT 800·900, Inter Tight 900, Archivo Black, Bricolage Grotesque 800, Unbounded 900, Dela Gothic One, Anton)를 실제 하프톤으로 찍어 비교 이미지를 드렸습니다. 선택 대기.
+
 ### 홈 메인 워드마크를 moho.han으로
 
 **요청**

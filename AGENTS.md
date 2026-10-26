@@ -154,6 +154,7 @@ src/
   - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh
   - ✅ junheedot.com 접속됨 (사용자가 허용). 구성: 떠 있는 둥근(pill) 헤더(로고 · 앵커 메뉴 소개/경력/프로젝트/사이드 프로젝트/기술/학력/기술 블로그/연락처 · 언어/테마) → 가운데 정렬 히어로(큰 이름 + 파란 직함 + 한 줄 소개 + 이력서/GitHub 버튼 + 아이콘 링크 + Scroll) → 소개(핵심 역량 카드 3 + 비즈니스 임팩트) → 경력(회사 카드 안 팀별 타임라인, '상세 내용 보기') → 프로젝트(썸네일 카드 2열, 기간·역할·스택 칩·성과) → 사이드 프로젝트 → 기술 스택(분류별 칩 행) → 학력·교육(타임라인) → 기술 블로그(카드 4 + 전체 글) → 연락처(카드 그리드) → 둥근 푸터. 폰트 Plus Jakarta Sans, 배경 `#09090b`, 스크롤 등장
   - 3단계: 워드마크를 **`moho.han`**(모바일 `moho`)로 교체 (사용자 결정, 2026-10-26). 소문자 위주라 아래 잘림을 `crop 0.03`으로 줄여 `.`이 보이게 함. 후보 비교했던 것: nerdy · geek · 솔길 · a bit / nerdy · osg.
+  - 왼쪽 위 문구 = `moho.han design` (2026-10-26). 워드마크 폰트를 더 굵은 것으로 바꾸는 중 — 후보: SUIT 900 · Inter Tight 900 · Archivo Black · Bricolage Grotesque 800 · Unbounded 900 · Dela Gothic One · Anton (Google Fonts, OFL. 고르면 SUIT처럼 `src/assets/fonts/`에 직접 넣기)
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
   - 작업 브랜치 `claude/focused-cray-54n1p9`, PR 미생성. 사용자와 **개선할 부분을 하나씩** 고치는 방식으로 진행 예정
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
