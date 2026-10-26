@@ -29,8 +29,12 @@ export interface SmokeFieldProps {
   radius?: number
   /** Band (0 = bottom, 1 = top) where idle puffs start. Defaults to [0.08, 0.32]. */
   sourceBand?: [number, number]
+  /** Upward speed of idle puffs, in sim units. Lower blooms in place, higher jets. Defaults to [260, 620]. */
+  puffSpeed?: [number, number]
   /** Seconds between idle puffs. Defaults to [0.5, 1.3]. */
   sourceEvery?: [number, number]
+  /** Playback speed of the whole simulation; below 1 is slow motion. Defaults to 1. */
+  speed?: number
   /** Follow the pointer. Defaults to true. */
   interactive?: boolean
   /** Extra root class names. */
@@ -142,14 +146,16 @@ export default function SmokeField({
   rise = 0.6,
   radius = 0.22,
   sourceBand = [0.08, 0.32],
+  puffSpeed = [260, 620],
   sourceEvery = [0.5, 1.3],
+  speed = 1,
   interactive = true,
   className = "",
   style,
 }: SmokeFieldProps) {
   const canvasRef = React.useRef(null as HTMLCanvasElement | null)
-  const opts = React.useRef({ color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, sourceEvery, interactive })
-  opts.current = { color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, sourceEvery, interactive }
+  const opts = React.useRef({ color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, puffSpeed, sourceEvery, speed, interactive })
+  opts.current = { color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, puffSpeed, sourceEvery, speed, interactive }
 
   React.useEffect(() => {
     const canvas = canvasRef.current
@@ -309,7 +315,7 @@ export default function SmokeField({
       nextPuff = now + rand(o.sourceEvery[0], o.sourceEvery[1]) * 1000
       const x = rand(0.06, 0.94)
       const y = rand(o.sourceBand[0], o.sourceBand[1])
-      splat(x, y, rand(-120, 120), rand(260, 620), tint(o.idleIntensity), rand(0.8, 1.4))
+      splat(x, y, rand(-0.2, 0.2) * o.puffSpeed[1], rand(o.puffSpeed[0], o.puffSpeed[1]), tint(o.idleIntensity), rand(0.8, 1.4))
     }
 
     // ── step ──
@@ -418,7 +424,7 @@ export default function SmokeField({
     const loop = (now: number) => {
       raf = 0
       if (!visible) return
-      const dt = Math.min((now - last) / 1000, 1 / 60)
+      const dt = Math.min((now - last) / 1000, 1 / 60) * opts.current.speed
       last = now
       if (size()) targets()
       puff(now)

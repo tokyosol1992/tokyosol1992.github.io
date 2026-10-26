@@ -63,6 +63,7 @@ npm run build    # dist/ — 현재 15페이지
 HISTORY.md                 ← 날짜별 작업 히스토리 (요청 → 반영, 최신이 위)
 mockups/                   ← 아티팩트 시안 원본 (빌드에 안 들어감)
   page-transition.html     ← 페이지 전환 A/B/C 비교 시안
+  preview/build.py         ← 홈 미리보기 아티팩트 생성기 (dist → 상대 경로 assets/, 2026-10-26)
   site/                    ← 사이트 전체 아티팩트 생성기: `npm run build` 후 `python3 -I mockups/site/build.py dist` → mockups/site/solgil-site.html (커밋 안 함)
 src/
   content.config.ts        ← 글 스키마 (work / archive 두 컬렉션)
@@ -160,10 +161,11 @@ src/
   - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
   - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
     - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
-    - 세기 조절: `idleIntensity`(피어오르는 연기, 0.28) · `intensity`(마우스, 0.11) · `rise` 1.2 · `dissipation` 0.9 · `curl` 22 · `sourceEvery` [0.35, 0.9]
+    - (2026-10-26 사용자 피드백 "더 연하고 몽글몽글, 더 느리게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.19 · `intensity`(마우스) 0.06 · `radius` 0.5(큰 퍼프) · `curl` 6(잔소용돌이 줄임) · `rise` 0.5 · `puffSpeed` [70, 180] · `dissipation` 0.45(오래 머묾) · **`speed` 0.5(전체 슬로모션)** · `sourceEvery` [0.7, 1.5]. 모두 `index.astro`의 SmokeField props
     - React Bits Pro **Chroma Halo**도 후보였지만 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
   - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
+  - **홈 미리보기 아티팩트** https://claude.ai/artifact/XChmtR9pkABcb1w2Lpbpq6 — 머지 전 확인용(홈 한 장, 사이트 안 링크는 막힘). 갱신: `npm run build` → `python3 -I mockups/preview/build.py dist <출력폴더>` → 출력폴더/index.html을 같은 URL로 재게시(files는 출력폴더/files.json 목록. 아티팩트는 `_`로 시작하는 경로를 못 써서 `assets/`로 바꿈)
   - 작업 브랜치 `claude/focused-cray-54n1p9`, PR 미생성. 사용자와 **개선할 부분을 하나씩** 고치는 방식으로 진행 예정
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
 
