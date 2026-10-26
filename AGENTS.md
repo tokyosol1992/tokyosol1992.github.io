@@ -75,7 +75,7 @@ src/
     url.ts                 ← base 경로 붙이는 링크 헬퍼
   components/
     ui/                    ← shadcn·21st.dev React 컴포넌트 (.tsx)
-      halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "solgil" 하프톤 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
+      halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "moho.han" 하프톤 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
     Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
     Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
@@ -150,10 +150,10 @@ src/
 ## 6. 현재 상태 (2026-10-26 기준)
 
 - 🔄 **대대적 개편 시작 (2026-10-26)** — 지금까지 사이트는 "인터랙션 실험·초안"으로 보고, 새 레퍼런스 **https://junheedot.com/** 을 참고해 다시 만드는 중
-  - ⚠️ junheedot.com은 클라우드 환경에서 열리지 않음(도메인 조회 실패 ENOTFOUND, 프록시 403). 주소 확인 또는 스크린샷을 사용자에게 받아야 함
   - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
   - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh
   - ✅ junheedot.com 접속됨 (사용자가 허용). 구성: 떠 있는 둥근(pill) 헤더(로고 · 앵커 메뉴 소개/경력/프로젝트/사이드 프로젝트/기술/학력/기술 블로그/연락처 · 언어/테마) → 가운데 정렬 히어로(큰 이름 + 파란 직함 + 한 줄 소개 + 이력서/GitHub 버튼 + 아이콘 링크 + Scroll) → 소개(핵심 역량 카드 3 + 비즈니스 임팩트) → 경력(회사 카드 안 팀별 타임라인, '상세 내용 보기') → 프로젝트(썸네일 카드 2열, 기간·역할·스택 칩·성과) → 사이드 프로젝트 → 기술 스택(분류별 칩 행) → 학력·교육(타임라인) → 기술 블로그(카드 4 + 전체 글) → 연락처(카드 그리드) → 둥근 푸터. 폰트 Plus Jakarta Sans, 배경 `#09090b`, 스크롤 등장
+  - 3단계: 워드마크를 **`moho.han`**(모바일 `moho`)로 교체 (사용자 결정, 2026-10-26). 소문자 위주라 아래 잘림을 `crop 0.03`으로 줄여 `.`이 보이게 함. 후보 비교했던 것: nerdy · geek · 솔길 · a bit / nerdy · osg.
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
   - 작업 브랜치 `claude/focused-cray-54n1p9`, PR 미생성. 사용자와 **개선할 부분을 하나씩** 고치는 방식으로 진행 예정
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
