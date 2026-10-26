@@ -32,8 +32,7 @@ export function initPageTransition() {
   const ret = layer.querySelector<HTMLElement>('[data-pt-ret]')!;
   const tag = layer.querySelector<HTMLElement>('[data-pt-tag]')!;
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const hud = () => document.querySelector<HTMLElement>('.hud-frame');
-  // 화면 코너 HUD와 같은 자리 (.hud-frame inset 12px)
+  // 화면 가장자리에서 12px 안쪽
   const frame = (): Box => ({ x: 12, y: 12, w: innerWidth - 24, h: innerHeight - 24 });
   let target: Box = frame();
   let run = 0; // 이동이 겹치면 이전 IN의 정리를 건너뜀
@@ -55,7 +54,6 @@ export function initPageTransition() {
     dim.style.top = `${header?.offsetHeight ?? 0}px`;
     tag.textContent = `lock x${pad(target.x)} y${pad(target.y)} → ${to}`;
     layer.classList.add('on');
-    hud()?.style.setProperty('visibility', 'hidden');
     const opts = { duration: OUT, fill: 'forwards' as const };
     await Promise.all([
       ret.animate([css(frame()), css(target)], { ...opts, easing: EASE_OUT }).finished,
@@ -94,7 +92,6 @@ export function initPageTransition() {
       stop();
       tag.style.opacity = '';
       layer.classList.remove('on');
-      hud()?.style.removeProperty('visibility');
     }
   }
 

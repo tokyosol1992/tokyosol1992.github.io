@@ -75,6 +75,7 @@ src/
     url.ts                 ← base 경로 붙이는 링크 헬퍼
   components/
     ui/                    ← shadcn·21st.dev React 컴포넌트 (.tsx)
+      smoke-field.tsx      ← 홈 메인 연기(WebGL2 유체): 글자 뒤에서 피어오름 + 마우스 따라 번짐
       halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Rubik 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
     Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
     Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
@@ -139,7 +140,7 @@ src/
   - 폰트: `--font` Pretendard / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px)
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
-- HUD: `.hud-frame`(화면 네 귀퉁이, 모바일 숨김), `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
+- HUD: ~~`.hud-frame`(화면 네 귀퉁이)~~ 2026-10-26 삭제, `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
 - 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환, 파란 스캔선은 얇게: 폭 0.006·밝기 1.1, 주변 줄 밀림 폭 0.03), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 좌상단 모드 수치(장식). 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
   - 사진 효과 (2026-10-22, chronothreads 히어로의 Unicorn Studio 효과 스택을 셰이더 하나로 재현): ① 깊이맵 시차 — 가까운 곳(얼굴)이 마우스 쪽으로, 관성 0.05 ② 가는 가로 블라인드 결(세기 0.2) ③ **지지직**(2026-10-22 사용자 요청으로 상시 글리치 대신): 등장(랜딩)이 끝난 뒤 1.2~3.5초 간격으로 0.12~0.4초씩(45% 확률로 연달아 한 번 더), 30fps로 끊어서 이미지 전체 흔들림·줄 찢김·색 분리·가로 노이즈 줄·밝기 깜박임. `uBurst` 0~1, 모드 전환 스윕 중엔 쉼. 레티클도 살짝 같이 흔들림. 줄무늬는 0.45 → 0.2로 낮춤 ④ 블룸(visual 모드만) ⑤ 오버레이 그레인 0.18 ⑥ 마우스를 조금 따라가는 비네트. 마우스가 3초 멈추거나 터치 기기면 천천히 떠다님. 레티클은 얼굴 시차만큼 같이 이동
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
@@ -154,9 +155,14 @@ src/
   - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh
   - ✅ junheedot.com 접속됨 (사용자가 허용). 구성: 떠 있는 둥근(pill) 헤더(로고 · 앵커 메뉴 소개/경력/프로젝트/사이드 프로젝트/기술/학력/기술 블로그/연락처 · 언어/테마) → 가운데 정렬 히어로(큰 이름 + 파란 직함 + 한 줄 소개 + 이력서/GitHub 버튼 + 아이콘 링크 + Scroll) → 소개(핵심 역량 카드 3 + 비즈니스 임팩트) → 경력(회사 카드 안 팀별 타임라인, '상세 내용 보기') → 프로젝트(썸네일 카드 2열, 기간·역할·스택 칩·성과) → 사이드 프로젝트 → 기술 스택(분류별 칩 행) → 학력·교육(타임라인) → 기술 블로그(카드 4 + 전체 글) → 연락처(카드 그리드) → 둥근 푸터. 폰트 Plus Jakarta Sans, 배경 `#09090b`, 스크롤 등장
   - 3단계: 워드마크를 **`moho.han`**(모바일 `moho`)로 교체 (사용자 결정, 2026-10-26). 소문자 위주라 아래 잘림을 `crop 0.03`으로 줄여 `.`이 보이게 함. 후보 비교했던 것: nerdy · geek · 솔길 · a bit / nerdy · osg.
-  - 왼쪽 위 문구 = `moho.han design` (2026-10-26)
+  - 왼쪽 위 문구 = `moho design` (2026-10-26, `.han` 뺌)
   - 4단계: 워드마크 = **`MoHo`**, 폰트 **Rubik 900** (사용자 선택, 2026-10-26). 모바일은 `Mo / Ho` 두 줄. Rubik은 라틴 글자만 잘라 woff2로 `src/assets/fonts/rubik/`(35KB, OFL.txt)에 넣고 홈에서만 preload(Base의 `<slot name="head">`). 비교했던 후보 25개(SUIT·Inter Tight·Archivo Black·Bricolage·Unbounded·Dela Gothic·Anton·Bebas·League Gothic·Oswald·Big Shoulders·Darker Grotesque·Bowlby·Climate Crisis·Syne·Space Grotesk·Funnel·Schibsted·Fraunces·Playfair·Silkscreen·Space Mono·Major Mono)
   - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
+  - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
+    - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
+    - 세기 조절: `idleIntensity`(피어오르는 연기, 0.28) · `intensity`(마우스, 0.11) · `rise` 1.2 · `dissipation` 0.9 · `curl` 22 · `sourceEvery` [0.35, 0.9]
+    - React Bits Pro **Chroma Halo**도 후보였지만 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
+  - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
   - 작업 브랜치 `claude/focused-cray-54n1p9`, PR 미생성. 사용자와 **개선할 부분을 하나씩** 고치는 방식으로 진행 예정
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정

@@ -317,6 +317,8 @@ export default function HalftoneWordmarkFooter({
     const draw = (now: number) => {
       const o = opts.current
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      // Cleared first so a "transparent" background lets a layer underneath show through.
+      ctx.clearRect(0, 0, w, h)
       ctx.fillStyle = o.colors.background
       ctx.fillRect(0, 0, w, h)
 

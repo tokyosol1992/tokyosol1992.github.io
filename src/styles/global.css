@@ -56,15 +56,6 @@ html.lenis, html.lenis body { height: auto; }
 .muted { color: var(--muted); }
 .mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; text-transform: uppercase; }
 
-/* ── HUD: 화면 모서리 브래킷 ── */
-.hud-frame { position: fixed; inset: 12px; pointer-events: none; z-index: 30; }
-.hud-frame i { position: absolute; width: 14px; height: 14px; border: 0 solid var(--dim); }
-.hud-frame i:nth-child(1) { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
-.hud-frame i:nth-child(2) { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
-.hud-frame i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
-.hud-frame i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
-@media (max-width: 640px) { .hud-frame { display: none; } }
-
 /* ── 페이지 전환 C · 레티클 포커스 (src/scripts/page-transition.ts) ── */
 .pt { display: none; position: fixed; inset: 0; z-index: 35; pointer-events: none; }
 .pt.on { display: block; }
@@ -190,6 +181,14 @@ h2 { font-size: 20px; margin: 48px 0 16px; letter-spacing: -0.01em; }
 /* 작은 글씨는 SUIT로. 한글이 벌어지지 않게 자간을 줄임 */
 .home-hwf .hwf-top, .home-hwf .hwf-rule { font-size: 12px; letter-spacing: 0.04em; }
 .home-hwf .hwf-brand strong { font-weight: 700; }
+/* 연기 레이어: 하프톤(배경 투명) 뒤에 깔고, 위쪽 링크 영역으로 갈수록 사라짐 */
+.home-hero { position: relative; isolation: isolate; background: var(--bg); }
+.home-hero .hwf-root { z-index: 1; }
+.home-smoke {
+  position: absolute; inset: 0; z-index: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 18%, #000 55%);
+  mask-image: linear-gradient(to bottom, transparent 18%, #000 55%);
+}
 .reveal { opacity: 0; transform: translateY(24px); }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
 

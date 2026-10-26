@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Library from '../components/Library.astro';
 import HalftoneWordmarkFooter from '@/components/ui/halftone-wordmark-footer';
+import SmokeField from '@/components/ui/smoke-field';
 import { getItems } from '../lib/items';
 import { categories } from '../lib/categories';
 import { url } from '../lib/url';
@@ -29,23 +30,27 @@ const columns = [
 ---
 <Base flush header={false}>
   <link slot="head" rel="preload" href={rubikWoff2} as="font" type="font/woff2" crossorigin />
+  <div class="home-hero" slot="full">
   <HalftoneWordmarkFooter
-    slot="full"
     client:load
     className="home-hwf"
     wordmark="MoHo"
     narrowWordmark={'Mo\nHo'}
     crop={0.03}
-    label="moho.han design"
+    label="moho design"
     meta={`©${new Date().getFullYear()} · Seoul`}
     columns={columns}
     backToTop={false}
-    palette={{ background: '#0b0b0d', warm: '#2895f7' }}
+    palette={{ background: 'transparent', warm: '#2895f7' }}
+    grain={0}
     fontFamily={RUBIK}
     fontWeight={900}
     monoFamily={SUIT}
     height="100svh"
   />
+  <!-- 글자 뒤에서 피어오르는 연기 + 마우스를 따라 번짐 (레퍼런스: junheedot.com 히어로) -->
+  <SmokeField client:load className="home-smoke" color="#2895f7" rise={1.2} sourceEvery={[0.35, 0.9]} />
+  </div>
   <section class="home-index" id="index">
     <div class="page-head reveal">
       <span class="mono">[00] / index</span>
