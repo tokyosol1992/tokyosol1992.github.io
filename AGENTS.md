@@ -168,7 +168,7 @@ src/
   - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
   - **홈 미리보기 아티팩트** https://claude.ai/artifact/XChmtR9pkABcb1w2Lpbpq6 — 머지 전 확인용(홈 한 장, 사이트 안 링크는 막힘). 갱신: `npm run build` → `python3 -I mockups/preview/build.py dist <출력폴더>` → 출력폴더/index.html을 같은 URL로 재게시(files는 출력폴더/files.json 목록. 아티팩트는 `_`로 시작하는 경로를 못 써서 `assets/`로 바꿈)
-  - 작업 브랜치 `claude/focused-cray-54n1p9`, PR 미생성. 사용자와 **개선할 부분을 하나씩** 고치는 방식으로 진행 예정
+  - ✅ **PR #9 머지** (2026-10-26, 브랜치 `claude/focused-cray-54n1p9`) — 위 1~5단계 전부 사이트에 반영. 이후도 사용자와 **개선할 부분을 하나씩** 고치는 방식
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
 
 - ✅ PR #1, #2 머지 · 배포됨 (카드 라이브러리 + 인수인계 노트)
