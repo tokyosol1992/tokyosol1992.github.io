@@ -7,6 +7,13 @@
   font-display: swap;
   src: url('../assets/fonts/suit/SUIT-Variable.woff2') format('woff2-variations'), url('../assets/fonts/suit/SUIT-Variable.woff2') format('woff2');
 }
+/* Rubik — 홈 워드마크 전용, 라틴 글자만 잘라 넣음 (SIL OFL — src/assets/fonts/rubik/OFL.txt) */
+@font-face {
+  font-family: 'Rubik';
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('../assets/fonts/rubik/Rubik-Latin-Variable.woff2') format('woff2-variations'), url('../assets/fonts/rubik/Rubik-Latin-Variable.woff2') format('woff2');
+}
 :root {
   --bg: #0b0b0d;
   --surface: #131316;
