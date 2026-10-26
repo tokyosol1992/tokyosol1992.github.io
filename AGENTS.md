@@ -77,7 +77,7 @@ src/
   components/
     ui/                    ← shadcn·21st.dev React 컴포넌트 (.tsx)
       smoke-field.tsx      ← 홈 메인 연기(WebGL2 유체): 글자 뒤에서 피어오름 + 마우스 따라 번짐
-      halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Rubik 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
+      halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Hahmlet 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
     Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
     Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
@@ -138,7 +138,7 @@ src/
 - 토큰 (`src/styles/global.css` `:root`, 다크만 있음)
   - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f0ebe5` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
   - (2026-10-22) 배경을 남색 기가 도는 `#15151c`에서 무채색에 가까운 `#0b0b0d`로 더 어둡게 바꿈. 히어로 3D 배경 패널(`hero-scene.ts` back 셰이더)과 사진 블렌딩 `uBg`(CSS `--bg`를 읽음), `theme-color`도 함께 맞춤
-  - 폰트: `--font` **SUIT Variable**(2026-10-26~, 이전 Pretendard) / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px). 홈 워드마크만 Rubik 900
+  - 폰트: `--font` **SUIT Variable**(2026-10-26~, 이전 Pretendard) / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px). 홈 워드마크만 Hahmlet 900
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
 - HUD: ~~`.hud-frame`(화면 네 귀퉁이)~~ 2026-10-26 삭제, `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
@@ -158,6 +158,7 @@ src/
   - 3단계: 워드마크를 **`moho.han`**(모바일 `moho`)로 교체 (사용자 결정, 2026-10-26). 소문자 위주라 아래 잘림을 `crop 0.03`으로 줄여 `.`이 보이게 함. 후보 비교했던 것: nerdy · geek · 솔길 · a bit / nerdy · osg.
   - 왼쪽 위 문구 = `moho design` (2026-10-26, `.han` 뺌)
   - 4단계: 워드마크 = **`MoHo`**, 폰트 **Rubik 900** (사용자 선택, 2026-10-26). 모바일은 `Mo / Ho` 두 줄. Rubik은 라틴 글자만 잘라 woff2로 `src/assets/fonts/rubik/`(35KB, OFL.txt)에 넣고 홈에서만 preload(Base의 `<slot name="head">`). 비교했던 후보 25개(SUIT·Inter Tight·Archivo Black·Bricolage·Unbounded·Dela Gothic·Anton·Bebas·League Gothic·Oswald·Big Shoulders·Darker Grotesque·Bowlby·Climate Crisis·Syne·Space Grotesk·Funnel·Schibsted·Fraunces·Playfair·Silkscreen·Space Mono·Major Mono)
+  - 5-1단계 (2026-10-26): **워드마크 폰트를 Rubik 900 → Hahmlet 900(바탕체 계열)로 교체** (사용자 요청 "바탕체에서 추천" → 후보 10개를 실제 하프톤으로 렌더링해 비교 후 추천안 적용). `src/assets/fonts/hahmlet/`에 굵기 900 고정·라틴만 서브셋한 woff2(21KB, OFL.txt), `global.css` @font-face + 홈 preload. Rubik 파일은 삭제. 비교했던 후보: Noto Serif KR 900(대안 1순위) · 나눔명조 800 · 송명 · 고운바탕 700 · Fraunces · Young Serif · Gloock · Playfair Display. 가는 획이 있는 폰트(Fraunces·Gloock·Playfair·송명·고운바탕)는 하프톤에서 점이 끊겨 제외. 한글 글리프는 서브셋에 없음 → 워드마크에 한글을 넣으려면 서브셋 범위를 넓힐 것
   - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
   - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
     - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
