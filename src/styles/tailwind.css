@@ -1,0 +1,5 @@
+/* Tailwind v4 (shadcn/ui용). 사이트 전역 스타일은 global.css가 맡고 있어서
+   preflight(브라우저 기본 스타일 초기화)는 넣지 않고 theme·utilities만 불러온다. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);

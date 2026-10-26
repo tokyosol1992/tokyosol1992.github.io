@@ -1,15 +1,40 @@
 ---
 import Base from '../layouts/Base.astro';
-import Intro from '../components/Intro.astro';
-import Hero from '../components/Hero.astro';
 import Library from '../components/Library.astro';
+import HalftoneWordmarkFooter from '@/components/ui/halftone-wordmark-footer';
 import { getItems } from '../lib/items';
+import { categories } from '../lib/categories';
+import { url } from '../lib/url';
 
 const items = await getItems();
+
+// 메인 화면: 하프톤 워드마크 (21st.dev halftone-wordmark-footer)
+// 링크 칼럼 = 항목 · 사이트 · 연락처
+const columns = [
+  { title: 'Library', links: categories.map((c) => ({ label: c.label, href: url(`/category/${c.slug}`) })) },
+  { title: 'Site', links: [
+    { label: 'About', href: url('/about') },
+    { label: 'Work', href: url('/work') },
+    { label: 'Notes', href: url('/archive') },
+  ] },
+  { title: 'Contact', links: [
+    { label: 'tokyosol1992@gmail.com', href: 'mailto:tokyosol1992@gmail.com' },
+    { label: 'GitHub', href: 'https://github.com/tokyosol1992' },
+  ] },
+];
 ---
 <Base flush>
-  <Intro slot="full" />
-  <Hero slot="full" />
+  <HalftoneWordmarkFooter
+    slot="full"
+    client:load
+    wordmark="solgil"
+    label="솔길 — Product Designer"
+    meta={`©${new Date().getFullYear()} · Seoul`}
+    columns={columns}
+    backToTop={false}
+    palette={{ background: '#0b0b0d' }}
+    height="calc(100svh - var(--home-top))"
+  />
   <section class="home-index" id="index">
     <div class="page-head reveal">
       <span class="mono">[00] / index</span>
@@ -19,4 +44,3 @@ const items = await getItems();
     <div class="reveal"><Library items={items} /></div>
   </section>
 </Base>
-

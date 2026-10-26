@@ -13,6 +13,7 @@
   --radius: 4px;
   --gutter: clamp(16px, 4vw, 40px);
   --header: 60px;
+  --home-top: var(--header); /* 홈 메인 화면 높이 = 화면 - 헤더 */
   /* 카테고리 색: 각 요소에 --h(색상 각도)를 넣으면 아래 값으로 칠해집니다 */
   --tint-l: 26%;
   --tint-c: 0.045;
@@ -101,6 +102,7 @@ header.site a { text-decoration: none; }
   header.site .wrap { flex-wrap: wrap; row-gap: 0; padding-top: 14px; }
   .clock { margin-left: auto; }
   .menu { order: 3; flex-basis: 100%; padding: 10px 0 12px; }
+  :root { --home-top: 86px; }
 }
 
 footer.site { border-top: 1px solid var(--line); padding: 28px 0 40px; }

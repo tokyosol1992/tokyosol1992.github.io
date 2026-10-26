@@ -1,6 +1,10 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
+import react from '@astrojs/react';
+
+import tailwindcss from '@tailwindcss/vite';
+
 // SITE / BASE는 GitHub Actions 배포 시 자동으로 채워집니다.
 // - <아이디>.github.io 저장소 → BASE = '/'
 // - 그 외 이름의 저장소   → BASE = '/<저장소이름>'
@@ -9,4 +13,9 @@ export default defineConfig({
   site: process.env.SITE || 'http://localhost:4321',
   base: process.env.BASE || '/',
   trailingSlash: 'ignore',
+  integrations: [react()],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });

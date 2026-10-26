@@ -8,6 +8,26 @@
 
 ---
 
+## 2026-10-26
+
+### 홈페이지 대대적 개편 시작 · 메인을 하프톤 워드마크로
+
+**요청**
+- 지금까지는 인터랙션이 어디까지 되는지 실험한 초안. https://junheedot.com/ 을 참고해 다시 만들자
+- 메인은 21st.dev의 Halftone Wordmark Footer 컴포넌트 통합 프롬프트대로 구성하고, 그다음 개선할 부분을 하나씩 고치자
+
+**반영**
+- 프로젝트에 React · Tailwind v4 · shadcn 구조를 추가했습니다. (`@astrojs/react`, `components.json`, `@/*` 경로 별칭, `src/lib/utils.ts`, `src/components/ui/`)
+  - Tailwind는 사이트 기존 스타일과 부딪히지 않게 기본 스타일 초기화(preflight) 없이 넣었습니다.
+- 컴포넌트를 `src/components/ui/halftone-wordmark-footer.tsx`에 그대로 넣고 홈 첫 화면으로 썼습니다.
+  - 거대한 `solgil` 글자를 점(하프톤)으로 찍고, 마우스를 대면 점이 밀려나며 주황색으로 달아오르고, 클릭하면 충격파가 퍼집니다.
+  - 위쪽 칼럼: 솔길 — Product Designer / Library(항목 5개) / Site(About·Work·Notes) / Contact(메일·GitHub)
+  - 높이는 화면 높이에서 헤더를 뺀 만큼. 맨 위로 버튼은 첫 화면이라 껐습니다.
+- 옛 히어로(페르소나 사진·스캔 모드)와 진입 화면은 홈에서 뺐습니다. 파일은 남겨 둠.
+- junheedot.com은 작업 환경에서 접속이 안 돼(도메인 조회 실패) 아직 참고하지 못했습니다.
+
+---
+
 ## 2026-10-22
 
 ### PR #7 · 히어로 "지지직" 효과, 등장 스캔선 정리
