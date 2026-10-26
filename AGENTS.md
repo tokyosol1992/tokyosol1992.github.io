@@ -37,8 +37,15 @@
 ## 2. 기술 스택 · 배포
 
 - **Astro 7** (정적 사이트), Node 22 (`.nvmrc`)
-- 의존성: `astro`, `three`(홈 3D, 지연 로드 ~550KB), `gsap`(+ScrollTrigger), `lenis`(부드러운 스크롤) / dev: `@types/three`
-- 폰트: Pretendard (jsDelivr), JetBrains Mono(HUD) + Silkscreen(픽셀 로고·타이틀) (Google Fonts) — `src/layouts/Base.astro`
+- 의존성: `astro`, `three`(옛 홈 3D — 2026-10-26부터 홈에서 안 씀), `gsap`(+ScrollTrigger), `lenis`(부드러운 스크롤) / dev: `@types/three`
+- (2026-10-26) **React + Tailwind v4 + shadcn 구조** 추가: `@astrojs/react`, `react`, `react-dom`, `@tailwindcss/vite`, `tailwindcss`, `clsx`, `tailwind-merge`
+  - `components.json`(shadcn 설정), `tsconfig.json` 경로 별칭 `@/*` → `src/*`, `src/lib/utils.ts`(`cn`)
+  - shadcn/21st.dev 컴포넌트는 **`src/components/ui/`** 에 둠 (shadcn CLI 기본 경로라 `npx shadcn add`가 여기로 넣음)
+  - `src/styles/tailwind.css`는 **preflight 없이** theme·utilities만 불러옴 (global.css 리셋과 충돌 방지). Base에서 global.css보다 먼저 import
+  - React 컴포넌트는 Astro에서 `client:load` 등 디렉티브로 섬(island)으로 띄움
+- 폰트 (2026-10-26~): **SUIT Variable**(한글·영문 공용, 기본 `--font`) — `src/assets/fonts/suit/`에 직접 넣어 씀(SIL OFL, LICENSE.txt 같이 둠), `global.css` @font-face + Base에서 preload. Pretendard는 뺌
+  - JetBrains Mono(`--mono`, HUD 라벨·코드) + Silkscreen(`--pixel`, 헤더 로고)는 아직 다른 페이지에 남아 있음 (Google Fonts)
+  - 클라우드 환경에선 jsDelivr·unpkg가 막혀 있고 raw.githubusercontent.com은 열림 (SUIT도 거기서 받음)
 - 배포: `.github/workflows/deploy.yml` — **`main`에 push되면** GitHub Actions가 빌드해서 GitHub Pages에 배포 (1분 내외)
   - PR에는 자동 검사가 없음. 머지 전에 로컬에서 `npm run build`로 확인할 것
   - `SITE`/`BASE`는 워크플로에서 자동 주입. 내부 링크는 반드시 `url()` 헬퍼(`src/lib/url.ts`)로 만들 것
@@ -47,7 +54,7 @@
 ```
 npm install
 npm run dev      # http://localhost:4321
-npm run build    # dist/ — 현재 15페이지 (three 청크 크기 경고는 정상)
+npm run build    # dist/ — 현재 15페이지
 ```
 
 ## 3. 구조
@@ -56,6 +63,7 @@ npm run build    # dist/ — 현재 15페이지 (three 청크 크기 경고는 �
 HISTORY.md                 ← 날짜별 작업 히스토리 (요청 → 반영, 최신이 위)
 mockups/                   ← 아티팩트 시안 원본 (빌드에 안 들어감)
   page-transition.html     ← 페이지 전환 A/B/C 비교 시안
+  preview/build.py         ← 홈 미리보기 아티팩트 생성기 (dist → 상대 경로 assets/, 2026-10-26)
   site/                    ← 사이트 전체 아티팩트 생성기: `npm run build` 후 `python3 -I mockups/site/build.py dist` → mockups/site/solgil-site.html (커밋 안 함)
 src/
   content.config.ts        ← 글 스키마 (work / archive 두 컬렉션)
@@ -67,6 +75,9 @@ src/
     items.ts               ← work+archive를 하나의 Item 목록으로 합치는 헬퍼, 정렬, 날짜 포맷
     url.ts                 ← base 경로 붙이는 링크 헬퍼
   components/
+    ui/                    ← shadcn·21st.dev React 컴포넌트 (.tsx)
+      smoke-field.tsx      ← 홈 메인 연기(WebGL2 유체): 글자 뒤에서 피어오름 + 마우스 따라 번짐
+      halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Rubik 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
     Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
     Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
@@ -74,14 +85,14 @@ src/
     Hero.astro             ← 홈 히어로: 페르소나 사진 + HUD (스캔 모드 버튼 [01]~[03], 키보드 1·2·3). WebGL 전엔 <Image>로 같은 사진. 홈에 올 때마다 mount, 떠날 때 destroy
   scripts/
     hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(레퍼런스 효과 스택 + visual/thermal/edge 스윕 전환), 깊이맵 마우스 시차, 얼굴 레티클(FACE 좌표), 먼지
-    page-transition.ts     ← 페이지 전환 C · 레티클 포커스 (ClientRouter 이벤트에 연결, Base에서 initPageTransition())
+    page-transition.ts     ← 페이지 전환: 본문 페이드 + 제목 스크램블·내용 순차 등장 (ClientRouter 이벤트에 연결, Base에서 initPageTransition()). 레티클은 2026-10-26 삭제
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
     scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
   layouts/Base.astro       ← <head>(ClientRouter), 헤더(로고 · 항목 메뉴 + About · 서울 시계), 화면 코너 HUD, 전환 레이어, 푸터, Lenis. 헤더·HUD·전환 레이어는 transition:persist. slot="full"은 .wrap 밖(풀폭)
   pages/
-    index.astro            ← 홈: Intro + Hero + 전체 리스트
+    index.astro            ← 홈: 하프톤 워드마크(화면 높이 - 헤더) + 전체 리스트 (2026-10-26 개편, Intro·Hero는 안 씀)
     category/[slug].astro  ← 항목별 페이지
     work/index.astro, work/[...slug].astro
     archive/index.astro (제목 "Notes"), archive/[...slug].astro
@@ -130,15 +141,35 @@ src/
   - 폰트: `--font` Pretendard / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px)
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
-- HUD: `.hud-frame`(화면 네 귀퉁이, 모바일 숨김), `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
+- HUD: ~~`.hud-frame`(화면 네 귀퉁이)~~ 2026-10-26 삭제, `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
 - 홈 히어로: 픽셀 "GEEK"(헤더 로고는 SOLGIL_) + "플랫폼과 디자인 시스템을 만드는 / 프로덕트 디자이너 솔길입니다." / 오른쪽 페르소나(사진 배경은 `max(col, --bg)`로 사이트 배경에 녹이고 타원형 페이드), 스캔 모드 3종 visual · thermal · edge scan(위→아래 스윕+글리치 전환, 파란 스캔선은 얇게: 폭 0.006·밝기 1.1, 주변 줄 밀림 폭 0.03), 얼굴 레티클+`SUBJ: SOLGIL.EXE` 라벨, 좌상단 모드 수치(장식). 스크롤 시 흐려짐. 모바일은 페르소나 위·문구 아래
   - 사진 효과 (2026-10-22, chronothreads 히어로의 Unicorn Studio 효과 스택을 셰이더 하나로 재현): ① 깊이맵 시차 — 가까운 곳(얼굴)이 마우스 쪽으로, 관성 0.05 ② 가는 가로 블라인드 결(세기 0.2) ③ **지지직**(2026-10-22 사용자 요청으로 상시 글리치 대신): 등장(랜딩)이 끝난 뒤 1.2~3.5초 간격으로 0.12~0.4초씩(45% 확률로 연달아 한 번 더), 30fps로 끊어서 이미지 전체 흔들림·줄 찢김·색 분리·가로 노이즈 줄·밝기 깜박임. `uBurst` 0~1, 모드 전환 스윕 중엔 쉼. 레티클도 살짝 같이 흔들림. 줄무늬는 0.45 → 0.2로 낮춤 ④ 블룸(visual 모드만) ⑤ 오버레이 그레인 0.18 ⑥ 마우스를 조금 따라가는 비네트. 마우스가 3초 멈추거나 터치 기기면 천천히 떠다님. 레티클은 얼굴 시차만큼 같이 이동
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
-- 페이지 전환 C · 레티클 포커스 (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
+- ~~페이지 전환 C · 레티클 포커스~~ (2026-10-26 삭제 → 단순 페이드 + 내용 순차 등장) (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
 - 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
-## 6. 현재 상태 (2026-10-22 기준)
+## 6. 현재 상태 (2026-10-26 기준)
+
+- 🔄 **대대적 개편 시작 (2026-10-26)** — 지금까지 사이트는 "인터랙션 실험·초안"으로 보고, 새 레퍼런스 **https://junheedot.com/** 을 참고해 다시 만드는 중
+  - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
+  - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh
+  - ✅ junheedot.com 접속됨 (사용자가 허용). 구성: 떠 있는 둥근(pill) 헤더(로고 · 앵커 메뉴 소개/경력/프로젝트/사이드 프로젝트/기술/학력/기술 블로그/연락처 · 언어/테마) → 가운데 정렬 히어로(큰 이름 + 파란 직함 + 한 줄 소개 + 이력서/GitHub 버튼 + 아이콘 링크 + Scroll) → 소개(핵심 역량 카드 3 + 비즈니스 임팩트) → 경력(회사 카드 안 팀별 타임라인, '상세 내용 보기') → 프로젝트(썸네일 카드 2열, 기간·역할·스택 칩·성과) → 사이드 프로젝트 → 기술 스택(분류별 칩 행) → 학력·교육(타임라인) → 기술 블로그(카드 4 + 전체 글) → 연락처(카드 그리드) → 둥근 푸터. 폰트 Plus Jakarta Sans, 배경 `#09090b`, 스크롤 등장
+  - 3단계: 워드마크를 **`moho.han`**(모바일 `moho`)로 교체 (사용자 결정, 2026-10-26). 소문자 위주라 아래 잘림을 `crop 0.03`으로 줄여 `.`이 보이게 함. 후보 비교했던 것: nerdy · geek · 솔길 · a bit / nerdy · osg.
+  - 왼쪽 위 문구 = `moho design` (2026-10-26, `.han` 뺌)
+  - 4단계: 워드마크 = **`MoHo`**, 폰트 **Rubik 900** (사용자 선택, 2026-10-26). 모바일은 `Mo / Ho` 두 줄. Rubik은 라틴 글자만 잘라 woff2로 `src/assets/fonts/rubik/`(35KB, OFL.txt)에 넣고 홈에서만 preload(Base의 `<slot name="head">`). 비교했던 후보 25개(SUIT·Inter Tight·Archivo Black·Bricolage·Unbounded·Dela Gothic·Anton·Bebas·League Gothic·Oswald·Big Shoulders·Darker Grotesque·Bowlby·Climate Crisis·Syne·Space Grotesk·Funnel·Schibsted·Fraunces·Playfair·Silkscreen·Space Mono·Major Mono)
+  - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
+  - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
+    - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
+    - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
+  - 하프톤 클릭 충격파는 **유지** (컴포넌트에 `shockwave` prop은 있음, 기본 true). 한때 잘못 알아듣고 껐다가 되살림
+  - ⚠️ **페이지 전환 C(파란 조준 사각형·레티클 + `lock x… → /…` 태그) 삭제** (2026-10-26 사용자: "링크를 누를 때 파란 조준 사각형이 나오는 효과 제거"). `page-transition.ts`는 이제 본문 페이드 아웃(200ms) → 페이드 인(360ms) + 제목 스크램블·내용 순차 등장만. Base의 `.pt` 레이어와 CSS도 삭제
+    - React Bits Pro **Chroma Halo**도 후보였지만 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
+  - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
+  - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
+  - **홈 미리보기 아티팩트** https://claude.ai/artifact/XChmtR9pkABcb1w2Lpbpq6 — 머지 전 확인용(홈 한 장, 사이트 안 링크는 막힘). 갱신: `npm run build` → `python3 -I mockups/preview/build.py dist <출력폴더>` → 출력폴더/index.html을 같은 URL로 재게시(files는 출력폴더/files.json 목록. 아티팩트는 `_`로 시작하는 경로를 못 써서 `assets/`로 바꿈)
+  - ✅ **PR #9 머지** (2026-10-26, 브랜치 `claude/focused-cray-54n1p9`) — 위 1~5단계 전부 사이트에 반영. 이후도 사용자와 **개선할 부분을 하나씩** 고치는 방식
+  - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
 
 - ✅ PR #1, #2 머지 · 배포됨 (카드 라이브러리 + 인수인계 노트)
 - ✅ PR #3 머지 · **배포 성공** (2026-10-21, Actions run #4): **다크 HUD + 페르소나 히어로(타이틀 "GEEK") + huddling식 메뉴·리스트**
@@ -162,6 +193,8 @@ src/
   - 스펙표·focus 문구는 기존 소개 문단에서만 가져옴. 'ONLINE'·'ID // SUBJ_01'은 장식
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
+
+0. **개편 진행**: 홈 하프톤 메인 계속 다듬기 → junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·연락처 등) 구성 여부를 사용자와 정하기 → 나머지 페이지·헤더를 새 방향으로 (경력·성과 등 내용은 사용자에게 받은 것만)
 
 > 단계별 상세 플랜과 진행 상태는 **`PLAN.md`** 참고. 작업 방식(아티팩트 시안 → Figma 수정 → 코드 반영 → 머지)도 거기에 있음.
 
