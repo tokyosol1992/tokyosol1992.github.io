@@ -161,7 +161,8 @@ src/
   - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
   - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
     - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
-    - (2026-10-26 사용자 피드백 "더 연하고 몽글몽글, 더 느리게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.19 · `intensity`(마우스) 0.06 · `radius` 0.5(큰 퍼프) · `curl` 6(잔소용돌이 줄임) · `rise` 0.5 · `puffSpeed` [70, 180] · `dissipation` 0.45(오래 머묾) · **`speed` 0.5(전체 슬로모션)** · `sourceEvery` [0.7, 1.5]. 모두 `index.astro`의 SmokeField props
+    - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
+  - 하프톤 **클릭 충격파 끔** (`shockwave={false}`, 컴포넌트에 prop 추가, 2026-10-26 사용자: "마우스 선택했을 때 표기되는 이팩트 삭제"). 마우스를 대면 점이 밀리는 효과는 유지
     - React Bits Pro **Chroma Halo**도 후보였지만 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
   - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림

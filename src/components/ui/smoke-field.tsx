@@ -35,6 +35,8 @@ export interface SmokeFieldProps {
   sourceEvery?: [number, number]
   /** Playback speed of the whole simulation; below 1 is slow motion. Defaults to 1. */
   speed?: number
+  /** How hard the pointer stirs the smoke. Lower keeps the trail close to the cursor. Defaults to 6000. */
+  force?: number
   /** Follow the pointer. Defaults to true. */
   interactive?: boolean
   /** Extra root class names. */
@@ -149,13 +151,14 @@ export default function SmokeField({
   puffSpeed = [260, 620],
   sourceEvery = [0.5, 1.3],
   speed = 1,
+  force = 6000,
   interactive = true,
   className = "",
   style,
 }: SmokeFieldProps) {
   const canvasRef = React.useRef(null as HTMLCanvasElement | null)
-  const opts = React.useRef({ color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, puffSpeed, sourceEvery, speed, interactive })
-  opts.current = { color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, puffSpeed, sourceEvery, speed, interactive }
+  const opts = React.useRef({ color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, puffSpeed, sourceEvery, speed, force, interactive })
+  opts.current = { color, intensity, idleIntensity, dissipation, curl, rise, radius, sourceBand, puffSpeed, sourceEvery, speed, force, interactive }
 
   React.useEffect(() => {
     const canvas = canvasRef.current
@@ -407,7 +410,8 @@ export default function SmokeField({
         const dy = y - py
         if (Math.abs(dx) + Math.abs(dy) > 0.0005) {
           const aspect = canvas.width / canvas.height
-          splat(x, y, dx * 6000 * (aspect < 1 ? aspect : 1), dy * 6000 * (aspect > 1 ? 1 / aspect : 1), tint(opts.current.intensity))
+          const f = opts.current.force
+          splat(x, y, dx * f * (aspect < 1 ? aspect : 1), dy * f * (aspect > 1 ? 1 / aspect : 1), tint(opts.current.intensity))
         }
       }
       px = x

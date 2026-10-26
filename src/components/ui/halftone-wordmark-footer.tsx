@@ -66,6 +66,8 @@ export interface HalftoneWordmarkFooterProps {
   grain?: number
   /** Pointer and click response. Defaults to true. */
   interactive?: boolean
+  /** Send a shock ring through the word on click. Defaults to true. */
+  shockwave?: boolean
   /** Face for the wordmark. Heavy grotesks print best. */
   fontFamily?: string
   /** Weight of the wordmark. Defaults to 800. */
@@ -201,6 +203,7 @@ export default function HalftoneWordmarkFooter({
   crop = 0.2,
   grain = 0.5,
   interactive = true,
+  shockwave = true,
   fontFamily = SANS_STACK,
   fontWeight = 800,
   monoFamily = MONO_STACK,
@@ -210,8 +213,8 @@ export default function HalftoneWordmarkFooter({
   const colors = { ...(PRESETS[preset] || PRESETS.night), ...(palette || {}) }
   const rootRef = React.useRef(null as HTMLElement | null)
   const canvasRef = React.useRef(null as HTMLCanvasElement | null)
-  const opts = React.useRef({ colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark, narrowWordmark, narrowBelow, lineHeight })
-  opts.current = { colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark, narrowWordmark, narrowBelow, lineHeight }
+  const opts = React.useRef({ colors, dotGap, radius, crop, grain, interactive, shockwave, fontFamily, fontWeight, wordmark, narrowWordmark, narrowBelow, lineHeight })
+  opts.current = { colors, dotGap, radius, crop, grain, interactive, shockwave, fontFamily, fontWeight, wordmark, narrowWordmark, narrowBelow, lineHeight }
   const key = [wordmark, narrowWordmark, narrowBelow, lineHeight, dotGap, crop, grain, fontFamily, fontWeight, colors.background, colors.ink, colors.warm].join("|")
 
   React.useEffect(() => {
@@ -419,7 +422,7 @@ export default function HalftoneWordmarkFooter({
       wake()
     }
     const onDown = (e: PointerEv) => {
-      if (!opts.current.interactive || reduced) return
+      if (!opts.current.interactive || !opts.current.shockwave || reduced) return
       if ((e.target as HTMLElement).closest("a,button")) return
       const p = toLocal(e)
       ring = { x: p[0], y: p[1], t: performance.now() }
