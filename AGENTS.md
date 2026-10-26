@@ -43,7 +43,9 @@
   - shadcn/21st.dev 컴포넌트는 **`src/components/ui/`** 에 둠 (shadcn CLI 기본 경로라 `npx shadcn add`가 여기로 넣음)
   - `src/styles/tailwind.css`는 **preflight 없이** theme·utilities만 불러옴 (global.css 리셋과 충돌 방지). Base에서 global.css보다 먼저 import
   - React 컴포넌트는 Astro에서 `client:load` 등 디렉티브로 섬(island)으로 띄움
-- 폰트: Pretendard (jsDelivr), JetBrains Mono(HUD) + Silkscreen(픽셀 로고·타이틀) (Google Fonts) — `src/layouts/Base.astro`
+- 폰트 (2026-10-26~): **SUIT Variable**(한글·영문 공용, 기본 `--font`) — `src/assets/fonts/suit/`에 직접 넣어 씀(SIL OFL, LICENSE.txt 같이 둠), `global.css` @font-face + Base에서 preload. Pretendard는 뺌
+  - JetBrains Mono(`--mono`, HUD 라벨·코드) + Silkscreen(`--pixel`, 헤더 로고)는 아직 다른 페이지에 남아 있음 (Google Fonts)
+  - 클라우드 환경에선 jsDelivr·unpkg가 막혀 있고 raw.githubusercontent.com은 열림 (SUIT도 거기서 받음)
 - 배포: `.github/workflows/deploy.yml` — **`main`에 push되면** GitHub Actions가 빌드해서 GitHub Pages에 배포 (1분 내외)
   - PR에는 자동 검사가 없음. 머지 전에 로컬에서 `npm run build`로 확인할 것
   - `SITE`/`BASE`는 워크플로에서 자동 주입. 내부 링크는 반드시 `url()` 헬퍼(`src/lib/url.ts`)로 만들 것
@@ -149,7 +151,10 @@ src/
 
 - 🔄 **대대적 개편 시작 (2026-10-26)** — 지금까지 사이트는 "인터랙션 실험·초안"으로 보고, 새 레퍼런스 **https://junheedot.com/** 을 참고해 다시 만드는 중
   - ⚠️ junheedot.com은 클라우드 환경에서 열리지 않음(도메인 조회 실패 ENOTFOUND, 프록시 403). 주소 확인 또는 스크린샷을 사용자에게 받아야 함
-  - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 프리셋 night, 배경만 사이트 `--bg`로. 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
+  - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
+  - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh
+  - ✅ junheedot.com 접속됨 (사용자가 허용). 구성: 떠 있는 둥근(pill) 헤더(로고 · 앵커 메뉴 소개/경력/프로젝트/사이드 프로젝트/기술/학력/기술 블로그/연락처 · 언어/테마) → 가운데 정렬 히어로(큰 이름 + 파란 직함 + 한 줄 소개 + 이력서/GitHub 버튼 + 아이콘 링크 + Scroll) → 소개(핵심 역량 카드 3 + 비즈니스 임팩트) → 경력(회사 카드 안 팀별 타임라인, '상세 내용 보기') → 프로젝트(썸네일 카드 2열, 기간·역할·스택 칩·성과) → 사이드 프로젝트 → 기술 스택(분류별 칩 행) → 학력·교육(타임라인) → 기술 블로그(카드 4 + 전체 글) → 연락처(카드 그리드) → 둥근 푸터. 폰트 Plus Jakarta Sans, 배경 `#09090b`, 스크롤 등장
+  - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
   - 작업 브랜치 `claude/focused-cray-54n1p9`, PR 미생성. 사용자와 **개선할 부분을 하나씩** 고치는 방식으로 진행 예정
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
 
@@ -176,7 +181,7 @@ src/
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-0. **개편 진행**: junheedot.com 레퍼런스 확보(스크린샷/정확한 주소) → 홈 하프톤 메인 다듬기(워드마크 폰트·색·높이, 헤더와의 관계, 리스트 배치) → 나머지 페이지를 새 방향으로
+0. **개편 진행**: 홈 하프톤 메인 계속 다듬기 → junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·연락처 등) 구성 여부를 사용자와 정하기 → 나머지 페이지·헤더를 새 방향으로 (경력·성과 등 내용은 사용자에게 받은 것만)
 
 > 단계별 상세 플랜과 진행 상태는 **`PLAN.md`** 참고. 작업 방식(아티팩트 시안 → Figma 수정 → 코드 반영 → 머지)도 거기에 있음.
 

@@ -1,4 +1,12 @@
-/* 다크 고정 · HUD 톤 (레퍼런스: chronothreads.webflow.io) */
+/* 다크 고정 (2026-10-26 개편 중, 레퍼런스: junheedot.com) */
+
+/* SUIT (한글·영문 공용, SIL OFL — src/assets/fonts/suit/LICENSE.txt) */
+@font-face {
+  font-family: 'SUIT Variable';
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/suit/SUIT-Variable.woff2') format('woff2-variations'), url('../assets/fonts/suit/SUIT-Variable.woff2') format('woff2');
+}
 :root {
   --bg: #0b0b0d;
   --surface: #131316;
@@ -13,12 +21,11 @@
   --radius: 4px;
   --gutter: clamp(16px, 4vw, 40px);
   --header: 60px;
-  --home-top: var(--header); /* 홈 메인 화면 높이 = 화면 - 헤더 */
   /* 카테고리 색: 각 요소에 --h(색상 각도)를 넣으면 아래 값으로 칠해집니다 */
   --tint-l: 26%;
   --tint-c: 0.045;
   --ink-l: 80%;
-  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font: 'SUIT Variable', 'SUIT', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --pixel: 'Silkscreen', var(--mono);
   font-family: var(--font);
@@ -102,7 +109,6 @@ header.site a { text-decoration: none; }
   header.site .wrap { flex-wrap: wrap; row-gap: 0; padding-top: 14px; }
   .clock { margin-left: auto; }
   .menu { order: 3; flex-basis: 100%; padding: 10px 0 12px; }
-  :root { --home-top: 86px; }
 }
 
 footer.site { border-top: 1px solid var(--line); padding: 28px 0 40px; }
@@ -172,6 +178,11 @@ h2 { font-size: 20px; margin: 48px 0 16px; letter-spacing: -0.01em; }
 }
 
 .home-index { padding-top: 96px; }
+
+/* ── 홈 메인: 하프톤 워드마크 (src/components/ui/halftone-wordmark-footer.tsx) ── */
+/* 작은 글씨는 SUIT로. 한글이 벌어지지 않게 자간을 줄임 */
+.home-hwf .hwf-top, .home-hwf .hwf-rule { font-size: 12px; letter-spacing: 0.04em; }
+.home-hwf .hwf-brand strong { font-weight: 700; }
 .reveal { opacity: 0; transform: translateY(24px); }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
 

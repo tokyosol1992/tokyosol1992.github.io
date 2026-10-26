@@ -4,9 +4,11 @@ import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import { url } from '../lib/url';
 import { categories } from '../lib/categories';
+import suitWoff2 from '../assets/fonts/suit/SUIT-Variable.woff2?url';
 
-interface Props { title?: string; description?: string; flush?: boolean; }
-const { title, description = '솔길 · Product Designer 포트폴리오', flush = false } = Astro.props;
+interface Props { title?: string; description?: string; flush?: boolean; header?: boolean; }
+// header={false}: 상단 헤더 없이 (홈은 하프톤 메인이 메뉴를 겸함)
+const { title, description = '솔길 · Product Designer 포트폴리오', flush = false, header = true } = Astro.props;
 const siteName = '솔길';
 const pageTitle = title ? `${title} — ${siteName}` : `${siteName} · Product Designer`;
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
@@ -25,7 +27,7 @@ const menu = [
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preload" href={suitWoff2} as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Silkscreen&display=swap" />
@@ -37,7 +39,7 @@ const menu = [
       <div class="pt-dim" data-pt-dim></div>
       <div class="pt-ret" data-pt-ret><i></i><i></i><i></i><i></i><u></u><u></u><u></u><u></u><span class="pt-tag mono" data-pt-tag></span></div>
     </div>
-    <header class="site" transition:persist="header">
+    {header && <header class="site" transition:persist="header">
       <div class="wrap">
         <a class="logo" href={url('/')} data-scramble>SOLGIL<b>_</b></a>
         <nav class="menu" aria-label="메뉴">
@@ -47,7 +49,7 @@ const menu = [
         </nav>
         <span class="clock mono" data-clock>SEOUL --:--:--</span>
       </div>
-    </header>
+    </header>}
     <main class:list={{ flush }}><slot name="full" /><div class="wrap"><slot /></div></main>
     <footer class="site">
       <div class="wrap mono">
@@ -68,9 +70,9 @@ const menu = [
   // 이 스크립트는 처음 한 번만 실행됨 (ClientRouter). 헤더·시계·HUD는 페이지를 넘어도 유지
 
   // 서울 시각 HUD
-  const clock = document.querySelector<HTMLElement>('[data-clock]');
   const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-  const tick = () => { if (clock) clock.textContent = `SEOUL ${fmt.format(new Date())}`; };
+  // 헤더가 없는 페이지(홈)도 있어서 매번 찾음
+  const tick = () => { const clock = document.querySelector<HTMLElement>('[data-clock]'); if (clock) clock.textContent = `SEOUL ${fmt.format(new Date())}`; };
   tick();
   setInterval(tick, 1000);
 

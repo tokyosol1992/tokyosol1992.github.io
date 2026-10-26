@@ -36,8 +36,14 @@ export interface FooterColumn {
 }
 
 export interface HalftoneWordmarkFooterProps {
-  /** The giant word printed in dots. Lowercase reads best. */
+  /** The giant word printed in dots. Lowercase reads best. "\n" stacks lines. */
   wordmark?: string
+  /** Wordmark used below `narrowBelow` px wide, e.g. "sol\ngil" to set it larger on phones. */
+  narrowWordmark?: string
+  /** Width in CSS px under which `narrowWordmark` is used. Defaults to 720. */
+  narrowBelow?: number
+  /** Baseline distance between stacked lines, as a fraction of the font size. Defaults to 0.86. */
+  lineHeight?: number
   /** Top-left studio line. */
   label?: string
   /** The muted line under it. */
@@ -181,6 +187,9 @@ const HWF_CSS = `
 
 export default function HalftoneWordmarkFooter({
   wordmark = "halden",
+  narrowWordmark,
+  narrowBelow = 720,
+  lineHeight = 0.86,
   label = "Halden Studio",
   meta = "©2026 · Oslo / Lisbon",
   columns = DEFAULT_COLUMNS,
@@ -201,9 +210,9 @@ export default function HalftoneWordmarkFooter({
   const colors = { ...(PRESETS[preset] || PRESETS.night), ...(palette || {}) }
   const rootRef = React.useRef(null as HTMLElement | null)
   const canvasRef = React.useRef(null as HTMLCanvasElement | null)
-  const opts = React.useRef({ colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark })
-  opts.current = { colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark }
-  const key = [wordmark, dotGap, crop, grain, fontFamily, fontWeight, colors.background, colors.ink, colors.warm].join("|")
+  const opts = React.useRef({ colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark, narrowWordmark, narrowBelow, lineHeight })
+  opts.current = { colors, dotGap, radius, crop, grain, interactive, fontFamily, fontWeight, wordmark, narrowWordmark, narrowBelow, lineHeight }
+  const key = [wordmark, narrowWordmark, narrowBelow, lineHeight, dotGap, crop, grain, fontFamily, fontWeight, colors.background, colors.ink, colors.warm].join("|")
 
   React.useEffect(() => {
     const root = rootRef.current
@@ -238,7 +247,7 @@ export default function HalftoneWordmarkFooter({
       canvas.width = Math.round(w * dpr)
       canvas.height = Math.round(h * dpr)
 
-      // Set the word once, at a size that fills the width, on a 1x mask.
+      // Set the word once, at a size where its widest line fills the width, on a 1x mask.
       const mask = document.createElement("canvas")
       mask.width = w
       mask.height = h
@@ -246,15 +255,21 @@ export default function HalftoneWordmarkFooter({
       if (!m) return
       const face = o.fontWeight + " 100px " + o.fontFamily
       m.font = face
-      const word = o.wordmark || " "
-      const fit = hwfFitSize(m.measureText(word).width, w * 1.02)
+      const narrow = !!o.narrowWordmark && w < o.narrowBelow
+      const lines = ((narrow ? o.narrowWordmark : o.wordmark) || " ").split("\n")
+      const widest = Math.max(...lines.map((l) => m.measureText(l).width))
+      const fit = hwfFitSize(widest, w * 1.02)
       m.font = o.fontWeight + " " + fit + "px " + o.fontFamily
-      const box = m.measureText(word)
-      const cap = box.actualBoundingBoxAscent || fit * 0.72
+      const cap = m.measureText(lines.join("")).actualBoundingBoxAscent || fit * 0.72
       const c = Math.max(0, Math.min(0.6, o.crop))
       m.fillStyle = "#000"
       m.textBaseline = "alphabetic"
-      m.fillText(word, (w - box.width) / 2, h + cap * c)
+      // The last line hangs off the bottom edge; the others stack above it.
+      const base = h + cap * c
+      lines.forEach((line, i) => {
+        const lw = m.measureText(line).width
+        m.fillText(line, (w - lw) / 2, base - (lines.length - 1 - i) * fit * o.lineHeight)
+      })
       const img = m.getImageData(0, 0, w, h).data
 
       const gap = Math.max(3, o.dotGap)
@@ -426,14 +441,17 @@ export default function HalftoneWordmarkFooter({
       if (visible) wake()
     })
     io.observe(root)
-    // A web font that lands late re-sets the word in its real face.
+    // A web font that lands late re-sets the word in its real face. The canvas
+    // asks for the face itself, since the page may not have used it yet.
     let alive = true
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
+      const relayout = () => {
         if (!alive) return
         layout()
         wake()
-      })
+      }
+      document.fonts.ready.then(relayout)
+      document.fonts.load(opts.current.fontWeight + " 100px " + opts.current.fontFamily).then(relayout, () => {})
     }
 
     return () => {

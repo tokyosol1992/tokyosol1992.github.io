@@ -9,7 +9,8 @@ import { url } from '../lib/url';
 const items = await getItems();
 
 // 메인 화면: 하프톤 워드마크 (21st.dev halftone-wordmark-footer)
-// 링크 칼럼 = 항목 · 사이트 · 연락처
+// 링크 칼럼 = 항목 · 사이트 · 연락처. 헤더 없이 이 화면이 메뉴를 겸함
+const SUIT = "'SUIT Variable', 'SUIT', -apple-system, 'Apple SD Gothic Neo', system-ui, sans-serif";
 const columns = [
   { title: 'Library', links: categories.map((c) => ({ label: c.label, href: url(`/category/${c.slug}`) })) },
   { title: 'Site', links: [
@@ -23,17 +24,21 @@ const columns = [
   ] },
 ];
 ---
-<Base flush>
+<Base flush header={false}>
   <HalftoneWordmarkFooter
     slot="full"
     client:load
+    className="home-hwf"
     wordmark="solgil"
+    narrowWordmark={'sol\ngil'}
     label="솔길 — Product Designer"
     meta={`©${new Date().getFullYear()} · Seoul`}
     columns={columns}
     backToTop={false}
-    palette={{ background: '#0b0b0d' }}
-    height="calc(100svh - var(--home-top))"
+    palette={{ background: '#0b0b0d', warm: '#2895f7' }}
+    fontFamily={SUIT}
+    monoFamily={SUIT}
+    height="100svh"
   />
   <section class="home-index" id="index">
     <div class="page-head reveal">
