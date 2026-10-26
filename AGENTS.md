@@ -90,9 +90,9 @@ src/
     scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
-  layouts/Base.astro       ← <head>(ClientRouter), 헤더(로고 · 항목 메뉴 + About · 서울 시계), 화면 코너 HUD, 전환 레이어, 푸터, Lenis. 헤더·HUD·전환 레이어는 transition:persist. slot="full"은 .wrap 밖(풀폭)
+  layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), 헤더(로고 · 항목 메뉴 + About · 서울 시계, `header={false}`면 없음), 푸터, Lenis. 헤더는 transition:persist. slot="full"은 .wrap 밖(풀폭). (코너 HUD·전환 레이어는 2026-10-26 삭제)
   pages/
-    index.astro            ← 홈: 하프톤 워드마크(화면 높이 - 헤더) + 전체 리스트 (2026-10-26 개편, Intro·Hero는 안 씀)
+    index.astro            ← 홈: 헤더 없음. `.home-hero`(100svh) = 하프톤 워드마크 `MoHo` + 그 뒤 연기(SmokeField) → 아래 전체 리스트 (2026-10-26 개편, Intro·Hero는 안 씀)
     category/[slug].astro  ← 항목별 페이지
     work/index.astro, work/[...slug].astro
     archive/index.astro (제목 "Notes"), archive/[...slug].astro
@@ -133,12 +133,12 @@ src/
 
 ## 5. 디자인 시스템 (현재)
 
-방향: **다크 고정 · HUD · 3D 히어로** (chronothreads) + **리스트형 목록** (huddling).
+방향: (2026-10-26~ 개편 중) **다크 고정 · 하프톤 워드마크 + 연기 홈** (junheedot.com 참고). 아래 HUD·히어로 항목은 홈 외 페이지에 남아 있는 예전 디자인 기록.
 
 - 토큰 (`src/styles/global.css` `:root`, 다크만 있음)
   - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f0ebe5` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
   - (2026-10-22) 배경을 남색 기가 도는 `#15151c`에서 무채색에 가까운 `#0b0b0d`로 더 어둡게 바꿈. 히어로 3D 배경 패널(`hero-scene.ts` back 셰이더)과 사진 블렌딩 `uBg`(CSS `--bg`를 읽음), `theme-color`도 함께 맞춤
-  - 폰트: `--font` Pretendard / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px)
+  - 폰트: `--font` **SUIT Variable**(2026-10-26~, 이전 Pretendard) / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px). 홈 워드마크만 Rubik 900
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
   - 항목 색: 요소에 `style="--h: <hue>"` → 배지 배경 `oklch(26% 0.045 h)`, 글자 `oklch(80% 0.12 h)`
 - HUD: ~~`.hud-frame`(화면 네 귀퉁이)~~ 2026-10-26 삭제, `.framed`(요소 코너), `[01]` 번호, 현재 메뉴는 `[ ]`로 감쌈
@@ -164,11 +164,12 @@ src/
     - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
   - 하프톤 클릭 충격파는 **유지** (컴포넌트에 `shockwave` prop은 있음, 기본 true). 한때 잘못 알아듣고 껐다가 되살림
   - ⚠️ **페이지 전환 C(파란 조준 사각형·레티클 + `lock x… → /…` 태그) 삭제** (2026-10-26 사용자: "링크를 누를 때 파란 조준 사각형이 나오는 효과 제거"). `page-transition.ts`는 이제 본문 페이드 아웃(200ms) → 페이드 인(360ms) + 제목 스크램블·내용 순차 등장만. Base의 `.pt` 레이어와 CSS도 삭제
-    - React Bits Pro **Chroma Halo**도 후보였지만 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
-  - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26). 페이지 전환 레티클은 그대로 화면 가장자리 12px에서 시작
+  - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26)
+  - 연기 효과 후보였던 React Bits Pro **Chroma Halo**는 유료라 코드 확인 불가(pro.reactbits.dev 접속 안 됨)
   - 컴포넌트에서 고친 점: 늦게 로드되는 웹폰트를 캔버스가 직접 `document.fonts.load()`로 요청 후 다시 그림
   - **홈 미리보기 아티팩트** https://claude.ai/artifact/XChmtR9pkABcb1w2Lpbpq6 — 머지 전 확인용(홈 한 장, 사이트 안 링크는 막힘). 갱신: `npm run build` → `python3 -I mockups/preview/build.py dist <출력폴더>` → 출력폴더/index.html을 같은 URL로 재게시(files는 출력폴더/files.json 목록. 아티팩트는 `_`로 시작하는 경로를 못 써서 `assets/`로 바꿈)
-  - ✅ **PR #9 머지** (2026-10-26, 브랜치 `claude/focused-cray-54n1p9`) — 위 1~5단계 전부 사이트에 반영. 이후도 사용자와 **개선할 부분을 하나씩** 고치는 방식
+  - ✅ **PR #9 머지 · 배포 성공** (2026-10-26, 머지 커밋 `9bcbfab`, Actions run #10, 브랜치 `claude/focused-cray-54n1p9`) — 위 내용 전부 사이트에 반영. 이후도 사용자와 **개선할 부분을 하나씩** 고치는 방식. 진행 순서·커밋은 `HISTORY.md` 2026-10-26 참고
+  - ⚠️ 홈 외 페이지(About·카테고리·work·archive·글 상세)는 아직 **예전 디자인**(헤더, 픽셀 로고 `SOLGIL_`, JetBrains Mono HUD 라벨, 페르소나 About)이라 홈과 분위기가 다름
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
 
 - ✅ PR #1, #2 머지 · 배포됨 (카드 라이브러리 + 인수인계 노트)
@@ -194,7 +195,9 @@ src/
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-0. **개편 진행**: 홈 하프톤 메인 계속 다듬기 → junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·연락처 등) 구성 여부를 사용자와 정하기 → 나머지 페이지·헤더를 새 방향으로 (경력·성과 등 내용은 사용자에게 받은 것만)
+0. **개편 진행** (최우선): ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
+
+> 아래 1·3·7번은 옛 페르소나 히어로 기준 항목이라 개편 방향에 따라 폐기될 수 있음
 
 > 단계별 상세 플랜과 진행 상태는 **`PLAN.md`** 참고. 작업 방식(아티팩트 시안 → Figma 수정 → 코드 반영 → 머지)도 거기에 있음.
 
