@@ -6,15 +6,15 @@ import SmokeField from '@/components/ui/smoke-field';
 import { getItems } from '../lib/items';
 import { categories } from '../lib/categories';
 import { url } from '../lib/url';
-import rubikWoff2 from '../assets/fonts/rubik/Rubik-Latin-Variable.woff2?url';
+import hahmletWoff2 from '../assets/fonts/hahmlet/Hahmlet-Latin-900.woff2?url';
 
 const items = await getItems();
 
 // 메인 화면: 하프톤 워드마크 (21st.dev halftone-wordmark-footer)
 // 링크 칼럼 = 항목 · 사이트 · 연락처. 헤더 없이 이 화면이 메뉴를 겸함
 const SUIT = "'SUIT Variable', 'SUIT', -apple-system, 'Apple SD Gothic Neo', system-ui, sans-serif";
-// 워드마크 폰트: Rubik 900 (2026-10-26 사용자 선택)
-const RUBIK = "'Rubik', 'SUIT Variable', system-ui, sans-serif";
+// 워드마크 폰트: Hahmlet 900 (바탕체 계열, 2026-10-26 Rubik에서 교체)
+const WORDMARK = "'Hahmlet', 'SUIT Variable', serif";
 const columns = [
   { title: 'Library', links: categories.map((c) => ({ label: c.label, href: url(`/category/${c.slug}`) })) },
   { title: 'Site', links: [
@@ -29,7 +29,7 @@ const columns = [
 ];
 ---
 <Base flush header={false}>
-  <link slot="head" rel="preload" href={rubikWoff2} as="font" type="font/woff2" crossorigin />
+  <link slot="head" rel="preload" href={hahmletWoff2} as="font" type="font/woff2" crossorigin />
   <div class="home-hero" slot="full">
   <HalftoneWordmarkFooter
     client:load
@@ -43,7 +43,7 @@ const columns = [
     backToTop={false}
     palette={{ background: 'transparent', warm: '#2895f7' }}
     grain={0}
-    fontFamily={RUBIK}
+    fontFamily={WORDMARK}
     fontWeight={900}
     monoFamily={SUIT}
     height="100svh"
