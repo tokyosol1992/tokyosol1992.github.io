@@ -1,24 +1,29 @@
 ---
 import Row from './Row.astro';
 import { kindLabel, type Item } from '../lib/items';
+import { categories } from '../lib/categories';
 
 interface Props {
   items: Item[];
   /** 케이스 스터디 / 노트 필터 칩 표시 여부 */
   kindFilter?: boolean;
+  /** 항목(카테고리) 필터 칩 표시 여부. 켜면 형식 칩 대신 항목 칩을 씀 (홈 Library 섹션) */
+  categoryFilter?: boolean;
   /** 검색창 표시 여부 */
   search?: boolean;
 }
-const { items, kindFilter = true, search = true } = Astro.props;
-const kinds = (['work', 'archive'] as const)
-  .map((k) => ({ kind: k, label: kindLabel[k], count: items.filter((i) => i.kind === k).length }))
-  .filter((k) => k.count > 0);
+const { items, kindFilter = true, categoryFilter = false, search = true } = Astro.props;
+const kinds = categoryFilter
+  ? categories.map((c) => ({ kind: c.slug as string, label: c.label, count: items.filter((i) => i.category === c.slug).length })).filter((k) => k.count > 0)
+  : (['work', 'archive'] as const)
+      .map((k) => ({ kind: k as string, label: kindLabel[k], count: items.filter((i) => i.kind === k).length }))
+      .filter((k) => k.count > 0);
 ---
-<section class="library" data-library>
+<section class="library" data-library data-filter-by={categoryFilter ? 'category' : 'kind'}>
   {(kindFilter && kinds.length > 1 || search) && (
     <div class="toolbar">
       {kindFilter && kinds.length > 1 && (
-        <div class="chips" role="group" aria-label="글 형식">
+        <div class="chips" role="group" aria-label={categoryFilter ? '항목' : '글 형식'}>
           <button type="button" data-kind-btn="" aria-pressed="true">전체<small>{items.length}</small></button>
           {kinds.map((k) => (
             <button type="button" data-kind-btn={k.kind} aria-pressed="false">{k.label}<small>{k.count}</small></button>
@@ -37,6 +42,7 @@ const kinds = (['work', 'archive'] as const)
 </section>
 
 <script>
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   // 페이지 전환 뒤에도 다시 연결되도록 astro:page-load마다 실행
   document.addEventListener('astro:page-load', () => {
     for (const root of document.querySelectorAll<HTMLElement>('[data-library]')) {
@@ -45,18 +51,21 @@ const kinds = (['work', 'archive'] as const)
       const input = root.querySelector<HTMLInputElement>('[data-search-input]');
       const count = root.querySelector<HTMLElement>('[data-count]');
       const noResult = root.querySelector<HTMLElement>('[data-no-result]');
+      const by = root.dataset.filterBy === 'category' ? 'category' : 'kind';
       let kind = '';
 
       const apply = () => {
         const q = (input?.value ?? '').trim().toLowerCase();
         let shown = 0;
         for (const row of rows) {
-          const ok = (!kind || row.dataset.kind === kind) && (!q || row.dataset.search!.includes(q));
+          const ok = (!kind || row.dataset[by] === kind) && (!q || row.dataset.search!.includes(q));
           row.hidden = !ok;
           if (ok) shown++;
         }
         if (count) count.textContent = String(shown);
         if (noResult) noResult.hidden = shown > 0 || rows.length === 0;
+        // 목록 높이가 바뀌면 아래 섹션의 스크롤 연출(.reveal) 위치도 다시 계산
+        ScrollTrigger.refresh();
       };
 
       for (const btn of buttons) {

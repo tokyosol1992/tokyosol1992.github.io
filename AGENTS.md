@@ -79,7 +79,7 @@ src/
       smoke-field.tsx      ← 홈 메인 연기(WebGL2 유체): 글자 뒤에서 피어오름 + 마우스 따라 번짐
       halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Hahmlet 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
     Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
-    Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
+    Library.astro          ← 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함). 칩은 기본 형식(케이스 스터디/노트), `categoryFilter`를 주면 항목(포트폴리오·팁·AI·툴·기록). 필터 후 `ScrollTrigger.refresh()`
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
     Intro.astro            ← 홈 진입 화면 (부팅 로그 → click anywhere to start, 세션당 1회, 모션 줄이기면 생략)
     Hero.astro             ← 홈 히어로: 페르소나 사진 + HUD (스캔 모드 버튼 [01]~[03], 키보드 1·2·3). WebGL 전엔 <Image>로 같은 사진. 홈에 올 때마다 mount, 떠날 때 destroy
@@ -90,9 +90,9 @@ src/
     scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
-  layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), 헤더(로고 · 항목 메뉴 + About · 서울 시계, `header={false}`면 없음), 푸터, Lenis. 헤더는 transition:persist. slot="full"은 .wrap 밖(풀폭). (코너 HUD·전환 레이어는 2026-10-26 삭제)
+  layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), **떠 있는 pill 헤더**(2026-10-27: 로고 `MoHo.` · About/Work/Library/Contact 앵커 · 서울 시계, 모바일은 버튼 + 전체 화면 시트 `[data-sheet]`; `header={false}`면 없음), 푸터, Lenis. 헤더·시트는 transition:persist. 스크롤 24px 넘으면 `.is-scrolled`(블러 pill), 현재 섹션 `[ ]`는 홈=IntersectionObserver·다른 페이지=경로(`/work`→Work, `/about`→About, `/category`·`/archive`→Library). 같은 페이지 앵커 클릭은 Lenis로 부드럽게 이동. slot="full"은 .wrap 밖(풀폭)
   pages/
-    index.astro            ← 홈: 헤더 없음. `.home-hero`(100svh) = 하프톤 워드마크 `MoHo` + 그 뒤 연기(SmokeField) → 아래 전체 리스트 (2026-10-26 개편, Intro·Hero는 안 씀)
+    index.astro            ← 홈: 헤더(pill) + `.home-hero`(100svh) = 하프톤 워드마크 `MoHo`(링크 칼럼은 헤더로 옮겨가 제거, 라벨만) + 연기(SmokeField) → 섹션 4개 `#about`(소개 문구 + 타일 3) · `#work`(work 컬렉션 카드, 최대 3) · `#library`(항목 필터 칩 + 검색 + 리스트) · `#contact`(메일·GitHub). 섹션 스타일은 global.css `.hs-*`
     category/[slug].astro  ← 항목별 페이지
     work/index.astro, work/[...slug].astro
     archive/index.astro (제목 "Notes"), archive/[...slug].astro
@@ -150,7 +150,7 @@ src/
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
 - 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
-## 6. 현재 상태 (2026-10-26 기준)
+## 6. 현재 상태 (2026-10-27 기준)
 
 - 🔄 **대대적 개편 시작 (2026-10-26)** — 지금까지 사이트는 "인터랙션 실험·초안"으로 보고, 새 레퍼런스 **https://junheedot.com/** 을 참고해 다시 만드는 중
   - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
@@ -197,8 +197,11 @@ src/
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-0. **(2026-10-27 결정) 홈 스크롤 영역·헤더**: 메뉴 **A안 = About · Work · Library · Contact**(홈 앵커, 현재 섹션 `[ ]` 표시), 헤더는 reactbits.dev식 **맨 위 투명 → 스크롤 시 블러 pill**(fixed top 20px, blur 24px, 폭 1200→980, 0.5s), 모바일은 버튼+전체 화면 시트, 5개 항목은 Library 섹션 **필터 칩**으로 이동. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`) 피드백 대기 → 확정되면 `Base.astro` 헤더부터 코드 반영, 이어서 About → Work → Library → Contact 섹션을 하나씩. Work 카드·About 타일 내용은 사용자에게 받은 것만
+0. **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 완료** (브랜치 `claude/quirky-ramanujan-odxjtx`, PR 미생성 → 사용자 확인 후): 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님)
+   - ⚠️ 내용은 아직 샘플/최소: About 타일 3개는 기존 소개 문구의 사실(8년 차·플랫폼/디자인 시스템·2016~)만, Work 카드는 `work` 컬렉션(샘플 1개), Library는 샘플 글 5개. 경력·성과·실제 프로젝트는 사용자에게 받은 것만
+   - 홈 외 페이지(`/about`, `/work`, `/category/*`, `/archive/*`)는 새 헤더만 입고 본문은 예전 디자인. `/about`(페르소나 HUD)은 메뉴 About이 홈 앵커로 가면서 메뉴에선 접근 불가(주소는 살아 있음) — 정리 방향을 정해야 함
    - 참고: WebFetch는 DNS 때문에 허용 도메인도 막힐 수 있음 → curl/Playwright로 받을 것
+   - 다음 섹션 작업 후보: About 풍부하게(경력 타임라인·핵심 역량) → Work 카드 → Library 상세 → Contact, 나머지 페이지 새 디자인 맞추기
 0-1. **개편 진행**: ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
 
 > 아래 1·3·7번은 옛 페르소나 히어로 기준 항목이라 개편 방향에 따라 폐기될 수 있음

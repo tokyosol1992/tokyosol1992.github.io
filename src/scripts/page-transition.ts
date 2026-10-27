@@ -32,17 +32,6 @@ export function initPageTransition() {
     });
   }
 
-  // 헤더는 유지되므로 현재 메뉴 표시([ ])를 직접 바꿈
-  function markMenu() {
-    for (const a of document.querySelectorAll<HTMLAnchorElement>('header.site .menu a')) {
-      const on = location.pathname.startsWith(a.pathname);
-      if (on && !a.hasAttribute('aria-current')) {
-        a.setAttribute('aria-current', 'page');
-        if (!reduced()) scramble(a, 420);
-      } else if (!on) a.removeAttribute('aria-current');
-    }
-  }
-
   document.addEventListener('astro:before-preparation', (e) => {
     const ev = e as TransitionBeforePreparationEvent;
     window.__ptNavigated = true;
@@ -55,7 +44,6 @@ export function initPageTransition() {
   });
 
   document.addEventListener('astro:after-swap', () => {
-    markMenu();
     const el = main();
     if (!el) return;
     if (reduced()) {

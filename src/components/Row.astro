@@ -10,7 +10,7 @@ const { item, index } = Astro.props;
 const cat = getCategory(item.category);
 const search = [item.title, item.summary, cat.label, kindLabel[item.kind], ...item.tags].join(' ').toLowerCase();
 ---
-<li data-kind={item.kind} data-search={search}>
+<li data-kind={item.kind} data-category={item.category} data-search={search}>
   <a class="row" href={url(item.href)} style={`--h: ${cat.hue}`}>
     <span class="no mono">[{String(index + 1).padStart(2, '0')}]</span>
     <span class="badge">{cat.label}</span>

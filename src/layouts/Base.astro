@@ -3,7 +3,6 @@ import '../styles/tailwind.css';
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import { url } from '../lib/url';
-import { categories } from '../lib/categories';
 import suitWoff2 from '../assets/fonts/suit/SUIT-Variable.woff2?url';
 
 interface Props { title?: string; description?: string; flush?: boolean; header?: boolean; }
@@ -12,11 +11,14 @@ const { title, description = '솔길 · Product Designer 포트폴리오', flush
 const siteName = '솔길';
 const pageTitle = title ? `${title} — ${siteName}` : `${siteName} · Product Designer`;
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
-// 메뉴 = 항목(categories.ts) + About. 레퍼런스: huddling.ai 상단 메뉴
+// 메뉴 (2026-10-27 결정, 시안 mockups/header-menu.html): 홈 스크롤 섹션 앵커 4개. 항목(categories.ts)은 Library 섹션의 필터 칩으로 이동
 const menu = [
-  ...categories.map((c) => ({ href: `/category/${c.slug}`, label: c.label })),
-  { href: '/about', label: 'About' },
+  { id: 'about', label: 'About' },
+  { id: 'work', label: 'Work' },
+  { id: 'library', label: 'Library' },
+  { id: 'contact', label: 'Contact' },
 ];
+const home = url('/');
 ---
 <!doctype html>
 <html lang="ko">
@@ -35,17 +37,22 @@ const menu = [
     <ClientRouter fallback="swap" />
   </head>
   <body>
-    {header && <header class="site" transition:persist="header">
-      <div class="wrap">
-        <a class="logo" href={url('/')} data-scramble>SOLGIL<b>_</b></a>
+    {header && <header class="hdr" transition:persist="header" data-hdr>
+      <div class="hdr-in">
+        <a class="logo" href={home} aria-label="MoHo 홈">MoHo<i>.</i></a>
         <nav class="menu" aria-label="메뉴">
-          {menu.map((m) => (
-            <a href={url(m.href)} aria-current={path.startsWith(m.href) ? 'page' : undefined} data-scramble="fixed">{m.label}</a>
-          ))}
+          {menu.map((m) => <a href={`${home}#${m.id}`} data-spy={m.id} data-scramble="fixed">{m.label}</a>)}
         </nav>
         <span class="clock mono" data-clock>SEOUL --:--:--</span>
+        <button class="burger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet"><span></span><span></span></button>
       </div>
     </header>}
+    {header && <div class="sheet" id="sheet" aria-hidden="true" transition:persist="sheet" data-sheet>
+      <nav aria-label="모바일 메뉴">
+        {menu.map((m, i) => <a href={`${home}#${m.id}`} data-spy={m.id}>{m.label}<small>{String(i + 1).padStart(2, '0')}</small></a>)}
+      </nav>
+      <div class="foot mono"><span>tokyosol1992@gmail.com</span><span data-clock>SEOUL --:--:--</span></div>
+    </div>}
     <main class:list={{ flush }}><slot name="full" /><div class="wrap"><slot /></div></main>
     <footer class="site">
       <div class="wrap mono">
@@ -65,15 +72,79 @@ const menu = [
 
   // 이 스크립트는 처음 한 번만 실행됨 (ClientRouter). 헤더·시계·HUD는 페이지를 넘어도 유지
 
-  // 서울 시각 HUD
+  // 서울 시각 HUD (헤더·모바일 시트 둘 다)
   const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-  // 헤더가 없는 페이지(홈)도 있어서 매번 찾음
-  const tick = () => { const clock = document.querySelector<HTMLElement>('[data-clock]'); if (clock) clock.textContent = `SEOUL ${fmt.format(new Date())}`; };
+  // 헤더가 없는 페이지도 있어서 매번 찾음
+  const tick = () => { const t = `SEOUL ${fmt.format(new Date())}`; document.querySelectorAll<HTMLElement>('[data-clock]').forEach((c) => { c.textContent = t; }); };
   tick();
   setInterval(tick, 1000);
 
   // 부드러운 스크롤 (모션 줄이기 설정이면 끔)
   const lenis = matchMedia('(prefers-reduced-motion: reduce)').matches ? null : new Lenis({ autoRaf: true });
+
+  // ── 헤더: 맨 위는 투명, 스크롤하면 블러 pill (스타일만 바뀜) ──
+  const hdr = () => document.querySelector<HTMLElement>('[data-hdr]');
+  const sheet = () => document.querySelector<HTMLElement>('[data-sheet]');
+  const onScroll = () => {
+    hdr()?.classList.toggle('is-scrolled', window.scrollY > 24);
+    if (window.scrollY < 200 && document.getElementById('about')?.matches('section')) setCurrent(null);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // 현재 섹션 표시 `[ ]`: 홈에서는 보고 있는 섹션, 다른 페이지에서는 경로로
+  const ids = ['about', 'work', 'library', 'contact'];
+  const setCurrent = (id: string | null) => {
+    for (const a of document.querySelectorAll<HTMLElement>('[data-spy]')) {
+      if (a.dataset.spy === id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    }
+  };
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const pathMenu = () => {
+    const p = location.pathname.slice(base.length) || '/';
+    if (p.startsWith('/about')) return 'about';
+    if (p.startsWith('/work')) return 'work';
+    if (p.startsWith('/category') || p.startsWith('/archive')) return 'library';
+    return null;
+  };
+  let spy: IntersectionObserver | null = null;
+  const initSpy = () => {
+    spy?.disconnect(); spy = null;
+    const secs = ids.map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e && e.matches('section'));
+    if (secs.length === 0) { setCurrent(pathMenu()); return; }
+    spy = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) setCurrent(e.target.id); }, { rootMargin: '-35% 0px -60% 0px' });
+    secs.forEach((el) => spy!.observe(el));
+    if (window.scrollY < 200) setCurrent(null);
+  };
+
+  // 모바일 시트
+  const setSheet = (open: boolean) => {
+    const s = sheet(); const b = hdr()?.querySelector<HTMLElement>('.burger');
+    if (!s || !b) return;
+    s.classList.toggle('open', open);
+    s.setAttribute('aria-hidden', String(!open));
+    b.setAttribute('aria-expanded', String(open));
+    b.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    if (open) lenis?.stop(); else lenis?.start();
+  };
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('.burger')) { setSheet(!sheet()?.classList.contains('open')); return; }
+    const a = t.closest<HTMLAnchorElement>('[data-hdr] a, [data-sheet] a');
+    if (!a) return;
+    // 같은 페이지 앵커(홈의 섹션)는 부드럽게 스크롤, 로고는 맨 위로
+    const here = a.pathname.replace(/\/$/, '') === location.pathname.replace(/\/$/, '');
+    if (here) {
+      const el = a.hash ? document.getElementById(a.hash.slice(1)) : null;
+      if (a.hash && !el) return;
+      e.preventDefault();
+      setSheet(false);
+      if (lenis) lenis.scrollTo(el ?? 0, { offset: el ? -40 : 0 }); else (el ?? document.body).scrollIntoView({ behavior: 'smooth' });
+      history.replaceState(null, '', a.hash || a.pathname);
+    } else setSheet(false);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setSheet(false); });
+  addEventListener('resize', () => { if (innerWidth >= 720) setSheet(false); });
 
   // 페이지 전환 C · 레티클 포커스
   initPageTransition();
@@ -83,6 +154,9 @@ const menu = [
     initScramble();
     initReveal();
     lenis?.resize();
+    setSheet(false);
+    onScroll();
+    initSpy();
   });
   // 떠나는 페이지의 스크롤 연출 정리
   document.addEventListener('astro:before-swap', () => {

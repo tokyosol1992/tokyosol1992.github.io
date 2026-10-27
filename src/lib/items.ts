@@ -13,6 +13,10 @@ export interface Item {
   tags: string[];
   date?: Date;
   cover?: ImageMetadata;
+  /** 케이스 스터디(work)만 */
+  company?: string;
+  role?: string;
+  period?: string;
   order: number;
 }
 
@@ -32,6 +36,9 @@ export async function getItems(): Promise<Item[]> {
       tags: e.data.tags,
       date: e.data.date,
       cover: e.data.cover,
+      company: e.data.company,
+      role: e.data.role,
+      period: e.data.period,
       order: e.data.order,
     })),
     ...archive.map((e) => ({

@@ -16,6 +16,12 @@
 - 사용자 결정: **메뉴 A안(About · Work · Library · Contact, 홈 앵커) · 스크롤 시 블러 pill · 5개 항목은 Library 섹션의 필터 칩으로**
 - 시안 아티팩트 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (원본 `mockups/header-menu.html`): 실제 스크롤 프로토타입 + 헤더 상태(맨 위 / 스크롤 / 모바일 시트) 정지 화면. 코드 반영은 시안 피드백 후
 - 시안 피드백: 로고 `MoHo.` 좋음, pill 괜찮음, Work 카드 구성은 나중에 수정 포인트를 받기로 함(지금 우선순위 아님)
+- "좋아 다음 스텝으로 진행" → 시안대로 **코드 반영 (헤더 + 홈 섹션)**
+  - `Base.astro` 헤더를 떠 있는 pill로 교체: 맨 위 투명 → 24px 스크롤 시 `blur(24px) saturate(1.4)` + 반투명 면 + 테두리, 폭 1200→980, 0.5s. 로고 `MoHo.`(Hahmlet 900 + 파란 점), 메뉴 About·Work·Library·Contact(현재 섹션 `[ ]`), 서울 시계, 모바일(<720px)은 버튼 + 전체 화면 시트
+  - 홈 히어로: 링크 칼럼 제거(메뉴가 헤더로 이동), `moho design` 라벨을 헤더 로고와 같은 x로 정렬. 홈 아래 옛 "작업과 기록" 리스트 → About · Work · Library · Contact 4개 섹션
+  - Library: 항목(포트폴리오·팁·AI·툴·기록) 필터 칩 모드(`categoryFilter`) 추가. 필터로 목록 높이가 바뀌면 아래 섹션 등장 연출이 안 뜨던 문제를 `ScrollTrigger.refresh()`로 해결
+  - 일반 페이지는 헤더가 fixed라 `main` 위 여백을 136px로. `page-transition.ts`의 옛 메뉴 표시 코드는 삭제(Base가 담당)
+  - 확인: 빌드 15페이지 통과, Playwright로 메뉴 이동·scroll-spy·필터·글 상세 왕복·모바일 시트·JS 에러 없음 확인
 - "연기·클릭 파동·마우스 포인트 컬러를 바꾸고, MoHo 글자가 완전한 흰색이 아닌 것 같다. 브랜드 컬러에 어울리는 흰색으로" → 글자색이 크림(`#e9e4da`)이던 것을 **쿨 화이트 `#f2f7ff`**로, 사이트 전체 `--fg`도 같은 값으로 변경. 연기를 옅은 하늘빛(`#8cc4f8`)에서 **브랜드 파랑 `#2895f7`**으로 바꿔 연기·클릭 파동·밀린 점을 파랑 하나로 통일
 
 ---
