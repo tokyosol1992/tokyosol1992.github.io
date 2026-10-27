@@ -79,20 +79,22 @@ src/
       smoke-field.tsx      ← 홈 메인 연기(WebGL2 유체): 글자 뒤에서 피어오름 + 마우스 따라 번짐
       halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Hahmlet 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
     Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
-    Library.astro          ← 형식 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함)
+    Library.astro          ← 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함). 칩은 기본 형식(케이스 스터디/노트), `categoryFilter`를 주면 항목(포트폴리오·팁·AI·툴·기록). 필터 후 `ScrollTrigger.refresh()`
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
     Intro.astro            ← 홈 진입 화면 (부팅 로그 → click anywhere to start, 세션당 1회, 모션 줄이기면 생략)
     Hero.astro             ← 홈 히어로: 페르소나 사진 + HUD (스캔 모드 버튼 [01]~[03], 키보드 1·2·3). WebGL 전엔 <Image>로 같은 사진. 홈에 올 때마다 mount, 떠날 때 destroy
   scripts/
     hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(레퍼런스 효과 스택 + visual/thermal/edge 스윕 전환), 깊이맵 마우스 시차, 얼굴 레티클(FACE 좌표), 먼지
-    page-transition.ts     ← 페이지 전환: 본문 페이드 + 제목 스크램블·내용 순차 등장 (ClientRouter 이벤트에 연결, Base에서 initPageTransition()). 레티클은 2026-10-26 삭제
+    page-transition.ts     ← 페이지 전환 (2026-10-27 사용자 선택 **제목 마스크 + 본문 페이드**): 나가는 본문 페이드 아웃 180ms → 새 페이지에서 제목 `h1`을 `.title-mask`로 감싸 아래에서 올라오게(750ms) + 나머지는 delay 140ms+60ms씩 10px 떠오름 (ClientRouter 이벤트에 연결, Base에서 initPageTransition()). 레티클은 2026-10-26 삭제
+    hover-effects.ts       ← 호버 3종(2026-10-27 선택): `data-roll` 텍스트 롤(메뉴), `data-spot` 스포트라이트(Work·Contact 카드), Library 행 슬라이드 + 마우스를 따라오는 썸네일(`.row-float`, 행의 `data-cover`·`data-cat`). 위임 방식이라 한 번만 연결. Base에서 initRoll()·initHover()
+    enter-effects.ts       ← 진입 3종(2026-10-27 선택): `[data-blur]` 섹션 머리말 제목 블러 텍스트, `[data-scroll-words]` 문단 스크롤 단어 점등(About 소개), `[data-countup]` 카운트업(About 타일 8·2016). Base에서 page-load마다 initEnter()
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
-    scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
+    (scramble.ts 삭제 — 2026-10-27 사용자 요청으로 hover 스크램블과 페이지 이동 뒤 제목 스크램블 모두 제거. ⚠️ `data-count`는 Library의 "N개의 항목" 숫자가 쓰는 속성이라 카운트업은 `data-countup`)
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
-  layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), 헤더(로고 · 항목 메뉴 + About · 서울 시계, `header={false}`면 없음), 푸터, Lenis. 헤더는 transition:persist. slot="full"은 .wrap 밖(풀폭). (코너 HUD·전환 레이어는 2026-10-26 삭제)
+  layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), **떠 있는 pill 헤더**(2026-10-27: 로고 `MoHo.` · About/Work/Library/Contact 앵커 · 서울 시계, 모바일은 버튼 + 전체 화면 시트 `[data-sheet]`; `header={false}`면 없음), 푸터, Lenis. 헤더·시트는 transition:persist. 스크롤 24px 넘으면 `.is-scrolled`(블러 pill), 현재 섹션 `[ ]`는 홈=IntersectionObserver·다른 페이지=경로(`/work`→Work, `/about`→About, `/category`·`/archive`→Library). 같은 페이지 앵커 클릭은 Lenis로 부드럽게 이동. slot="full"은 .wrap 밖(풀폭)
   pages/
-    index.astro            ← 홈: 헤더 없음. `.home-hero`(100svh) = 하프톤 워드마크 `MoHo` + 그 뒤 연기(SmokeField) → 아래 전체 리스트 (2026-10-26 개편, Intro·Hero는 안 씀)
+    index.astro            ← 홈: 헤더(pill) + `.home-hero`(100svh) = 하프톤 워드마크 `MoHo`(링크 칼럼은 헤더로 옮겨가 제거, 라벨만) + 연기(SmokeField) → 섹션 4개 `#about`(소개 문구 + 타일 3) · `#work`(work 컬렉션 카드, 최대 3) · `#library`(항목 필터 칩 + 검색 + 리스트) · `#contact`(메일·GitHub). 섹션 스타일은 global.css `.hs-*`
     category/[slug].astro  ← 항목별 페이지
     work/index.astro, work/[...slug].astro
     archive/index.astro (제목 "Notes"), archive/[...slug].astro
@@ -136,7 +138,8 @@ src/
 방향: (2026-10-26~ 개편 중) **다크 고정 · 하프톤 워드마크 + 연기 홈** (junheedot.com 참고). 아래 HUD·히어로 항목은 홈 외 페이지에 남아 있는 예전 디자인 기록.
 
 - 토큰 (`src/styles/global.css` `:root`, 다크만 있음)
-  - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f0ebe5` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
+  - (2026-10-27) 흰색 `--fg`를 크림 `#f0ebe5`에서 **파랑 쪽으로 살짝 기운 쿨 화이트 `#f2f7ff`**로 변경. 홈은 `index.astro`의 `BRAND #2895f7`·`WHITE #f2f7ff` 상수 하나로 워드마크 글자색(ink)·밀린 점/클릭 파동(warm)·연기 색을 통일
+  - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f2f7ff` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
   - (2026-10-22) 배경을 남색 기가 도는 `#15151c`에서 무채색에 가까운 `#0b0b0d`로 더 어둡게 바꿈. 히어로 3D 배경 패널(`hero-scene.ts` back 셰이더)과 사진 블렌딩 `uBg`(CSS `--bg`를 읽음), `theme-color`도 함께 맞춤
   - 폰트: `--font` **SUIT Variable**(2026-10-26~, 이전 Pretendard) / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px). 홈 워드마크만 Hahmlet 900
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
@@ -147,9 +150,9 @@ src/
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
 - ~~페이지 전환 C · 레티클 포커스~~ (2026-10-26 삭제 → 단순 페이드 + 내용 순차 등장) (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
-- 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
+- 모션 (2026-10-27 사용자가 시안에서 고른 것): 호버 = 텍스트 롤(메뉴) · 스포트라이트(카드) · 행 슬라이드(Library). 진입 = 블러 텍스트(제목) · 스크롤 단어 점등 · 카운트업. 전환 = 제목 마스크 + 본문 페이드. GSAP reveal(`.reveal`), Lenis. ~~글자 스크램블~~ 2026-10-27 hover·페이지 제목 모두 삭제(글자가 섞이는 계열 효과는 쓰지 말 것). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
-## 6. 현재 상태 (2026-10-26 기준)
+## 6. 현재 상태 (2026-10-27 기준)
 
 - 🔄 **대대적 개편 시작 (2026-10-26)** — 지금까지 사이트는 "인터랙션 실험·초안"으로 보고, 새 레퍼런스 **https://junheedot.com/** 을 참고해 다시 만드는 중
   - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
@@ -162,7 +165,7 @@ src/
   - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
   - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
     - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
-    - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
+    - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 **브랜드 파랑 `#2895f7`**(2026-10-27에 옅은 하늘빛 `#8cc4f8`에서 변경, 연하기는 intensity로 조절) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
   - 하프톤 클릭 충격파는 **유지** (컴포넌트에 `shockwave` prop은 있음, 기본 true). 한때 잘못 알아듣고 껐다가 되살림
   - ⚠️ **페이지 전환 C(파란 조준 사각형·레티클 + `lock x… → /…` 태그) 삭제** (2026-10-26 사용자: "링크를 누를 때 파란 조준 사각형이 나오는 효과 제거"). `page-transition.ts`는 이제 본문 페이드 아웃(200ms) → 페이드 인(360ms) + 제목 스크램블·내용 순차 등장만. Base의 `.pt` 레이어와 CSS도 삭제
   - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26)
@@ -196,7 +199,13 @@ src/
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-0. **개편 진행** (최우선): ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
+0. **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 완료** (브랜치 `claude/quirky-ramanujan-odxjtx`, PR 미생성 → 사용자 확인 후): 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님)
+   - ⚠️ 내용은 아직 샘플/최소: About 타일 3개는 기존 소개 문구의 사실(8년 차·플랫폼/디자인 시스템·2016~)만, Work 카드는 `work` 컬렉션(샘플 1개), Library는 샘플 글 5개. 경력·성과·실제 프로젝트는 사용자에게 받은 것만
+   - 홈 외 페이지(`/about`, `/work`, `/category/*`, `/archive/*`)는 새 헤더만 입고 본문은 예전 디자인. `/about`(페르소나 HUD)은 메뉴 About이 홈 앵커로 가면서 메뉴에선 접근 불가(주소는 살아 있음) — 정리 방향을 정해야 함
+   - ✅ **호버·진입·전환 인터랙션 코드 반영 완료 (2026-10-27)** — 시안 https://claude.ai/artifact/77hqb3ASzomKpLqv4rFJRh (`mockups/interactions.html`)에서 사용자가 고른 것: 호버(텍스트 롤·스포트라이트·행 슬라이드) · 진입(블러 텍스트·스크롤 단어 점등·카운트업) · 전환(제목 마스크 + 본문 페이드). 구현 위치는 위 3번 구조의 `hover-effects.ts`·`enter-effects.ts`·`page-transition.ts`. 안 고른 시안 후보(마그넷·굵기 근접·틸트·라인 마스크·클립 커튼 등)는 필요하면 시안 파일에 남아 있음. 제외: 하프톤 리빌(과함)·스크램블 계열·조준 커서·스플래시 커서
+   - 참고: WebFetch는 DNS 때문에 허용 도메인도 막힐 수 있음 → curl/Playwright로 받을 것
+   - 다음 섹션 작업 후보: About 풍부하게(경력 타임라인·핵심 역량) → Work 카드 → Library 상세 → Contact, 나머지 페이지 새 디자인 맞추기
+0-1. **개편 진행**: ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
 
 > 아래 1·3·7번은 옛 페르소나 히어로 기준 항목이라 개편 방향에 따라 폐기될 수 있음
 

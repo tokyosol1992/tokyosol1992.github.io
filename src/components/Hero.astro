@@ -33,7 +33,7 @@ import { modes } from '../scripts/hero-modes';
       <div class="modes" role="group" aria-label="스캔 모드">
         {modes.map((m, i) => (
           <button type="button" data-mode={i} aria-pressed={i === 0 ? 'true' : 'false'}>
-            <span>[{String(i + 1).padStart(2, '0')}]</span><span class="label" data-scramble="fixed">{m.label}</span>
+            <span>[{String(i + 1).padStart(2, '0')}]</span><span class="label">{m.label}</span>
           </button>
         ))}
         <a class="mono scroll-cue" href="#index">[scroll down ↓]</a>

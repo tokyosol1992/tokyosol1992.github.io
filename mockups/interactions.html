@@ -1,0 +1,433 @@
+<title>인터랙션 후보</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@100..900&display=swap">
+<style>
+/* 레이아웃: 위에서 아래로 추천 조합 → 호버 6개 → 진입 6개 → 제외한 것. 각 데모는 무대(직접 만져 보는 곳) + 이름·적용 위치·React Bits 링크 */
+:root {
+  --bg: #0b0b0d; --surface: #131316; --raise: #1a1a1e;
+  --fg: #f2f7ff; --muted: #8d8992; --dim: #55545a; --line: #242429; --accent: #2895f7;
+  --font: 'Noto Sans KR', 'SUIT Variable', -apple-system, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --ease: cubic-bezier(.76, 0, .24, 1); --out: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.6; margin: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 56px 96px; }
+a { color: inherit; }
+.wrap { max-width: 1160px; margin: 0 auto; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+h1 { font-size: clamp(30px, 5vw, 52px); line-height: 1.15; letter-spacing: -.02em; margin: 10px 0 14px; text-wrap: balance; }
+h2 { font-size: 24px; letter-spacing: -.01em; margin: 0 0 6px; }
+.lead { color: var(--muted); max-width: 62ch; margin: 0; }
+section { margin-top: 88px; }
+.sec-note { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
+.eyebrow { color: var(--accent); }
+
+.pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 36px; }
+.pick > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+.pick h3 { margin: 0 0 10px; font-size: 15px; }
+.pick ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--muted); font-size: 14px; }
+.pick li b { color: var(--fg); font-weight: 500; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+.demo { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stage { position: relative; min-height: 230px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.cap { display: grid; gap: 2px; }
+.cap h3 { margin: 0; font-size: 16px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.cap h3 .tag { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .06em; }
+.cap p { margin: 0; color: var(--muted); font-size: 13.5px; }
+.cap .ref { font-family: var(--mono); font-size: 11px; color: var(--dim); text-decoration: none; letter-spacing: .04em; }
+.cap .ref:hover { color: var(--fg); }
+.replay { position: absolute; top: 10px; right: 10px; z-index: 3; font: inherit; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--raise); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+.replay:hover { color: var(--fg); border-color: var(--dim); }
+.hint { position: absolute; left: 14px; bottom: 10px; color: var(--dim); }
+
+/* H1 텍스트 롤 */
+.roll-menu { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.roll { display: inline-block; padding: 6px 12px; text-decoration: none; font-size: 16px; color: var(--muted); }
+.roll .wd { display: inline-block; overflow: hidden; height: 1.5em; line-height: 1.5; white-space: pre; vertical-align: top; }
+.roll .l { display: inline-block; position: relative; transition: transform .5s var(--ease); transition-delay: calc(var(--i) * 20ms); }
+.roll .l::after { content: attr(data-c); position: absolute; left: 0; top: 100%; color: var(--fg); }
+.roll:hover .l, .roll:focus-visible .l { transform: translateY(-100%); }
+
+/* H2 스포트라이트 카드 */
+.spot { --x: 50%; --y: 50%; width: min(100%, 300px); padding: 22px; border-radius: 10px; border: 1px solid transparent; display: grid; gap: 6px; text-decoration: none;
+  background: radial-gradient(280px circle at var(--x) var(--y), rgba(40, 149, 247, .16), transparent 70%) padding-box, linear-gradient(var(--raise), var(--raise)) padding-box, radial-gradient(180px circle at var(--x) var(--y), var(--accent), var(--line) 70%) border-box; }
+.spot b { font-size: 18px; } .spot span { color: var(--muted); font-size: 14px; }
+
+/* H3 마그넷 */
+.mag-zone { width: 100%; height: 190px; display: grid; place-items: center; }
+.mag { font: inherit; font-size: 15px; color: var(--bg); background: var(--fg); border: 0; border-radius: 999px; padding: 14px 28px; cursor: pointer; will-change: transform; transition: transform .5s var(--out); }
+.mag span { display: inline-block; transition: transform .5s var(--out); }
+.mag.live { transition: transform .12s linear; } .mag.live span { transition: transform .12s linear; }
+
+/* H4 굵기 근접 */
+.prox { font-size: clamp(26px, 4vw, 38px); line-height: 1.3; letter-spacing: -.02em; margin: 0; text-align: center; font-weight: 300; }
+.prox .c { display: inline-block; font-weight: 300; }
+
+/* H5 리스트 행 */
+.rows { width: 100%; align-self: stretch; display: grid; align-content: center; }
+.row { display: grid; grid-template-columns: 90px 1fr auto 20px; gap: 14px; align-items: center; padding: 15px 10px; border-bottom: 1px solid var(--line); text-decoration: none; cursor: pointer;
+  background: linear-gradient(90deg, rgba(40, 149, 247, .12), transparent 85%) no-repeat 0 0 / 0% 100%; transition: background-size .5s var(--out), padding .4s var(--out); }
+.row:first-child { border-top: 1px solid var(--line); }
+.row:hover { background-size: 100% 100%; padding-left: 20px; }
+.row .bd { font-size: 12px; padding: 2px 8px; border-radius: 4px; justify-self: start; background: oklch(26% .045 var(--h)); color: oklch(80% .12 var(--h)); white-space: nowrap; }
+.row .t { font-weight: 500; transition: transform .4s var(--out); }
+.row:hover .t { transform: translateX(6px); }
+.row .d { color: var(--muted); font-size: 12px; }
+.row .ar { color: var(--dim); transition: color .2s, transform .3s var(--out); }
+.row:hover .ar { color: var(--accent); transform: translateX(4px); }
+.float { position: absolute; left: 0; top: 0; z-index: 2; width: 170px; aspect-ratio: 16 / 10; border-radius: 8px; border: 1px solid var(--line); pointer-events: none; opacity: 0; transform: translate(-50%, -50%) scale(.9); transition: opacity .25s, scale .25s; display: flex; align-items: flex-end; padding: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
+.float.on { opacity: 1; scale: 1; }
+
+/* H6 틸트 카드 */
+.tilt-zone { perspective: 800px; }
+.tilt { --rx: 0deg; --ry: 0deg; width: 260px; aspect-ratio: 16 / 11; border-radius: 12px; border: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform .5s var(--out); transform-style: preserve-3d;
+  background: radial-gradient(120% 90% at 20% 10%, oklch(36% .1 250), oklch(17% .03 250)); }
+.tilt.live { transition: transform .08s linear; }
+.tilt .mono { color: oklch(80% .1 250); transform: translateZ(30px); } .tilt b { font-size: 17px; transform: translateZ(40px); }
+
+/* 진입 공통 */
+.ent-note { color: var(--dim); }
+
+/* E1 블러 텍스트 */
+.blur-t { font-size: clamp(24px, 3.6vw, 34px); line-height: 1.35; letter-spacing: -.02em; font-weight: 700; margin: 0; text-align: center; max-width: 17em; }
+.blur-t .w { display: inline-block; opacity: 0; filter: blur(12px); transform: translateY(16px); transition: opacity .8s var(--out), filter .8s var(--out), transform .8s var(--out); transition-delay: calc(var(--i) * 70ms); }
+.blur-t.on .w { opacity: 1; filter: blur(0); transform: none; }
+
+/* E2 라인 마스크 */
+.lines { text-align: left; font-size: clamp(22px, 3vw, 30px); line-height: 1.4; font-weight: 700; letter-spacing: -.02em; margin: 0; }
+.lines .ln { display: block; overflow: hidden; padding-bottom: .12em; }
+.lines .ln > span { display: block; transform: translateY(110%); transition: transform 1s var(--out); transition-delay: calc(var(--i) * 110ms); }
+.lines.on .ln > span { transform: none; }
+
+/* E3 스크롤 단어 점등 */
+.sw { font-size: 20px; line-height: 1.6; letter-spacing: -.01em; margin: 0; max-width: 24em; font-weight: 500; }
+.sw .w { color: var(--dim); transition: color .25s; } .sw .w.lit { color: var(--fg); }
+
+
+/* E5 클립 커튼 */
+.clips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+.clip { aspect-ratio: 3 / 4; border-radius: 8px; overflow: hidden; clip-path: inset(0 0 100% 0); transition: clip-path 1s var(--out); transition-delay: calc(var(--i) * 120ms); }
+.clip i { display: block; width: 100%; height: 100%; transform: scale(1.35); transition: transform 1.3s var(--out); transition-delay: calc(var(--i) * 120ms); background: radial-gradient(120% 90% at 20% 10%, oklch(40% .11 var(--h)), oklch(17% .03 var(--h))); }
+.clips.on .clip { clip-path: inset(0); } .clips.on .clip i { transform: none; }
+
+/* E6 카운트업 */
+.counts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.cnt { background: var(--raise); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
+.cnt i { font-style: normal; }
+.cnt b { font-size: 36px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+.cnt span { color: var(--muted); font-size: 13px; }
+
+
+/* 페이지 전환 */
+.pt-stage { display: block; padding: 0; min-height: 300px; }
+.pt-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.pt-bar b { color: var(--fg); font-weight: 500; } .pt-bar i { color: var(--accent); font-style: normal; }
+.pt-bar button { margin-left: auto; font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--fg); background: var(--raise); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.pt-bar button:hover { border-color: var(--dim); }
+.pt-prog { position: absolute; left: 0; top: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; opacity: 0; z-index: 4; }
+.pt-body { padding: 22px; }
+.pt-body .eb { display: block; color: var(--accent); margin-bottom: 10px; }
+.pt-body .mk { overflow: hidden; padding-bottom: .1em; margin-bottom: 8px; }
+.pt-body h4 { margin: 0; font-size: 24px; line-height: 1.3; letter-spacing: -.02em; }
+.pt-body p { margin: 0 0 16px; color: var(--muted); font-size: 14px; max-width: 34em; }
+.pt-body .it { display: flex; justify-content: space-between; padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.pt-body .it span:last-child { color: var(--dim); font-family: var(--mono); font-size: 11px; }
+
+.excl { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.excl > div { border: 1px dashed var(--line); border-radius: 10px; padding: 18px 20px; color: var(--muted); font-size: 14px; }
+.excl b { color: var(--fg); display: block; margin-bottom: 4px; font-weight: 500; }
+
+@media (max-width: 719px) { .row { grid-template-columns: 80px 1fr 20px; } .row .d { display: none; } .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; transition-delay: 0s !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="mono eyebrow">Interaction candidates</span>
+    <h1>호버·진입·페이지 전환 후보</h1>
+    <p class="lead">React Bits 목록(텍스트·애니메이션·컴포넌트 약 120개)에서 MoHo의 어두운 톤, 파랑, 하프톤, 한글 제목에 맞는 것만 골랐습니다. 각 무대에 직접 마우스를 올려 보세요. 진입 효과는 오른쪽 위 Replay로 다시 볼 수 있습니다.</p>
+  </header>
+
+  <div class="pick">
+    <div>
+      <h3>추천 조합: 호버</h3>
+      <ul>
+        <li><b>메뉴·링크 → 텍스트 롤.</b> 글자가 위로 굴러 올라가며 흰색으로 바뀝니다. 한글도 폭이 안 변합니다.</li>
+        <li><b>카드 → 스포트라이트.</b> 마우스를 따라 파란 빛과 테두리가 움직입니다. 연기·파동과 같은 파랑입니다.</li>
+        <li><b>Library 행 → 행 슬라이드.</b> 지금 행 hover를 살려서 파란 면이 차오르고 썸네일이 따라옵니다.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>추천 조합: 진입</h3>
+      <ul>
+        <li><b>섹션 제목 → 블러 텍스트.</b> 단어가 흐릿하게 떠올라 선명해집니다.</li>
+        <li><b>About 소개 문단 → 스크롤 단어 점등.</b> 확정입니다.</li>
+        <li><b>페이지 이동 → 제목 마스크 + 본문 페이드.</b> 제목만 아래에서 올라오고 나머지는 살짝 떠오릅니다. 가볍고 조용합니다.</li>
+        <li><b>About 숫자 → 카운트업.</b> 8년 차, 2016이 올라갑니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <section id="hover">
+    <h2>호버 6개</h2>
+    <p class="sec-note">모두 CSS와 포인터 좌표만으로 동작해서 가볍습니다. 모바일(터치)에서는 자동으로 꺼집니다.</p>
+    <div class="grid">
+      <div class="demo"><div class="stage"><nav class="roll-menu" aria-label="텍스트 롤 예시"><a class="roll" href="#hover">About</a><a class="roll" href="#hover">Work</a><a class="roll" href="#hover">Library</a><a class="roll" href="#hover">디자인 팁</a></nav></div>
+        <div class="cap"><h3>텍스트 롤 <span class="tag">메뉴 · 링크 추천</span></h3><p>글자마다 20ms씩 어긋나서 위로 굴러 올라갑니다. 랜덤 글자가 섞이지 않고 원문 그대로입니다.</p><a class="ref" href="https://reactbits.dev/components/flowing-menu" target="_blank" rel="noopener">비슷한 것: Flowing Menu ↗</a></div></div>
+
+      <div class="demo"><div class="stage"><a class="spot" href="#hover"><span class="mono" style="color:var(--accent)">Work</span><b>샘플 케이스 스터디</b><span>카드 위를 움직여 보세요. 빛과 테두리가 따라옵니다.</span></a></div>
+        <div class="cap"><h3>스포트라이트 카드 <span class="tag">Work 카드 추천</span></h3><p>마우스 위치에 파란 빛이 번지고 테두리만 따라 밝아집니다. 강도는 한 줄로 조절됩니다.</p><a class="ref" href="https://reactbits.dev/components/spotlight-card" target="_blank" rel="noopener">React Bits: Spotlight Card ↗</a></div></div>
+
+      <div class="demo"><div class="stage"><div class="mag-zone"><button class="mag" type="button"><span>메일 보내기</span></button></div><span class="mono hint">버튼 근처로</span></div>
+        <div class="cap"><h3>마그넷 <span class="tag">Contact · 버튼</span></h3><p>버튼이 마우스 쪽으로 살짝 끌려옵니다. 클릭 대상이 하나뿐인 곳에 어울립니다.</p><a class="ref" href="https://reactbits.dev/animations/magnet" target="_blank" rel="noopener">React Bits: Magnet ↗</a></div></div>
+
+      <div class="demo"><div class="stage" id="proxStage"><p class="prox" id="prox">플랫폼과 디자인 시스템을 만드는 프로덕트 디자이너</p><span class="mono hint">글자 위를 지나가 보세요</span></div>
+        <div class="cap"><h3>굵기 근접 <span class="tag">큰 제목 한 곳에만</span></h3><p>마우스에 가까운 글자만 굵어집니다. 가변 폰트가 필요한데 SUIT Variable이 이미 가변이라 추가 폰트 없이 됩니다.</p><a class="ref" href="https://reactbits.dev/text-animations/variable-proximity" target="_blank" rel="noopener">React Bits: Variable Proximity ↗</a></div></div>
+
+      <div class="demo"><div class="stage" id="rowStage"><div class="rows">
+          <a class="row" style="--h:250"><span class="bd">포트폴리오</span><span class="t">샘플 케이스 스터디</span><span class="d mono">2024.12</span><span class="ar">→</span></a>
+          <a class="row" style="--h:155"><span class="bd">디자인 팁</span><span class="t">샘플 팁 글</span><span class="d mono">2026.10</span><span class="ar">→</span></a>
+          <a class="row" style="--h:300"><span class="bd">AI · 프롬프트</span><span class="t">샘플 프롬프트 글</span><span class="d mono">2026.10</span><span class="ar">→</span></a></div>
+          <div class="float" id="float"></div></div>
+        <div class="cap"><h3>행 슬라이드 + 썸네일 <span class="tag">Library 추천</span></h3><p>파란 면이 왼쪽에서 차오르고 제목이 밀리며, 항목 색의 썸네일이 마우스를 따라옵니다.</p><a class="ref" href="https://reactbits.dev/components/animated-list" target="_blank" rel="noopener">비슷한 것: Animated List ↗</a></div></div>
+
+      <div class="demo"><div class="stage tilt-zone" id="tiltStage"><div class="tilt" id="tilt"><span class="mono">포트폴리오</span><b>샘플 케이스 스터디</b></div></div>
+        <div class="cap"><h3>틸트 카드 <span class="tag">대표 프로젝트 1~2개만</span></h3><p>카드가 마우스 쪽으로 기울고 글자가 살짝 떠오릅니다. 많이 쓰면 산만해져서 대표작에만 권합니다.</p><a class="ref" href="https://reactbits.dev/components/tilted-card" target="_blank" rel="noopener">React Bits: Tilted Card ↗</a></div></div>
+    </div>
+  </section>
+
+  <section id="enter">
+    <h2>진입 5개</h2>
+    <p class="sec-note">섹션이 처음 보일 때 한 번 재생됩니다. 모션 줄이기 설정이면 처음부터 완성된 상태로 보입니다.</p>
+    <div class="grid">
+      <div class="demo"><div class="stage"><button class="replay" type="button" data-r="blur">Replay</button><h3 class="blur-t" id="blur" style="margin:0"></h3></div>
+        <div class="cap"><h3>블러 텍스트 <span class="tag">섹션 제목 추천</span></h3><p>단어 단위로 흐림이 걷히며 올라옵니다. 한글은 단어(띄어쓰기) 단위가 읽기 편합니다.</p><a class="ref" href="https://reactbits.dev/text-animations/blur-text" target="_blank" rel="noopener">React Bits: Blur Text ↗</a></div></div>
+
+      <div class="demo"><div class="stage"><button class="replay" type="button" data-r="lines">Replay</button><p class="lines" id="lines"></p></div>
+        <div class="cap"><h3>라인 마스크 <span class="tag">히어로 문구 · 큰 제목</span></h3><p>줄마다 마스크 아래에서 올라옵니다. 가장 정돈된 인상이고 블러 텍스트보다 차분합니다.</p><a class="ref" href="https://reactbits.dev/text-animations/split-text" target="_blank" rel="noopener">비슷한 것: Split Text ↗</a></div></div>
+
+      <div class="demo"><div class="stage"><p class="sw" id="sw"></p><span class="mono hint">페이지를 스크롤해 보세요</span></div>
+        <div class="cap"><h3>스크롤 단어 점등 <span class="tag">About 소개 문단</span></h3><p>스크롤하는 만큼 단어가 하나씩 밝아집니다. 읽는 속도를 조절해 주는 효과입니다.</p><a class="ref" href="https://reactbits.dev/text-animations/scroll-reveal" target="_blank" rel="noopener">React Bits: Scroll Reveal ↗</a></div></div>
+
+
+      <div class="demo"><div class="stage"><button class="replay" type="button" data-r="clips">Replay</button><div class="clips" id="clips"><div class="clip" style="--i:0;--h:250"><i></i></div><div class="clip" style="--i:1;--h:300"><i></i></div><div class="clip" style="--i:2;--h:155"><i></i></div></div></div>
+        <div class="cap"><h3>클립 커튼 <span class="tag">카드 · 이미지 등장</span></h3><p>위에서 아래로 커튼처럼 열리고 안의 이미지가 살짝 줄어듭니다. Work 카드나 케이스 스터디 커버에 어울립니다.</p><a class="ref" href="https://reactbits.dev/animations/animated-content" target="_blank" rel="noopener">비슷한 것: Animated Content ↗</a></div></div>
+
+      <div class="demo"><div class="stage"><button class="replay" type="button" data-r="cnt">Replay</button><div class="counts"><div class="cnt"><span class="mono">Experience</span><b><i data-to="8">0</i>년 차</b></div><div class="cnt"><span class="mono">Since</span><b><i data-to="2016" data-from="2000">2000</i></b></div></div></div>
+        <div class="cap"><h3>카운트업 <span class="tag">About 타일</span></h3><p>숫자가 올라가 멈춥니다. 쓸 수 있는 숫자가 실제 사실일 때만 의미가 있어서, 경력 숫자가 늘면 그때 더 활용됩니다.</p><a class="ref" href="https://reactbits.dev/text-animations/count-up" target="_blank" rel="noopener">React Bits: Count Up ↗</a></div></div>
+    </div>
+  </section>
+
+  <section id="page">
+    <h2>페이지 전환 5개</h2>
+    <p class="sec-note">링크를 눌러 다른 페이지로 갈 때의 효과입니다. 무대의 "페이지 이동"을 눌러 Home과 포트폴리오를 오가 보세요. 모두 하프톤 리빌보다 훨씬 조용합니다.</p>
+    <div class="grid">
+      <div class="demo"><div class="stage pt-stage" data-v="rise"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>페이드 + 상승 <span class="tag">지금 사이트와 같은 계열</span></h3><p>본문이 사라지고 새 내용이 12px 떠오르며 차례로 나타납니다. 가장 무난합니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="mask"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>제목 마스크 + 본문 페이드 <span class="tag">추천</span></h3><p>제목만 마스크 아래에서 올라오고 나머지는 살짝 뒤따라 떠오릅니다. 진입 효과의 라인 마스크와 같은 언어입니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="blur"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>블러 페이드 <span class="tag"></span></h3><p>화면 전체가 흐려졌다가 선명해집니다. 블러 텍스트와 짝이 맞습니다. 제일 부드럽습니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="bar"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>파란 진행선 <span class="tag">HUD 느낌</span></h3><p>상단에 얇은 파란 선이 지나가고 본문이 희미해졌다 돌아옵니다. 연기·파동과 같은 파랑이라 하나의 포인트가 됩니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="slide"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>슬라이드 <span class="tag"></span></h3><p>이전 내용은 위로 사라지고 새 내용이 아래에서 올라옵니다. 방향감이 있어서 페이지 이동이 또렷하게 느껴집니다.</p></div></div>
+    </div>
+  </section>
+
+  <section id="excluded">
+    <h2>일부러 뺀 것</h2>
+    <p class="sec-note">같은 종류라서 겹치거나, 이미 지운 효과와 닮은 것입니다.</p>
+    <div class="excl">
+      <div><b>Decrypted · Scrambled · Shuffle · Glitch · Fuzzy Text</b>글자가 섞이는 계열이라 방금 삭제한 효과와 같은 종류입니다.</div>
+      <div><b>Target Cursor · Crosshair</b>이전에 지운 파란 조준 사각형과 닮았습니다.</div>
+      <div><b>Splash · Blob · Ghost Cursor</b>홈의 연기와 마우스 반응이 겹쳐서 화면이 어수선해집니다.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ── 호버 ── */
+  // H1 텍스트 롤: 글자마다 span, ::after에 복제 글자
+  $$('.roll').forEach(function (a) {
+    var t = a.textContent; a.textContent = '';
+    a.setAttribute('aria-label', t);
+    var wd = document.createElement('span'); wd.className = 'wd'; wd.setAttribute('aria-hidden', 'true');
+    Array.prototype.forEach.call(t, function (ch, i) {
+      var l = document.createElement('span'); l.className = 'l'; l.style.setProperty('--i', i); l.dataset.c = ch; l.textContent = ch; wd.appendChild(l);
+    });
+    a.appendChild(wd);
+  });
+
+  // H2 스포트라이트
+  $$('.spot').forEach(function (el) {
+    el.addEventListener('pointermove', function (e) { var r = el.getBoundingClientRect(); el.style.setProperty('--x', (e.clientX - r.left) + 'px'); el.style.setProperty('--y', (e.clientY - r.top) + 'px'); });
+  });
+
+  // H3 마그넷
+  var zone = $('.mag-zone'), mag = $('.mag'), magIn = $('.mag span');
+  if (fine && !rm) {
+    zone.addEventListener('pointermove', function (e) {
+      var r = mag.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      var dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx, dy), reach = 150;
+      mag.classList.add('live');
+      if (d < reach) { var k = 1 - d / reach; mag.style.transform = 'translate(' + dx * 0.4 * (0.4 + k) + 'px,' + dy * 0.4 * (0.4 + k) + 'px)'; magIn.style.transform = 'translate(' + dx * 0.12 + 'px,' + dy * 0.12 + 'px)'; }
+      else { mag.style.transform = ''; magIn.style.transform = ''; }
+    });
+    zone.addEventListener('pointerleave', function () { mag.classList.remove('live'); mag.style.transform = ''; magIn.style.transform = ''; });
+  }
+
+  // H4 굵기 근접
+  var prox = $('#prox'), pc = [];
+  var ptxt = prox.textContent; prox.textContent = ''; prox.setAttribute('aria-label', ptxt);
+  Array.prototype.forEach.call(ptxt, function (ch) { var s = document.createElement('span'); s.className = 'c'; s.setAttribute('aria-hidden', 'true'); s.textContent = ch; if (ch === ' ') s.style.whiteSpace = 'pre'; prox.appendChild(s); pc.push(s); });
+  if (fine && !rm) {
+    var ps = $('#proxStage');
+    ps.addEventListener('pointermove', function (e) {
+      pc.forEach(function (s) {
+        var r = s.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+        var k = Math.max(0, 1 - d / 130); s.style.fontWeight = Math.round(300 + 600 * k * k);
+      });
+    });
+    ps.addEventListener('pointerleave', function () { pc.forEach(function (s) { s.style.fontWeight = ''; }); });
+  }
+
+  // H5 행 + 따라오는 썸네일
+  var rs = $('#rowStage'), fl = $('#float'), tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+  var hues = { 250: '포트폴리오', 155: '디자인 팁', 300: 'AI · 프롬프트' };
+  function loop() { cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18; fl.style.left = cx + 'px'; fl.style.top = cy + 'px'; raf = requestAnimationFrame(loop); }
+  if (fine) {
+    $$('.row', rs).forEach(function (row) {
+      row.addEventListener('pointerenter', function () {
+        var h = getComputedStyle(row).getPropertyValue('--h').trim();
+        fl.style.background = 'radial-gradient(120% 90% at 20% 10%, oklch(40% .11 ' + h + '), oklch(17% .03 ' + h + '))'; fl.textContent = hues[h] || '';
+        fl.classList.add('on'); if (!raf) loop();
+      });
+      row.addEventListener('pointerleave', function () { fl.classList.remove('on'); });
+    });
+    rs.addEventListener('pointermove', function (e) { var r = rs.getBoundingClientRect(); tx = e.clientX - r.left + 110; ty = e.clientY - r.top - 10; if (!fl.classList.contains('on')) { cx = tx; cy = ty; } });
+  }
+
+  // H6 틸트
+  var ts = $('#tiltStage'), tl = $('#tilt');
+  if (fine && !rm) {
+    ts.addEventListener('pointermove', function (e) {
+      var r = tl.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+      tl.classList.add('live'); tl.style.setProperty('--ry', (px * 14).toFixed(2) + 'deg'); tl.style.setProperty('--rx', (-py * 14).toFixed(2) + 'deg');
+    });
+    ts.addEventListener('pointerleave', function () { tl.classList.remove('live'); tl.style.setProperty('--ry', '0deg'); tl.style.setProperty('--rx', '0deg'); });
+  }
+
+  /* ── 진입 ── */
+  function restart(el) { el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); }
+
+  // E1 블러 텍스트
+  var blur = $('#blur');
+  '프로덕트의 구조와 규칙을 설계합니다'.split(' ').forEach(function (w, i) {
+    var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--i', i); s.textContent = w + ' '; blur.appendChild(s);
+  });
+  // E2 라인 마스크
+  var lines = $('#lines');
+  ['플랫폼과 디자인 시스템을', '만드는 프로덕트 디자이너', '솔길입니다.'].forEach(function (t, i) {
+    var d = document.createElement('span'); d.className = 'ln'; var s = document.createElement('span'); s.style.setProperty('--i', i); s.textContent = t; d.appendChild(s); lines.appendChild(d);
+  });
+  // E3 스크롤 단어 점등
+  var sw = $('#sw'), words = [];
+  '8년 동안 서비스의 구조와 규칙을 설계해 왔습니다. 작업 사례와 실무에서 쓰는 팁, AI 활용법을 함께 기록합니다.'.split(' ').forEach(function (t) {
+    var s = document.createElement('span'); s.className = 'w'; s.textContent = t + ' '; sw.appendChild(s); words.push(s);
+  });
+  function scrollLight() {
+    var r = sw.getBoundingClientRect(), vh = innerHeight;
+    var p = rm ? 1 : Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.55)));
+    var n = Math.round(p * words.length);
+    words.forEach(function (w, i) { w.classList.toggle('lit', i < n); });
+  }
+  addEventListener('scroll', scrollLight, { passive: true }); addEventListener('resize', scrollLight); scrollLight();
+
+  // E5 클립 커튼
+  var clips = $('#clips');
+  // E6 카운트업
+  var counts = $$('.cnt i'), cRun = 0;
+  function countUp() {
+    var run = ++cRun, start = performance.now(), dur = 1500;
+    counts.forEach(function (el) { el.textContent = el.dataset.from || '0'; });
+    if (rm) { counts.forEach(function (el) { el.textContent = el.dataset.to; }); return; }
+    (function f(now) {
+      if (run !== cRun) return;
+      var k = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - k, 4);
+      counts.forEach(function (el) { var a = +(el.dataset.from || 0), b = +el.dataset.to; el.textContent = Math.round(a + (b - a) * e); });
+      if (k < 1) requestAnimationFrame(f);
+    })(start);
+  }
+
+  var play = {
+    blur: function () { restart(blur); },
+    lines: function () { restart(lines); },
+    clips: function () { restart(clips); },
+    cnt: countUp
+  };
+  if (rm) { blur.classList.add('on'); lines.classList.add('on'); clips.classList.add('on'); counts.forEach(function (el) { el.textContent = el.dataset.to; }); }
+  $$('.replay').forEach(function (b) { b.addEventListener('click', function () { play[b.dataset.r](); }); });
+
+  /* ── 페이지 전환 ── */
+  var PAGES = {
+    A: '<span class="eb mono pi">Home</span><div class="mk"><h4 class="pi mi">플랫폼과 디자인 시스템을 만드는 프로덕트 디자이너</h4></div><p class="pi">8년 동안 서비스의 구조와 규칙을 설계해 왔습니다.</p><div class="it pi"><span>샘플 케이스 스터디</span><span>2024.12</span></div><div class="it pi"><span>샘플 팁 글</span><span>2026.10</span></div>',
+    B: '<span class="eb mono pi">포트폴리오</span><div class="mk"><h4 class="pi mi">샘플 케이스 스터디</h4></div><p class="pi">문제 · 과정 · 결과로 정리한 작업 사례의 상세 페이지입니다.</p><div class="it pi"><span>회사명 · Product Designer</span><span>2024.01</span></div><div class="it pi"><span>Design System · B2B</span><span>태그</span></div>'
+  };
+  var EASE = 'cubic-bezier(.16,1,.3,1)';
+  function fadeOut(el, kf, d) { var a = el.animate(kf, { duration: d, easing: 'ease-in', fill: 'forwards' }); return a.finished.then(function () { a.cancel(); }); }
+  function stagger(body, from, base, step, dur) {
+    $$('.pi', body).forEach(function (it, i) { if (it.classList.contains('mi') && body.dataset.mask) return; it.animate([{ opacity: 0, transform: from }, { opacity: 1, transform: 'none' }], { duration: dur, delay: base + i * step, easing: EASE, fill: 'backwards' }); });
+  }
+  var VAR = {
+    rise: async function (body, swap) { await fadeOut(body, [{ opacity: 1 }, { opacity: 0 }], 200); swap(); stagger(body, 'translateY(12px)', 0, 45, 420); },
+    mask: async function (body, swap) {
+      await fadeOut(body, [{ opacity: 1 }, { opacity: 0 }], 180); body.dataset.mask = '1'; swap();
+      $$('.mi', body).forEach(function (h) { h.animate([{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 750, easing: EASE, fill: 'backwards' }); });
+      stagger(body, 'translateY(10px)', 140, 60, 520);
+    },
+    blur: async function (body, swap) {
+      await fadeOut(body, [{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)' }], 220); swap();
+      body.animate([{ opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)' }], { duration: 560, easing: EASE });
+    },
+    bar: async function (body, swap, stage) {
+      var pr = $('.pt-prog', stage); pr.style.opacity = 1;
+      var a = pr.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(.65)', offset: .55 }, { transform: 'scaleX(1)' }], { duration: 650, easing: 'ease-out', fill: 'forwards' });
+      await fadeOut(body, [{ opacity: 1 }, { opacity: .25 }], 220); await a.finished; swap();
+      stagger(body, 'translateY(8px)', 0, 40, 380);
+      await pr.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' }).finished; a.cancel(); pr.getAnimations().forEach(function (x) { x.cancel(); }); pr.style.opacity = 0;
+    },
+    slide: async function (body, swap) {
+      await fadeOut(body, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 220); swap();
+      body.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: EASE });
+    }
+  };
+  $$('.pt-stage').forEach(function (stage) {
+    var body = $('.pt-body', stage), btn = $('button', stage), cur = $('[data-cur]', stage), page = 'A', busy = false, v = stage.dataset.v;
+    body.innerHTML = PAGES.A;
+    btn.addEventListener('click', async function () {
+      if (busy) return; busy = true;
+      var next = page === 'A' ? 'B' : 'A';
+      var swap = function () { page = next; body.innerHTML = PAGES[next]; cur.textContent = next === 'A' ? 'Home' : '포트폴리오'; };
+      if (rm) swap(); else await VAR[v](body, swap, stage);
+      busy = false;
+    });
+  });
+  var targets = { blur: blur, lines: lines, clips: clips, cnt: $('.counts') };
+  if ('IntersectionObserver' in window && !rm) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (!e.isIntersecting) return; io.unobserve(e.target); play[e.target.dataset.k](); });
+    }, { threshold: 0.5 });
+    Object.keys(targets).forEach(function (k) { targets[k].dataset.k = k; io.observe(targets[k]); });
+  } else if (!rm) { Object.keys(play).forEach(function (k) { play[k](); }); }
+})();
+</script>
