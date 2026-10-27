@@ -41,7 +41,7 @@ const home = url('/');
       <div class="hdr-in">
         <a class="logo" href={home} aria-label="MoHo 홈">MoHo<i>.</i></a>
         <nav class="menu" aria-label="메뉴">
-          {menu.map((m) => <a href={`${home}#${m.id}`} data-spy={m.id}>{m.label}</a>)}
+          {menu.map((m) => <a href={`${home}#${m.id}`} data-spy={m.id} data-roll>{m.label}</a>)}
         </nav>
         <span class="clock mono" data-clock>SEOUL --:--:--</span>
         <button class="burger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet"><span></span><span></span></button>
@@ -67,6 +67,8 @@ const home = url('/');
   import Lenis from 'lenis';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { initReveal } from '../scripts/reveal';
+  import { initRoll, initHover } from '../scripts/hover-effects';
+  import { initEnter } from '../scripts/enter-effects';
   import { initPageTransition } from '../scripts/page-transition';
 
   // 이 스크립트는 처음 한 번만 실행됨 (ClientRouter). 헤더·시계·HUD는 페이지를 넘어도 유지
@@ -151,6 +153,9 @@ const home = url('/');
   // 페이지마다: 스크롤 등장(.reveal)
   document.addEventListener('astro:page-load', () => {
     initReveal();
+    initRoll();
+    initHover();
+    initEnter();
     lenis?.resize();
     setSheet(false);
     onScroll();
