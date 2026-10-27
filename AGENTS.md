@@ -78,7 +78,7 @@ src/
     ui/                    ← shadcn·21st.dev React 컴포넌트 (.tsx)
       smoke-field.tsx      ← 홈 메인 연기(WebGL2 유체): 글자 뒤에서 피어오름 + 마우스 따라 번짐
       halftone-wordmark-footer.tsx ← 홈 메인: 거대한 "MoHo" 하프톤(Hahmlet 900) 점 워드마크(포인터로 밀림·클릭 충격파) + 링크 칼럼
-    Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →, 커버 있으면 hover 썸네일)
+    Row.astro              ← 리스트 한 줄 ([번호] 배지 · 제목/요약 · 날짜 · →). hover 시 파란 면이 차오르고, 커버(없으면 항목 색+이름) 썸네일은 마우스를 따라옴(`data-cover`·`data-cat` → hover-effects.ts)
     Library.astro          ← 필터 칩(개수) + 검색 + "N개의 항목" + 리스트 (클라이언트 필터 스크립트 포함). 칩은 기본 형식(케이스 스터디/노트), `categoryFilter`를 주면 항목(포트폴리오·팁·AI·툴·기록). 필터 후 `ScrollTrigger.refresh()`
     Entry.astro            ← 상세 페이지 공통 틀 (헤더, 커버, 본문, 같은 항목의 다른 글)
     Intro.astro            ← 홈 진입 화면 (부팅 로그 → click anywhere to start, 세션당 1회, 모션 줄이기면 생략)
@@ -156,7 +156,7 @@ src/
 
 - 🔄 **대대적 개편 시작 (2026-10-26)** — 지금까지 사이트는 "인터랙션 실험·초안"으로 보고, 새 레퍼런스 **https://junheedot.com/** 을 참고해 다시 만드는 중
   - 1단계: 홈 메인을 21st.dev **Halftone Wordmark Footer**로 구성 (사용자가 준 프롬프트 그대로 통합). 칼럼 = Library(항목) · Site(About/Work/Notes) · Contact(메일/GitHub), back-to-top 끔
-  - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh
+  - 2단계 (사용자 피드백 5개 반영): ① 모바일(<720px)은 `sol / gil` 두 줄로 크게 (컴포넌트에 `narrowWordmark`·`narrowBelow`·`lineHeight` prop 추가) ② ⑤ 한글·영문 모두 SUIT (워드마크 800, 작은 글씨 12px·자간 0.04em) ③ 밀린 점 색 = 강조색 파랑 `#2895f7` ④ **홈은 헤더 없음** (`<Base header={false}>`), 다른 페이지는 아직 헤더 있음. 높이 100svh (→ 2026-10-27 PR #12에서 모든 페이지에 새 pill 헤더 적용, 홈 히어로의 링크 칼럼은 제거)
   - ✅ junheedot.com 접속됨 (사용자가 허용). 구성: 떠 있는 둥근(pill) 헤더(로고 · 앵커 메뉴 소개/경력/프로젝트/사이드 프로젝트/기술/학력/기술 블로그/연락처 · 언어/테마) → 가운데 정렬 히어로(큰 이름 + 파란 직함 + 한 줄 소개 + 이력서/GitHub 버튼 + 아이콘 링크 + Scroll) → 소개(핵심 역량 카드 3 + 비즈니스 임팩트) → 경력(회사 카드 안 팀별 타임라인, '상세 내용 보기') → 프로젝트(썸네일 카드 2열, 기간·역할·스택 칩·성과) → 사이드 프로젝트 → 기술 스택(분류별 칩 행) → 학력·교육(타임라인) → 기술 블로그(카드 4 + 전체 글) → 연락처(카드 그리드) → 둥근 푸터. 폰트 Plus Jakarta Sans, 배경 `#09090b`, 스크롤 등장
   - 3단계: 워드마크를 **`moho.han`**(모바일 `moho`)로 교체 (사용자 결정, 2026-10-26). 소문자 위주라 아래 잘림을 `crop 0.03`으로 줄여 `.`이 보이게 함. 후보 비교했던 것: nerdy · geek · 솔길 · a bit / nerdy · osg.
   - 왼쪽 위 문구 = `moho design` (2026-10-26, `.han` 뺌)
@@ -176,6 +176,12 @@ src/
   - ⚠️ 홈 외 페이지(About·카테고리·work·archive·글 상세)는 아직 **예전 디자인**(헤더, 픽셀 로고 `SOLGIL_`, JetBrains Mono HUD 라벨, 페르소나 About)이라 홈과 분위기가 다름
   - 옛 홈 히어로(`Hero.astro`, `Intro.astro`, `hero-scene.ts`)는 파일만 남아 있고 홈에서 빠짐 — 개편 방향 확정 후 삭제 여부 결정
 
+- ✅ **PR #12 머지 · 배포 성공** (2026-10-27, 머지 커밋 `2561d3c`, Actions run #13, 브랜치 `claude/quirky-ramanujan-odxjtx`) — 아래가 사이트에 반영됨
+  - 떠 있는 블러 pill 헤더(맨 위 투명 → 스크롤 시 블러) + 메뉴 About·Work·Library·Contact(홈 앵커) + 모바일 전체 화면 시트 + 로고 `MoHo.`
+  - 홈 아래 섹션 4개(About·Work·Library·Contact), Library 항목 필터 칩
+  - 인터랙션: 호버(텍스트 롤·스포트라이트·행 슬라이드+따라오는 썸네일) · 진입(블러 텍스트·스크롤 단어 점등·카운트업) · 전환(제목 마스크+본문 페이드). 글자 스크램블은 전부 삭제
+  - 색: 흰색 `#f2f7ff`(쿨 화이트), 연기·파동·밀린 점 = 브랜드 파랑 `#2895f7`
+  - 실기기(WebGL 부드러움, 모바일 시트·터치) 확인 결과는 아직 못 받음. 내용은 아직 샘플(About 타일 3·Work 카드 1·Library 5)
 - ✅ PR #1, #2 머지 · 배포됨 (카드 라이브러리 + 인수인계 노트)
 - ✅ PR #3 머지 · **배포 성공** (2026-10-21, Actions run #4): **다크 HUD + 페르소나 히어로(타이틀 "GEEK") + huddling식 메뉴·리스트**
   - 헤더 로고는 `SOLGIL_`, 얼굴 라벨은 `SUBJ: SOLGIL.EXE` 그대로 (사용자는 히어로 타이틀만 GEEK으로 바꿈)
@@ -190,7 +196,7 @@ src/
   - 페르소나 사진 교체 + 배경색 더 어둡게(`#0b0b0d`)
   - **페이지 전환 C 구현** (시안 v2 https://claude.ai/artifact/VZ7TbHcVrzFCRbs21FC8ck , 원본 `mockups/page-transition.html`)
   - **히어로 리터칭**: 레퍼런스 효과 스택 + 깊이맵 마우스 시차, 홀로그램 패널 삭제
-  - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋, PR 미생성)
+  - 작업 브랜치: `claude/admiring-ride-q2c1zu` (`claude/clever-franklin-ubf6l1` 위에 이어서 커밋 → PR #5로 머지됨)
   - About 다크 HUD 리뉴얼 + 글자 스크램블 hover (원래 `claude/clever-franklin-ubf6l1`에 있던 작업)도 함께 머지됨
 - 🔄 **사이트 전체 아티팩트** https://claude.ai/artifact/JKTeEaKxqu2ymSz9ysdE7p — 배포본 dist 마크업·CSS 그대로 + 히어로 셰이더(WebGL 직접 구현)·전환 C. 「전체 펼치기 · Figma용」은 14페이지를 정지 화면으로 세로로 펼침. **사용자가 Figma로 옮겨 수정 → 그 디자인을 받아 코드 반영** 단계. 사이트를 바꾸면 생성기로 다시 만들어 같은 URL로 재게시
   - 아티팩트에선 Pretendard를 못 불러와(CSP) Noto Sans KR로 대체됨 — Figma에서 Pretendard로 바꿔 쓰면 됨
@@ -199,13 +205,13 @@ src/
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-0. **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 완료** (브랜치 `claude/quirky-ramanujan-odxjtx`, PR 미생성 → 사용자 확인 후): 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님)
+0. ✅ **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 · PR #12 머지·배포 완료**: 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님). 이후 작업은 **새 브랜치**에서 시작(머지된 브랜치는 재사용하지 않음)
    - ⚠️ 내용은 아직 샘플/최소: About 타일 3개는 기존 소개 문구의 사실(8년 차·플랫폼/디자인 시스템·2016~)만, Work 카드는 `work` 컬렉션(샘플 1개), Library는 샘플 글 5개. 경력·성과·실제 프로젝트는 사용자에게 받은 것만
    - 홈 외 페이지(`/about`, `/work`, `/category/*`, `/archive/*`)는 새 헤더만 입고 본문은 예전 디자인. `/about`(페르소나 HUD)은 메뉴 About이 홈 앵커로 가면서 메뉴에선 접근 불가(주소는 살아 있음) — 정리 방향을 정해야 함
    - ✅ **호버·진입·전환 인터랙션 코드 반영 완료 (2026-10-27)** — 시안 https://claude.ai/artifact/77hqb3ASzomKpLqv4rFJRh (`mockups/interactions.html`)에서 사용자가 고른 것: 호버(텍스트 롤·스포트라이트·행 슬라이드) · 진입(블러 텍스트·스크롤 단어 점등·카운트업) · 전환(제목 마스크 + 본문 페이드). 구현 위치는 위 3번 구조의 `hover-effects.ts`·`enter-effects.ts`·`page-transition.ts`. 안 고른 시안 후보(마그넷·굵기 근접·틸트·라인 마스크·클립 커튼 등)는 필요하면 시안 파일에 남아 있음. 제외: 하프톤 리빌(과함)·스크램블 계열·조준 커서·스플래시 커서
    - 참고: WebFetch는 DNS 때문에 허용 도메인도 막힐 수 있음 → curl/Playwright로 받을 것
    - 다음 섹션 작업 후보: About 풍부하게(경력 타임라인·핵심 역량) → Work 카드 → Library 상세 → Contact, 나머지 페이지 새 디자인 맞추기
-0-1. **개편 진행**: ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
+0-1. **개편 진행 (남은 것)**: ✅ 홈 하프톤 아래 영역은 4개 섹션으로 완료(PR #12). ① 홈 외 페이지(`/about`·`/work`·`/category/*`·`/archive/*`·글 상세)의 본문을 새 분위기로, `/about`(페르소나 HUD) 처리 방향 결정 ② About 섹션 풍부하게(경력 타임라인·핵심 역량, 내용은 사용자에게 받은 것만) ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정
 
 > 아래 1·3·7번은 옛 페르소나 히어로 기준 항목이라 개편 방향에 따라 폐기될 수 있음
 
