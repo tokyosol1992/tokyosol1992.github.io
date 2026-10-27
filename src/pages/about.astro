@@ -68,7 +68,7 @@ const portfolio = categories[0];
             <li>
               <span class="no mono">[{String(i + 1).padStart(2, '0')}]</span>
               <div class="body">
-                <h3><span data-scramble>{e.company}</span>{e.product && <small>{e.product}</small>}</h3>
+                <h3>{e.company}{e.product && <small>{e.product}</small>}</h3>
                 {e.role && <p class="role">{e.role}</p>}
                 {e.desc && <p class="desc">{e.desc}</p>}
               </div>
@@ -91,9 +91,9 @@ const portfolio = categories[0];
         <h2 class="section-label mono" id="contact"><span>[03]</span> contact</h2>
         <a class="contact" href={`mailto:${email}`}>
           <span class="mono">open channel →</span>
-          <b data-scramble>{email}</b>
+          <b>{email}</b>
         </a>
-        <a class="mono more" href={url(`/category/${portfolio.slug}`)}><span data-scramble>{portfolio.label} 보기</span> →</a>
+        <a class="mono more" href={url(`/category/${portfolio.slug}`)}><span>{portfolio.label} 보기</span> →</a>
       </section>
     </div>
   </div>

@@ -87,7 +87,7 @@ src/
     hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(레퍼런스 효과 스택 + visual/thermal/edge 스윕 전환), 깊이맵 마우스 시차, 얼굴 레티클(FACE 좌표), 먼지
     page-transition.ts     ← 페이지 전환: 본문 페이드 + 제목 스크램블·내용 순차 등장 (ClientRouter 이벤트에 연결, Base에서 initPageTransition()). 레티클은 2026-10-26 삭제
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
-    scramble.ts            ← 글자 스크램블 hover. `data-scramble` 붙이면 동작(링크·버튼 안이면 그 hover 기준), `="fixed"`는 너비 고정. Base에서 initScramble()
+    scramble.ts            ← `scramble(el)` 함수만 남음(페이지 이동 뒤 제목 등장 연출용, page-transition.ts). **마우스 hover 스크램블(`data-scramble`·`initScramble`)은 2026-10-27 사용자 요청으로 삭제**
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
   layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), **떠 있는 pill 헤더**(2026-10-27: 로고 `MoHo.` · About/Work/Library/Contact 앵커 · 서울 시계, 모바일은 버튼 + 전체 화면 시트 `[data-sheet]`; `header={false}`면 없음), 푸터, Lenis. 헤더·시트는 transition:persist. 스크롤 24px 넘으면 `.is-scrolled`(블러 pill), 현재 섹션 `[ ]`는 홈=IntersectionObserver·다른 페이지=경로(`/work`→Work, `/about`→About, `/category`·`/archive`→Library). 같은 페이지 앵커 클릭은 Lenis로 부드럽게 이동. slot="full"은 .wrap 밖(풀폭)
@@ -148,7 +148,7 @@ src/
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
 - ~~페이지 전환 C · 레티클 포커스~~ (2026-10-26 삭제 → 단순 페이드 + 내용 순차 등장) (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
-- 모션: GSAP reveal(`.reveal`), Lenis, 글자 스크램블 hover(로고·메뉴·리스트 제목·히어로 모드·About 회사명/이메일. 마우스 기기만, 한글→한글·영문→영문/기호로 섞어 폭 변화 최소화). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
+- 모션: GSAP reveal(`.reveal`), Lenis. ~~글자 스크램블 hover~~ 2026-10-27 삭제(페이지 이동 뒤 제목 스크램블 등장만 남음). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
 ## 6. 현재 상태 (2026-10-27 기준)
 

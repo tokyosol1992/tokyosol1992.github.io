@@ -41,7 +41,7 @@ const home = url('/');
       <div class="hdr-in">
         <a class="logo" href={home} aria-label="MoHo 홈">MoHo<i>.</i></a>
         <nav class="menu" aria-label="메뉴">
-          {menu.map((m) => <a href={`${home}#${m.id}`} data-spy={m.id} data-scramble="fixed">{m.label}</a>)}
+          {menu.map((m) => <a href={`${home}#${m.id}`} data-spy={m.id}>{m.label}</a>)}
         </nav>
         <span class="clock mono" data-clock>SEOUL --:--:--</span>
         <button class="burger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet"><span></span><span></span></button>
@@ -57,7 +57,7 @@ const home = url('/');
     <footer class="site">
       <div class="wrap mono">
         <span>© {new Date().getFullYear()} {siteName} · Product Designer</span>
-        <a href="mailto:tokyosol1992@gmail.com" data-scramble>tokyosol1992@gmail.com</a>
+        <a href="mailto:tokyosol1992@gmail.com">tokyosol1992@gmail.com</a>
       </div>
     </footer>
   </body>
@@ -66,7 +66,6 @@ const home = url('/');
 <script>
   import Lenis from 'lenis';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { initScramble } from '../scripts/scramble';
   import { initReveal } from '../scripts/reveal';
   import { initPageTransition } from '../scripts/page-transition';
 
@@ -149,9 +148,8 @@ const home = url('/');
   // 페이지 전환 C · 레티클 포커스
   initPageTransition();
 
-  // 페이지마다: 글자 스크램블 hover(data-scramble), 스크롤 등장(.reveal)
+  // 페이지마다: 스크롤 등장(.reveal)
   document.addEventListener('astro:page-load', () => {
-    initScramble();
     initReveal();
     lenis?.resize();
     setSheet(false);

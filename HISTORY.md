@@ -15,6 +15,7 @@
   - 헤더: `fixed top 20px`, 맨 위는 투명, 스크롤하면 안쪽 박스에 `blur(24px) saturate(1.4)` + 반투명 배경 + 테두리 + 폭 축소(0.5s). 숨김 동작 없음. 메뉴는 4개 + 오른쪽 CTA
 - 사용자 결정: **메뉴 A안(About · Work · Library · Contact, 홈 앵커) · 스크롤 시 블러 pill · 5개 항목은 Library 섹션의 필터 칩으로**
 - 시안 아티팩트 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (원본 `mockups/header-menu.html`): 실제 스크롤 프로토타입 + 헤더 상태(맨 위 / 스크롤 / 모바일 시트) 정지 화면. 코드 반영은 시안 피드백 후
+- "마우스 호버 했을 때 텍스트가 랜덤으로 나오다가 원문으로 돌아오는 효과 제거" → 메뉴·리스트 제목·푸터 메일·About·히어로 모드 라벨의 hover 스크램블을 전부 삭제(`data-scramble` 속성, `initScramble`, 고정폭 처리). 페이지 이동 뒤 제목이 섞이며 등장하는 연출은 hover가 아니라서 남겨둠. 호버 중 글자가 안 바뀌는 것 Playwright로 확인
 - 시안 피드백: 로고 `MoHo.` 좋음, pill 괜찮음, Work 카드 구성은 나중에 수정 포인트를 받기로 함(지금 우선순위 아님)
 - "좋아 다음 스텝으로 진행" → 시안대로 **코드 반영 (헤더 + 홈 섹션)**
   - `Base.astro` 헤더를 떠 있는 pill로 교체: 맨 위 투명 → 24px 스크롤 시 `blur(24px) saturate(1.4)` + 반투명 면 + 테두리, 폭 1200→980, 0.5s. 로고 `MoHo.`(Hahmlet 900 + 파란 점), 메뉴 About·Work·Library·Contact(현재 섹션 `[ ]`), 서울 시계, 모바일(<720px)은 버튼 + 전체 화면 시트
