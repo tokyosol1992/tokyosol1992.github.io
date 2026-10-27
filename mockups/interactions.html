@@ -106,11 +106,6 @@ section { margin-top: 88px; }
 .sw { font-size: 20px; line-height: 1.6; letter-spacing: -.01em; margin: 0; max-width: 24em; font-weight: 500; }
 .sw .w { color: var(--dim); transition: color .25s; } .sw .w.lit { color: var(--fg); }
 
-/* E4 하프톤 리빌 */
-.ht-card { position: relative; width: min(100%, 360px); padding: 22px; border-radius: 10px; background: var(--raise); border: 1px solid var(--line); display: grid; gap: 10px; }
-.ht-card .blk { height: 74px; border-radius: 8px; background: radial-gradient(120% 120% at 20% 0%, var(--accent), oklch(30% .1 250)); }
-.ht-card b { font-size: 18px; } .ht-card span { color: var(--muted); font-size: 14px; }
-.ht-cv { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 /* E5 클립 커튼 */
 .clips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
@@ -125,6 +120,22 @@ section { margin-top: 88px; }
 .cnt b { font-size: 36px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1; }
 .cnt span { color: var(--muted); font-size: 13px; }
 
+
+/* 페이지 전환 */
+.pt-stage { display: block; padding: 0; min-height: 300px; }
+.pt-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.pt-bar b { color: var(--fg); font-weight: 500; } .pt-bar i { color: var(--accent); font-style: normal; }
+.pt-bar button { margin-left: auto; font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--fg); background: var(--raise); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.pt-bar button:hover { border-color: var(--dim); }
+.pt-prog { position: absolute; left: 0; top: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; opacity: 0; z-index: 4; }
+.pt-body { padding: 22px; }
+.pt-body .eb { display: block; color: var(--accent); margin-bottom: 10px; }
+.pt-body .mk { overflow: hidden; padding-bottom: .1em; margin-bottom: 8px; }
+.pt-body h4 { margin: 0; font-size: 24px; line-height: 1.3; letter-spacing: -.02em; }
+.pt-body p { margin: 0 0 16px; color: var(--muted); font-size: 14px; max-width: 34em; }
+.pt-body .it { display: flex; justify-content: space-between; padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.pt-body .it span:last-child { color: var(--dim); font-family: var(--mono); font-size: 11px; }
+
 .excl { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
 .excl > div { border: 1px dashed var(--line); border-radius: 10px; padding: 18px 20px; color: var(--muted); font-size: 14px; }
 .excl b { color: var(--fg); display: block; margin-bottom: 4px; font-weight: 500; }
@@ -136,7 +147,7 @@ section { margin-top: 88px; }
 <div class="wrap">
   <header>
     <span class="mono eyebrow">Interaction candidates</span>
-    <h1>호버와 진입 인터랙션 후보</h1>
+    <h1>호버·진입·페이지 전환 후보</h1>
     <p class="lead">React Bits 목록(텍스트·애니메이션·컴포넌트 약 120개)에서 MoHo의 어두운 톤, 파랑, 하프톤, 한글 제목에 맞는 것만 골랐습니다. 각 무대에 직접 마우스를 올려 보세요. 진입 효과는 오른쪽 위 Replay로 다시 볼 수 있습니다.</p>
   </header>
 
@@ -153,7 +164,8 @@ section { margin-top: 88px; }
       <h3>추천 조합: 진입</h3>
       <ul>
         <li><b>섹션 제목 → 블러 텍스트.</b> 단어가 흐릿하게 떠올라 선명해집니다.</li>
-        <li><b>페이지 이동 → 하프톤 리빌.</b> 사이트의 점 패턴이 걷히며 새 페이지가 보입니다. 스크램블을 대신합니다.</li>
+        <li><b>About 소개 문단 → 스크롤 단어 점등.</b> 확정입니다.</li>
+        <li><b>페이지 이동 → 제목 마스크 + 본문 페이드.</b> 제목만 아래에서 올라오고 나머지는 살짝 떠오릅니다. 가볍고 조용합니다.</li>
         <li><b>About 숫자 → 카운트업.</b> 8년 차, 2016이 올라갑니다.</li>
       </ul>
     </div>
@@ -188,7 +200,7 @@ section { margin-top: 88px; }
   </section>
 
   <section id="enter">
-    <h2>진입 6개</h2>
+    <h2>진입 5개</h2>
     <p class="sec-note">섹션이 처음 보일 때 한 번 재생됩니다. 모션 줄이기 설정이면 처음부터 완성된 상태로 보입니다.</p>
     <div class="grid">
       <div class="demo"><div class="stage"><button class="replay" type="button" data-r="blur">Replay</button><h3 class="blur-t" id="blur" style="margin:0"></h3></div>
@@ -200,14 +212,29 @@ section { margin-top: 88px; }
       <div class="demo"><div class="stage"><p class="sw" id="sw"></p><span class="mono hint">페이지를 스크롤해 보세요</span></div>
         <div class="cap"><h3>스크롤 단어 점등 <span class="tag">About 소개 문단</span></h3><p>스크롤하는 만큼 단어가 하나씩 밝아집니다. 읽는 속도를 조절해 주는 효과입니다.</p><a class="ref" href="https://reactbits.dev/text-animations/scroll-reveal" target="_blank" rel="noopener">React Bits: Scroll Reveal ↗</a></div></div>
 
-      <div class="demo"><div class="stage" id="htStage" style="padding:0"><button class="replay" type="button" data-r="ht">Replay</button><div class="ht-card" id="htCard" style="margin:22px"><div class="blk"></div><b>새 페이지의 내용</b><span>점 패턴이 걷히면서 나타납니다.</span><canvas class="ht-cv" id="htCv"></canvas></div></div>
-        <div class="cap"><h3>하프톤 리빌 <span class="tag">페이지 전환 추천</span></h3><p>홈 워드마크와 같은 점 언어입니다. 점이 작아지며 대각선으로 걷히고 새 페이지가 드러납니다.</p><a class="ref" href="https://reactbits.dev/animations/halftone-reveal" target="_blank" rel="noopener">React Bits: Halftone Reveal ↗</a></div></div>
 
       <div class="demo"><div class="stage"><button class="replay" type="button" data-r="clips">Replay</button><div class="clips" id="clips"><div class="clip" style="--i:0;--h:250"><i></i></div><div class="clip" style="--i:1;--h:300"><i></i></div><div class="clip" style="--i:2;--h:155"><i></i></div></div></div>
         <div class="cap"><h3>클립 커튼 <span class="tag">카드 · 이미지 등장</span></h3><p>위에서 아래로 커튼처럼 열리고 안의 이미지가 살짝 줄어듭니다. Work 카드나 케이스 스터디 커버에 어울립니다.</p><a class="ref" href="https://reactbits.dev/animations/animated-content" target="_blank" rel="noopener">비슷한 것: Animated Content ↗</a></div></div>
 
       <div class="demo"><div class="stage"><button class="replay" type="button" data-r="cnt">Replay</button><div class="counts"><div class="cnt"><span class="mono">Experience</span><b><i data-to="8">0</i>년 차</b></div><div class="cnt"><span class="mono">Since</span><b><i data-to="2016" data-from="2000">2000</i></b></div></div></div>
         <div class="cap"><h3>카운트업 <span class="tag">About 타일</span></h3><p>숫자가 올라가 멈춥니다. 쓸 수 있는 숫자가 실제 사실일 때만 의미가 있어서, 경력 숫자가 늘면 그때 더 활용됩니다.</p><a class="ref" href="https://reactbits.dev/text-animations/count-up" target="_blank" rel="noopener">React Bits: Count Up ↗</a></div></div>
+    </div>
+  </section>
+
+  <section id="page">
+    <h2>페이지 전환 5개</h2>
+    <p class="sec-note">링크를 눌러 다른 페이지로 갈 때의 효과입니다. 무대의 "페이지 이동"을 눌러 Home과 포트폴리오를 오가 보세요. 모두 하프톤 리빌보다 훨씬 조용합니다.</p>
+    <div class="grid">
+      <div class="demo"><div class="stage pt-stage" data-v="rise"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>페이드 + 상승 <span class="tag">지금 사이트와 같은 계열</span></h3><p>본문이 사라지고 새 내용이 12px 떠오르며 차례로 나타납니다. 가장 무난합니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="mask"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>제목 마스크 + 본문 페이드 <span class="tag">추천</span></h3><p>제목만 마스크 아래에서 올라오고 나머지는 살짝 뒤따라 떠오릅니다. 진입 효과의 라인 마스크와 같은 언어입니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="blur"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>블러 페이드 <span class="tag"></span></h3><p>화면 전체가 흐려졌다가 선명해집니다. 블러 텍스트와 짝이 맞습니다. 제일 부드럽습니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="bar"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>파란 진행선 <span class="tag">HUD 느낌</span></h3><p>상단에 얇은 파란 선이 지나가고 본문이 희미해졌다 돌아옵니다. 연기·파동과 같은 파랑이라 하나의 포인트가 됩니다.</p></div></div>
+      <div class="demo"><div class="stage pt-stage" data-v="slide"><span class="pt-prog"></span><div class="pt-bar"><span>현재 <b data-cur>Home</b> <i>→</i></span><button type="button">페이지 이동</button></div><div class="pt-body"></div></div>
+        <div class="cap"><h3>슬라이드 <span class="tag"></span></h3><p>이전 내용은 위로 사라지고 새 내용이 아래에서 올라옵니다. 방향감이 있어서 페이지 이동이 또렷하게 느껴집니다.</p></div></div>
     </div>
   </section>
 
@@ -326,26 +353,6 @@ section { margin-top: 88px; }
   }
   addEventListener('scroll', scrollLight, { passive: true }); addEventListener('resize', scrollLight); scrollLight();
 
-  // E4 하프톤 리빌
-  var cv = $('#htCv'), card = $('#htCard'), htRun = 0;
-  function halftone() {
-    var run = ++htRun, w = card.offsetWidth, h = card.offsetHeight, dpr = Math.min(2, devicePixelRatio || 1);
-    cv.width = w * dpr; cv.height = h * dpr; var g = cv.getContext('2d'); g.scale(dpr, dpr);
-    var gap = 12, cols = Math.ceil(w / gap) + 1, rows = Math.ceil(h / gap) + 1, maxR = gap * 0.78, dur = 700, spread = 900;
-    var cover = getComputedStyle(card).backgroundColor, start = performance.now();
-    if (rm) { g.clearRect(0, 0, w, h); return; }
-    (function frame(now) {
-      if (run !== htRun) return;
-      var t = now - start; g.clearRect(0, 0, w, h); g.fillStyle = '#0b0b0d'; var done = true;
-      for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) {
-        var delay = ((x / cols) * 0.6 + (y / rows) * 0.4) * spread, k = Math.min(1, Math.max(0, (t - delay) / dur));
-        if (k < 1) done = false;
-        var e = 1 - Math.pow(1 - k, 3), r = maxR * (1 - e); if (r < 0.3) continue;
-        g.beginPath(); g.arc(x * gap, y * gap, r, 0, 6.2832); g.fill();
-      }
-      if (!done) requestAnimationFrame(frame); else g.clearRect(0, 0, w, h);
-    })(start);
-  }
   // E5 클립 커튼
   var clips = $('#clips');
   // E6 카운트업
@@ -365,13 +372,57 @@ section { margin-top: 88px; }
   var play = {
     blur: function () { restart(blur); },
     lines: function () { restart(lines); },
-    ht: halftone,
     clips: function () { restart(clips); },
     cnt: countUp
   };
   if (rm) { blur.classList.add('on'); lines.classList.add('on'); clips.classList.add('on'); counts.forEach(function (el) { el.textContent = el.dataset.to; }); }
   $$('.replay').forEach(function (b) { b.addEventListener('click', function () { play[b.dataset.r](); }); });
-  var targets = { blur: blur, lines: lines, ht: $('#htStage'), clips: clips, cnt: $('.counts') };
+
+  /* ── 페이지 전환 ── */
+  var PAGES = {
+    A: '<span class="eb mono pi">Home</span><div class="mk"><h4 class="pi mi">플랫폼과 디자인 시스템을 만드는 프로덕트 디자이너</h4></div><p class="pi">8년 동안 서비스의 구조와 규칙을 설계해 왔습니다.</p><div class="it pi"><span>샘플 케이스 스터디</span><span>2024.12</span></div><div class="it pi"><span>샘플 팁 글</span><span>2026.10</span></div>',
+    B: '<span class="eb mono pi">포트폴리오</span><div class="mk"><h4 class="pi mi">샘플 케이스 스터디</h4></div><p class="pi">문제 · 과정 · 결과로 정리한 작업 사례의 상세 페이지입니다.</p><div class="it pi"><span>회사명 · Product Designer</span><span>2024.01</span></div><div class="it pi"><span>Design System · B2B</span><span>태그</span></div>'
+  };
+  var EASE = 'cubic-bezier(.16,1,.3,1)';
+  function fadeOut(el, kf, d) { var a = el.animate(kf, { duration: d, easing: 'ease-in', fill: 'forwards' }); return a.finished.then(function () { a.cancel(); }); }
+  function stagger(body, from, base, step, dur) {
+    $$('.pi', body).forEach(function (it, i) { if (it.classList.contains('mi') && body.dataset.mask) return; it.animate([{ opacity: 0, transform: from }, { opacity: 1, transform: 'none' }], { duration: dur, delay: base + i * step, easing: EASE, fill: 'backwards' }); });
+  }
+  var VAR = {
+    rise: async function (body, swap) { await fadeOut(body, [{ opacity: 1 }, { opacity: 0 }], 200); swap(); stagger(body, 'translateY(12px)', 0, 45, 420); },
+    mask: async function (body, swap) {
+      await fadeOut(body, [{ opacity: 1 }, { opacity: 0 }], 180); body.dataset.mask = '1'; swap();
+      $$('.mi', body).forEach(function (h) { h.animate([{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 750, easing: EASE, fill: 'backwards' }); });
+      stagger(body, 'translateY(10px)', 140, 60, 520);
+    },
+    blur: async function (body, swap) {
+      await fadeOut(body, [{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(6px)' }], 220); swap();
+      body.animate([{ opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)' }], { duration: 560, easing: EASE });
+    },
+    bar: async function (body, swap, stage) {
+      var pr = $('.pt-prog', stage); pr.style.opacity = 1;
+      var a = pr.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(.65)', offset: .55 }, { transform: 'scaleX(1)' }], { duration: 650, easing: 'ease-out', fill: 'forwards' });
+      await fadeOut(body, [{ opacity: 1 }, { opacity: .25 }], 220); await a.finished; swap();
+      stagger(body, 'translateY(8px)', 0, 40, 380);
+      await pr.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' }).finished; a.cancel(); pr.getAnimations().forEach(function (x) { x.cancel(); }); pr.style.opacity = 0;
+    },
+    slide: async function (body, swap) {
+      await fadeOut(body, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-14px)' }], 220); swap();
+      body.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: EASE });
+    }
+  };
+  $$('.pt-stage').forEach(function (stage) {
+    var body = $('.pt-body', stage), btn = $('button', stage), cur = $('[data-cur]', stage), page = 'A', busy = false, v = stage.dataset.v;
+    body.innerHTML = PAGES.A;
+    btn.addEventListener('click', async function () {
+      if (busy) return; busy = true;
+      var next = page === 'A' ? 'B' : 'A';
+      var swap = function () { page = next; body.innerHTML = PAGES[next]; cur.textContent = next === 'A' ? 'Home' : '포트폴리오'; };
+      if (rm) swap(); else await VAR[v](body, swap, stage);
+      busy = false;
+    });
+  });
+  var targets = { blur: blur, lines: lines, clips: clips, cnt: $('.counts') };
   if ('IntersectionObserver' in window && !rm) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (!e.isIntersecting) return; io.unobserve(e.target); play[e.target.dataset.k](); });

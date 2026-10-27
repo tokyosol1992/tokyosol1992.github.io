@@ -200,7 +200,7 @@ src/
 0. **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 완료** (브랜치 `claude/quirky-ramanujan-odxjtx`, PR 미생성 → 사용자 확인 후): 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님)
    - ⚠️ 내용은 아직 샘플/최소: About 타일 3개는 기존 소개 문구의 사실(8년 차·플랫폼/디자인 시스템·2016~)만, Work 카드는 `work` 컬렉션(샘플 1개), Library는 샘플 글 5개. 경력·성과·실제 프로젝트는 사용자에게 받은 것만
    - 홈 외 페이지(`/about`, `/work`, `/category/*`, `/archive/*`)는 새 헤더만 입고 본문은 예전 디자인. `/about`(페르소나 HUD)은 메뉴 About이 홈 앵커로 가면서 메뉴에선 접근 불가(주소는 살아 있음) — 정리 방향을 정해야 함
-   - **호버·진입 인터랙션 후보 시안** https://claude.ai/artifact/77hqb3ASzomKpLqv4rFJRh (`mockups/interactions.html`, 호버 6 + 진입 6, React Bits 기준). 추천: 호버=텍스트 롤(메뉴)·스포트라이트(카드)·행 슬라이드(Library), 진입=블러 텍스트(제목)·하프톤 리빌(페이지 전환)·카운트업. 사용자 선택 대기. 제외: 스크램블 계열·조준 커서(전에 지운 효과와 닮음)·스플래시 커서(연기와 겹침)
+   - **호버·진입·페이지 전환 후보 시안** https://claude.ai/artifact/77hqb3ASzomKpLqv4rFJRh (`mockups/interactions.html`, 호버 6 + 진입 5 + 페이지 전환 5, React Bits 기준). **확정: 스크롤 단어 점등(About 소개 문단).** 하프톤 리빌은 "너무 과하다"로 **제외**(2026-10-27). 페이지 전환 추천은 제목 마스크 + 본문 페이드(그 밖: 페이드+상승·블러 페이드·파란 진행선·슬라이드). 호버 추천: 텍스트 롤(메뉴)·스포트라이트(카드)·행 슬라이드(Library), 진입 추천: 블러 텍스트(제목)·카운트업. 나머지는 사용자 선택 대기. 제외: 스크램블 계열·조준 커서·스플래시 커서
    - 참고: WebFetch는 DNS 때문에 허용 도메인도 막힐 수 있음 → curl/Playwright로 받을 것
    - 다음 섹션 작업 후보: About 풍부하게(경력 타임라인·핵심 역량) → Work 카드 → Library 상세 → Contact, 나머지 페이지 새 디자인 맞추기
 0-1. **개편 진행**: ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
