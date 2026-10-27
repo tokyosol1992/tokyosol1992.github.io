@@ -185,7 +185,7 @@ function createDust() {
   for (let i = 0; i < n; i++) pos.set([(Math.random() - 0.5) * 16, (Math.random() - 0.5) * 10, -2 - Math.random() * 4], i * 3);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xf0ebe5, size: 0.016, transparent: true, opacity: 0.5 }));
+  return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xf2f7ff, size: 0.016, transparent: true, opacity: 0.5 }));
 }
 
 export async function mountHero(root: HTMLElement, src: string, depthSrc: string) {

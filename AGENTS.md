@@ -136,7 +136,8 @@ src/
 방향: (2026-10-26~ 개편 중) **다크 고정 · 하프톤 워드마크 + 연기 홈** (junheedot.com 참고). 아래 HUD·히어로 항목은 홈 외 페이지에 남아 있는 예전 디자인 기록.
 
 - 토큰 (`src/styles/global.css` `:root`, 다크만 있음)
-  - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f0ebe5` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
+  - (2026-10-27) 흰색 `--fg`를 크림 `#f0ebe5`에서 **파랑 쪽으로 살짝 기운 쿨 화이트 `#f2f7ff`**로 변경. 홈은 `index.astro`의 `BRAND #2895f7`·`WHITE #f2f7ff` 상수 하나로 워드마크 글자색(ink)·밀린 점/클릭 파동(warm)·연기 색을 통일
+  - `--bg #0b0b0d` `--surface #131316` `--raise #1a1a1e` `--fg #f2f7ff` `--muted #8d8992` `--dim #55545a` `--line #242429` `--accent #2895f7`
   - (2026-10-22) 배경을 남색 기가 도는 `#15151c`에서 무채색에 가까운 `#0b0b0d`로 더 어둡게 바꿈. 히어로 3D 배경 패널(`hero-scene.ts` back 셰이더)과 사진 블렌딩 `uBg`(CSS `--bg`를 읽음), `theme-color`도 함께 맞춤
   - 폰트: `--font` **SUIT Variable**(2026-10-26~, 이전 Pretendard) / `--mono` JetBrains Mono / `--pixel` Silkscreen. HUD 라벨은 `.mono` (대문자 12px). 홈 워드마크만 Hahmlet 900
   - 레이아웃: `--max 1200px`, `--narrow 720px`, `--radius 4px`, `--gutter clamp(16px,4vw,40px)`, `--header 60px`
@@ -162,7 +163,7 @@ src/
   - 폰트 서브셋: `pip install fonttools brotli` → `pyftsubset 폰트.ttf --unicodes="U+0020-007E,U+00A0-00FF" --layout-features='*' --flavor=woff2`. google/fonts 원본은 raw.githubusercontent.com/google/fonts/main/ofl/<이름>/ 에서 받음
   - 5단계 (2026-10-26): **연기 효과** `src/components/ui/smoke-field.tsx` — junheedot.com 히어로의 WebGL 유체 연기를 참고해 직접 구현(Pavel Dobryakov WebGL-Fluid-Simulation 방식, MIT). 글자 뒤에서 0.35~0.9초마다 파란 연기가 피어오르고(부력 `rise`), 마우스를 따라 번짐. WebGL2+float 렌더 타깃이 없거나 모션 줄이기면 아무것도 안 그림. 화면 밖이면 멈춤
     - 홈 구조: `.home-hero`(배경 `--bg`) 안에 하프톤(배경 **transparent**, grain 0, z 1) + 연기 캔버스(z 0, 위쪽 18~55%에서 마스크로 사라짐). 하프톤 컴포넌트는 투명 배경을 위해 매 프레임 `clearRect` 추가
-    - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 `#8cc4f8`(옅은 하늘빛) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
+    - (2026-10-26 사용자 피드백: "더 연하고 몽글몽글" → "더 느리게" → "조금 더 연하게, 덜 넓게 퍼지게") 현재 값: 색 **브랜드 파랑 `#2895f7`**(2026-10-27에 옅은 하늘빛 `#8cc4f8`에서 변경, 연하기는 intensity로 조절) · `idleIntensity` 0.13 · `intensity`(마우스) 0.04 · `radius` 0.26 · `curl` 6 · `rise` 0.5 · `puffSpeed` [60, 150] · `dissipation` 0.65 · **`speed` 0.5(전체 슬로모션)** · `force`(마우스로 휘젓는 힘) 2500 · `sourceEvery` [0.6, 1.3] · `sourceBand` [0.3, 0.46](글자 윗부분에서 피어남). 모두 `index.astro`의 SmokeField props
   - 하프톤 클릭 충격파는 **유지** (컴포넌트에 `shockwave` prop은 있음, 기본 true). 한때 잘못 알아듣고 껐다가 되살림
   - ⚠️ **페이지 전환 C(파란 조준 사각형·레티클 + `lock x… → /…` 태그) 삭제** (2026-10-26 사용자: "링크를 누를 때 파란 조준 사각형이 나오는 효과 제거"). `page-transition.ts`는 이제 본문 페이드 아웃(200ms) → 페이드 인(360ms) + 제목 스크램블·내용 순차 등장만. Base의 `.pt` 레이어와 CSS도 삭제
   - **화면 네 귀퉁이 HUD 브래킷(`.hud-frame`) 사이트 전체에서 삭제** (2026-10-26)
