@@ -87,7 +87,7 @@ src/
     hero-scene.ts          ← Three.js 씬: 페르소나 셰이더 평면(레퍼런스 효과 스택 + visual/thermal/edge 스윕 전환), 깊이맵 마우스 시차, 얼굴 레티클(FACE 좌표), 먼지
     page-transition.ts     ← 페이지 전환: 본문 페이드 + 제목 스크램블·내용 순차 등장 (ClientRouter 이벤트에 연결, Base에서 initPageTransition()). 레티클은 2026-10-26 삭제
     hero-modes.ts          ← 스캔 모드 이름·HUD 수치
-    scramble.ts            ← `scramble(el)` 함수만 남음(페이지 이동 뒤 제목 등장 연출용, page-transition.ts). **마우스 hover 스크램블(`data-scramble`·`initScramble`)은 2026-10-27 사용자 요청으로 삭제**
+    (scramble.ts 삭제 — 2026-10-27 사용자 요청으로 hover 스크램블과 페이지 이동 뒤 제목 스크램블 모두 제거)
     reveal.ts              ← `.reveal` 스크롤 등장(GSAP). 홈·About에서 initReveal()
   assets/persona/portrait.webp ← 페르소나 사진 (+ depth.png 깊이맵)
   layouts/Base.astro       ← <head>(ClientRouter, SUIT preload, `<slot name="head">`), **떠 있는 pill 헤더**(2026-10-27: 로고 `MoHo.` · About/Work/Library/Contact 앵커 · 서울 시계, 모바일은 버튼 + 전체 화면 시트 `[data-sheet]`; `header={false}`면 없음), 푸터, Lenis. 헤더·시트는 transition:persist. 스크롤 24px 넘으면 `.is-scrolled`(블러 pill), 현재 섹션 `[ ]`는 홈=IntersectionObserver·다른 페이지=경로(`/work`→Work, `/about`→About, `/category`·`/archive`→Library). 같은 페이지 앵커 클릭은 Lenis로 부드럽게 이동. slot="full"은 .wrap 밖(풀폭)
@@ -148,7 +148,7 @@ src/
 - 목록: 1px 구분선 리스트, hover 시 배경+들여쓰기+화살표 색. ≤760px에서 배지·날짜 한 줄 + 제목 아래로
 - ~~페이지 전환 C · 레티클 포커스~~ (2026-10-26 삭제 → 단순 페이드 + 내용 순차 등장) (2026-10-22 사용자 선택): 누른 링크로 HUD 브래킷이 모여 조준(OUT 360ms, 본문 어둡게) → 로딩까지 깜박임(HOLD ≥120ms) → 화면 전체로 펼쳐지며 새 본문 블러→선명(IN 440ms), 제목 스크램블 + 내용 순차 등장, 현재 메뉴 `[ ]` 스크램블. 뒤로 가기는 화면 가운데에서 시작. 모션 줄이기면 크로스페이드. 브라우저 기본 view-transition 애니메이션은 CSS로 끔
   - ⚠️ **ClientRouter 때문에 페이지 스크립트는 처음 한 번만 실행됨** → 페이지마다 할 일은 `astro:page-load`에서, 정리는 `astro:before-swap`에서. ScrollTrigger는 Base에서 이동 전에 전부 kill, reveal·스크램블은 Base가 page-load마다 호출. 진입 화면은 사이트 안에서 이동해 오면 생략(`window.__ptNavigated`)
-- 모션: GSAP reveal(`.reveal`), Lenis. ~~글자 스크램블 hover~~ 2026-10-27 삭제(페이지 이동 뒤 제목 스크램블 등장만 남음). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
+- 모션: GSAP reveal(`.reveal`), Lenis. ~~글자 스크램블~~ 2026-10-27 hover·페이지 제목 모두 삭제(글자가 섞이는 계열 효과는 쓰지 말 것). `prefers-reduced-motion`이면 인트로·스크롤 보간·흔들림 끔
 
 ## 6. 현재 상태 (2026-10-27 기준)
 
@@ -200,6 +200,7 @@ src/
 0. **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 완료** (브랜치 `claude/quirky-ramanujan-odxjtx`, PR 미생성 → 사용자 확인 후): 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님)
    - ⚠️ 내용은 아직 샘플/최소: About 타일 3개는 기존 소개 문구의 사실(8년 차·플랫폼/디자인 시스템·2016~)만, Work 카드는 `work` 컬렉션(샘플 1개), Library는 샘플 글 5개. 경력·성과·실제 프로젝트는 사용자에게 받은 것만
    - 홈 외 페이지(`/about`, `/work`, `/category/*`, `/archive/*`)는 새 헤더만 입고 본문은 예전 디자인. `/about`(페르소나 HUD)은 메뉴 About이 홈 앵커로 가면서 메뉴에선 접근 불가(주소는 살아 있음) — 정리 방향을 정해야 함
+   - **호버·진입 인터랙션 후보 시안** https://claude.ai/artifact/77hqb3ASzomKpLqv4rFJRh (`mockups/interactions.html`, 호버 6 + 진입 6, React Bits 기준). 추천: 호버=텍스트 롤(메뉴)·스포트라이트(카드)·행 슬라이드(Library), 진입=블러 텍스트(제목)·하프톤 리빌(페이지 전환)·카운트업. 사용자 선택 대기. 제외: 스크램블 계열·조준 커서(전에 지운 효과와 닮음)·스플래시 커서(연기와 겹침)
    - 참고: WebFetch는 DNS 때문에 허용 도메인도 막힐 수 있음 → curl/Playwright로 받을 것
    - 다음 섹션 작업 후보: About 풍부하게(경력 타임라인·핵심 역량) → Work 카드 → Library 상세 → Contact, 나머지 페이지 새 디자인 맞추기
 0-1. **개편 진행**: ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만

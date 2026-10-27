@@ -1,15 +1,13 @@
 /**
  * 페이지 전환 (2026-10-26: 파란 조준 사각형(레티클)은 사용자 요청으로 삭제)
  * OUT 본문이 짧게 사라짐 — 다음 페이지 로딩이 끝날 때까지 기다림
- * IN  새 본문이 나타나고 제목 스크램블 + 내용 순차 등장
+ * IN  새 본문이 나타나고 내용 순차 등장 (2026-10-27: 제목 스크램블은 사용자 요청으로 삭제)
  * 모션 줄이기면 짧은 크로스페이드만
  */
 import type { TransitionBeforePreparationEvent } from 'astro:transitions/client';
-import { scramble } from './scramble';
 
 const OUT = 200;
 const IN = 360;
-const ARRIVE = 520;
 const EASE_OUT = 'cubic-bezier(.16, 1, .3, 1)';
 
 declare global {
@@ -21,8 +19,6 @@ export function initPageTransition() {
   const main = () => document.querySelector<HTMLElement>('main');
 
   function arrive(el: HTMLElement) {
-    const title = el.querySelector<HTMLElement>('h1');
-    if (title) scramble(title, ARRIVE);
     const items = el.querySelectorAll<HTMLElement>(
       '.page-head > :not(h1), .toolbar, .count, .list > li, .entry header > :not(h1), .entry .cover, .prose, .spec, .about-section',
     );

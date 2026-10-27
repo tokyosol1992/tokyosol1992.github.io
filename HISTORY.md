@@ -15,6 +15,7 @@
   - 헤더: `fixed top 20px`, 맨 위는 투명, 스크롤하면 안쪽 박스에 `blur(24px) saturate(1.4)` + 반투명 배경 + 테두리 + 폭 축소(0.5s). 숨김 동작 없음. 메뉴는 4개 + 오른쪽 CTA
 - 사용자 결정: **메뉴 A안(About · Work · Library · Contact, 홈 앵커) · 스크롤 시 블러 pill · 5개 항목은 Library 섹션의 필터 칩으로**
 - 시안 아티팩트 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (원본 `mockups/header-menu.html`): 실제 스크롤 프로토타입 + 헤더 상태(맨 위 / 스크롤 / 모바일 시트) 정지 화면. 코드 반영은 시안 피드백 후
+- "페이지 이동 때 제목 섞이는 것도 제거, 그리고 호버·페이지 진입 인터랙션 괜찮은 것 찾아줘" → 제목 스크램블 삭제(`scramble.ts` 파일 제거). reactbits.dev 전체 목록(텍스트 33·애니메이션 38·컴포넌트 48)에서 사이트 톤에 맞는 호버 6개·진입 6개를 골라 **직접 만져 보는 시안**으로 만듦: https://claude.ai/artifact/77hqb3ASzomKpLqv4rFJRh (원본 `mockups/interactions.html`). 스크램블 계열과 조준 커서는 이전에 지운 효과와 닮아 제외
 - "마우스 호버 했을 때 텍스트가 랜덤으로 나오다가 원문으로 돌아오는 효과 제거" → 메뉴·리스트 제목·푸터 메일·About·히어로 모드 라벨의 hover 스크램블을 전부 삭제(`data-scramble` 속성, `initScramble`, 고정폭 처리). 페이지 이동 뒤 제목이 섞이며 등장하는 연출은 hover가 아니라서 남겨둠. 호버 중 글자가 안 바뀌는 것 Playwright로 확인
 - 시안 피드백: 로고 `MoHo.` 좋음, pill 괜찮음, Work 카드 구성은 나중에 수정 포인트를 받기로 함(지금 우선순위 아님)
 - "좋아 다음 스텝으로 진행" → 시안대로 **코드 반영 (헤더 + 홈 섹션)**
