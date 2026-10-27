@@ -1,0 +1,359 @@
+<title>MoHo 헤더 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@900&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 홈 100% 프로토타입(떠 있는 헤더 + 앵커 4섹션) 아래에 헤더 상태 정지 화면을 펼침. 사이트 토큰(global.css)을 그대로 씀 */
+:root {
+  --bg: #0b0b0d; --surface: #131316; --raise: #1a1a1e;
+  --fg: #f0ebe5; --muted: #8d8992; --dim: #55545a; --line: #242429; --accent: #2895f7;
+  --font: 'Noto Sans KR', 'SUIT Variable', -apple-system, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --mark: 'Hahmlet', 'Noto Sans KR', serif;
+  --max: 1200px; --gutter: clamp(16px, 4vw, 40px);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.6; margin: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: inherit; text-decoration: none; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.wrap { max-width: var(--max); margin: 0 auto; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+/* ── 헤더 ── 맨 위: 투명 / 스크롤: 블러 pill (reactbits ln-navbar 방식: 레이아웃은 그대로, 스타일만 0.5s 전환) */
+.hdr { position: fixed; z-index: 50; left: 0; right: 0; top: calc(20px + env(safe-area-inset-top, 0px)); padding-inline: max(16px, env(safe-area-inset-left, 0px)); pointer-events: none; }
+.hdr-in { pointer-events: auto; margin: 0 auto; max-width: 1200px; height: 56px; padding: 0 18px 0 22px; display: flex; align-items: center; gap: 28px; border: 1px solid transparent; border-radius: 14px; background: transparent;
+  transition: max-width .5s cubic-bezier(.23,1,.32,1), background .5s, border-color .5s, backdrop-filter .5s, padding .5s; }
+.hdr.is-scrolled .hdr-in { max-width: 980px; background: rgba(19,19,22,.62); border-color: rgba(240,235,229,.09); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); }
+.logo { font-family: var(--mark); font-weight: 900; font-size: 20px; letter-spacing: -0.01em; flex: none; }
+.logo i { font-style: normal; color: var(--accent); }
+.menu { display: flex; gap: 6px; flex: 1; }
+.menu a { padding: 6px 12px; color: var(--muted); font-size: 14px; transition: color .15s; white-space: nowrap; }
+.menu a:hover { color: var(--fg); }
+.menu a[aria-current="true"] { color: var(--fg); }
+.menu a[aria-current="true"]::before { content: '['; color: var(--accent); margin-right: 3px; }
+.menu a[aria-current="true"]::after { content: ']'; color: var(--accent); margin-left: 3px; }
+.clock { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.burger { display: none; margin-left: auto; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 10px; background: rgba(19,19,22,.6); color: var(--fg); cursor: pointer; align-items: center; justify-content: center; flex-direction: column; gap: 5px; padding: 0; }
+.burger span { display: block; width: 16px; height: 1.5px; background: currentColor; transition: transform .25s, opacity .25s; }
+.burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(3.25px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2) { transform: translateY(-3.25px) rotate(-45deg); }
+
+/* 모바일 메뉴 시트 */
+.sheet { position: fixed; z-index: 40; inset: 0; background: rgba(11,11,13,.92); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); padding: calc(96px + env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-left, 0px)) 32px; display: flex; flex-direction: column; justify-content: space-between; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
+.sheet.open { opacity: 1; visibility: visible; }
+.sheet nav { display: flex; flex-direction: column; }
+.sheet nav a { font-family: var(--mark); font-weight: 900; font-size: 44px; line-height: 1.15; padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; }
+.sheet nav a small { font-family: var(--mono); font-size: 12px; color: var(--dim); font-weight: 400; }
+.sheet nav a[aria-current="true"] { color: var(--accent); }
+.sheet .foot { color: var(--muted); display: flex; justify-content: space-between; }
+
+@media (max-width: 719px) {
+  .menu, .clock { display: none; }
+  .burger { display: flex; }
+  .hdr.is-scrolled .hdr-in { max-width: 100%; }
+}
+@media (max-width: 1000px) { .clock { display: none; } }
+
+/* ── 히어로 ── 실제 홈은 하프톤 워드마크 + 연기(WebGL). 여기선 점 패턴 글자로 근사 */
+.hero { position: relative; min-height: 700px; height: 100svh; max-height: 900px; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 40px; overflow: hidden; isolation: isolate; }
+.hero::before { content: ''; position: absolute; z-index: -1; left: 50%; top: 30%; width: 70vw; max-width: 900px; aspect-ratio: 1.6; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(140,196,248,.16), transparent); filter: blur(30px); }
+.hero .label { color: var(--muted); display: flex; justify-content: space-between; padding-top: 110px; margin-bottom: auto; }
+.mark { font-family: var(--mark); font-weight: 900; font-size: clamp(120px, 26vw, 360px); line-height: .82; letter-spacing: -0.02em; margin: 0; padding-bottom: .03em;
+  background: radial-gradient(circle, var(--fg) 1.3px, transparent 1.9px) 0 0 / 7px 7px; -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.hero .sub { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 22px; color: var(--muted); }
+
+/* ── 섹션 공통 ── */
+section.sec { padding-block: 112px 24px; scroll-margin-top: 40px; }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 48px; align-items: end; margin-bottom: 40px; }
+.sec-head .mono { color: var(--accent); grid-column: 1 / -1; }
+.sec h2 { font-size: clamp(30px, 4.4vw, 52px); line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; margin: 0; text-wrap: balance; }
+.sec-head p { color: var(--muted); margin: 0; max-width: 44ch; justify-self: end; }
+@media (max-width: 719px) { .sec-head { grid-template-columns: 1fr; } .sec-head p { justify-self: start; } section.sec { padding-top: 88px; } }
+
+/* About: 스펙 타일 */
+.specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px 22px 24px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between; }
+.tile .mono { color: var(--dim); }
+.tile b { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.tile span.d { color: var(--muted); font-size: 13px; }
+.note { color: var(--dim); font-family: var(--mono); font-size: 11px; letter-spacing: .04em; margin-top: 14px; }
+
+/* Work: 프로젝트 카드 (예시) */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .2s, transform .3s; }
+.card:hover { border-color: var(--dim); transform: translateY(-2px); }
+.thumb { aspect-ratio: 16 / 10; background: radial-gradient(120% 90% at 20% 10%, oklch(34% 0.09 var(--h)), oklch(18% 0.03 var(--h))); display: flex; align-items: flex-end; justify-content: space-between; padding: 14px; position: relative; }
+.thumb .mono { color: oklch(80% 0.1 var(--h)); }
+.card .body { padding: 18px 20px 22px; display: grid; gap: 6px; }
+.card h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.card p { margin: 0; color: var(--muted); font-size: 14px; }
+.card .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.chip-s { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 12px; color: var(--muted); }
+
+/* Library: 필터 칩 + 리스트 */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { font: inherit; font-size: 13px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+.chip:hover { color: var(--fg); border-color: var(--dim); }
+.chip[aria-pressed="true"] { color: var(--fg); background: var(--raise); border-color: var(--dim); }
+.chip em { font-style: normal; color: var(--dim); margin-left: 6px; font-family: var(--mono); font-size: 11px; }
+.count { color: var(--muted); margin: 0 0 8px; }
+.list { border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 52px 128px minmax(0, 1fr) 84px 24px; gap: 16px; align-items: center; padding: 16px 8px; border-bottom: 1px solid var(--line); transition: background .15s, padding .2s; }
+.row:hover { background: var(--surface); padding-left: 16px; }
+.row .no { color: var(--dim); }
+.row .t { font-weight: 500; }
+.row .t small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; }
+.row .dt { color: var(--muted); text-align: right; }
+.row .ar { color: var(--dim); transition: color .15s; }
+.row:hover .ar { color: var(--accent); }
+.badge { justify-self: start; font-size: 12px; padding: 2px 10px; border-radius: 4px; background: oklch(26% 0.045 var(--h)); color: oklch(80% 0.12 var(--h)); white-space: nowrap; }
+.row[hidden] { display: none; }
+@media (max-width: 719px) {
+  .row { grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px 12px; }
+  .row .no { display: none; }
+  .row .t { grid-column: 1 / -1; grid-row: 2; }
+  .row .dt { grid-column: 3; grid-row: 1; }
+  .row .ar { display: none; }
+  .row .badge { grid-column: 1 / 3; }
+}
+
+/* Contact */
+.contact { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.contact a, .contact button { text-align: left; font: inherit; color: var(--fg); cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 28px; transition: border-color .2s; }
+.contact a:hover, .contact button:hover { border-color: var(--dim); }
+.contact .mono { color: var(--dim); display: flex; justify-content: space-between; }
+.contact b { font-size: 20px; font-weight: 500; overflow-wrap: anywhere; }
+footer.site { margin-top: 112px; padding-block: 28px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); }
+
+/* ── 상태 비교 (Figma용 정지 화면) ── */
+.states { margin-top: 112px; padding-block: 64px 80px; border-top: 1px dashed var(--line); }
+.states h2 { font-size: 24px; margin: 0 0 6px; }
+.states > p { color: var(--muted); margin: 0 0 32px; max-width: 64ch; }
+.frame-lab { color: var(--muted); margin: 28px 0 10px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.frame-lab b { color: var(--fg); font-family: var(--font); font-size: 14px; letter-spacing: 0; text-transform: none; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; height: 200px; background: var(--bg); isolation: isolate; }
+.frame::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(60% 120% at 30% 120%, rgba(140,196,248,.35), transparent), radial-gradient(circle, rgba(240,235,229,.5) 1.2px, transparent 1.8px) 0 0 / 9px 9px; }
+.frame .hdr { position: absolute; top: 20px; padding-inline: 20px; }
+.frame.m { width: 390px; max-width: 100%; height: 640px; }
+.frame.m .sheet { position: absolute; }
+.frame.m .hdr { padding-inline: 16px; }
+.frame.m .menu, .frame.m .clock { display: none; }
+.frame.m .burger { display: flex; }
+.frame.m .hdr.is-scrolled .hdr-in { max-width: 100%; }
+.spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 36px; }
+.spec div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; font-size: 13px; color: var(--muted); }
+.spec b { color: var(--fg); display: block; margin-bottom: 4px; font-size: 14px; }
+.spec code { font-family: var(--mono); font-size: 12px; color: var(--fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
+}
+</style>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="#top" aria-label="맨 위로">MoHo<i>.</i></a>
+    <nav class="menu" aria-label="메뉴">
+      <a href="#about" data-spy="about">About</a>
+      <a href="#work" data-spy="work">Work</a>
+      <a href="#library" data-spy="library">Library</a>
+      <a href="#contact" data-spy="contact">Contact</a>
+    </nav>
+    <span class="clock mono" data-clock>SEOUL --:--:--</span>
+    <button class="burger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sheet"><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="sheet" id="sheet" aria-hidden="true">
+  <nav aria-label="모바일 메뉴">
+    <a href="#about" data-spy="about">About <small>01</small></a>
+    <a href="#work" data-spy="work">Work <small>02</small></a>
+    <a href="#library" data-spy="library">Library <small>03</small></a>
+    <a href="#contact" data-spy="contact">Contact <small>04</small></a>
+  </nav>
+  <div class="foot mono"><span>tokyosol1992@gmail.com</span><span data-clock>SEOUL --:--:--</span></div>
+</div>
+
+<main class="wrap" id="top">
+  <div class="hero">
+    <div class="label mono"><span>moho design</span><span>©2026 · Seoul</span></div>
+    <h1 class="mark" aria-label="MoHo">MoHo</h1>
+    <div class="sub mono"><span>Product designer · 솔길</span><span>Scroll ↓</span></div>
+  </div>
+
+  <section class="sec" id="about">
+    <div class="sec-head">
+      <span class="mono">About</span>
+      <h2>플랫폼과 디자인 시스템을 만드는 프로덕트 디자이너 솔길입니다.</h2>
+      <p>8년 동안 서비스의 구조와 규칙을 설계해 왔습니다. 작업 사례와 실무에서 쓰는 팁, AI 활용법을 함께 기록합니다.</p>
+    </div>
+    <div class="specs">
+      <div class="tile"><span class="mono">Experience</span><b>8년 차</b><span class="d">프로덕트 디자이너</span></div>
+      <div class="tile"><span class="mono">Focus</span><b>플랫폼 · 디자인 시스템</b><span class="d">구조와 규칙을 만드는 일</span></div>
+      <div class="tile"><span class="mono">Since</span><b>2016 –</b><span class="d">Seoul</span></div>
+    </div>
+    <p class="note">※ 경력·성과 카드는 받은 내용이 없어 자리만 잡았습니다. 위 세 칸은 기존 소개 문구에 있던 사실만 사용했습니다.</p>
+  </section>
+
+  <section class="sec" id="work">
+    <div class="sec-head">
+      <span class="mono">Work</span>
+      <h2>대표 프로젝트</h2>
+      <p>문제 · 과정 · 결과로 정리한 케이스 스터디. 카드를 누르면 상세 페이지로 이동합니다.</p>
+    </div>
+    <div class="cards">
+      <a class="card" href="#work" style="--h:250"><div class="thumb"><span class="mono">Cover</span><span class="mono">예시</span></div><div class="body"><h3>프로젝트 이름 A</h3><p>한 줄 요약이 들어갑니다.</p><div class="meta"><span class="chip-s">회사</span><span class="chip-s">역할</span><span class="chip-s">기간</span></div></div></a>
+      <a class="card" href="#work" style="--h:250"><div class="thumb"><span class="mono">Cover</span><span class="mono">예시</span></div><div class="body"><h3>프로젝트 이름 B</h3><p>한 줄 요약이 들어갑니다.</p><div class="meta"><span class="chip-s">회사</span><span class="chip-s">역할</span><span class="chip-s">기간</span></div></div></a>
+      <a class="card" href="#work" style="--h:250"><div class="thumb"><span class="mono">Cover</span><span class="mono">예시</span></div><div class="body"><h3>프로젝트 이름 C</h3><p>한 줄 요약이 들어갑니다.</p><div class="meta"><span class="chip-s">회사</span><span class="chip-s">역할</span><span class="chip-s">기간</span></div></div></a>
+    </div>
+    <p class="note">※ 실제 프로젝트는 지시를 받은 뒤 넣습니다. 지금은 레이아웃 확인용 자리입니다.</p>
+  </section>
+
+  <section class="sec" id="library">
+    <div class="sec-head">
+      <span class="mono">Library</span>
+      <h2>팁, AI 활용, 툴, 기록</h2>
+      <p>항목은 메뉴가 아니라 필터로 고릅니다. 글이 늘어도 메뉴는 그대로입니다.</p>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="항목 필터"></div>
+    <p class="count mono" id="count"></p>
+    <div class="list" id="list"></div>
+    <p class="note">※ 목록은 현재 사이트의 샘플 글 기준입니다.</p>
+  </section>
+
+  <section class="sec" id="contact">
+    <div class="sec-head">
+      <span class="mono">Contact</span>
+      <h2>함께 이야기해요</h2>
+      <p>메일이 가장 빠릅니다.</p>
+    </div>
+    <div class="contact">
+      <button type="button" id="copy-mail"><span class="mono"><span>Email</span><span id="copy-state">복사</span></span><b>tokyosol1992@gmail.com</b></button>
+      <a href="https://github.com/tokyosol1992" target="_blank" rel="noopener"><span class="mono"><span>GitHub</span><span>↗</span></span><b>tokyosol1992</b></a>
+    </div>
+  </section>
+
+  <footer class="site mono"><span>© 2026 MoHo · Seoul</span><span>moho design</span></footer>
+
+  <div class="states" id="states">
+    <h2>헤더 상태 정지 화면</h2>
+    <p>Figma로 옮겨 수정할 때 쓰는 화면입니다. 위 프로토타입과 같은 마크업이고, 스크롤하면 위 헤더가 ①에서 ②로 바뀝니다.</p>
+    <div class="frame-lab mono"><b>① 맨 위</b>투명 · 히어로 위에 얹힘</div>
+    <div class="frame" id="f1"></div>
+    <div class="frame-lab mono"><b>② 스크롤 후</b>블러 pill · 폭 축소 · 현재 섹션 [ ]</div>
+    <div class="frame" id="f2"></div>
+    <div class="frame-lab mono"><b>③ 모바일</b>메뉴 버튼 → 전체 화면 시트</div>
+    <div style="display:flex; gap:20px; flex-wrap:wrap"><div class="frame m" id="f3a"></div><div class="frame m" id="f3b"></div></div>
+    <div class="spec">
+      <div><b>맨 위</b>배경·테두리 투명, <code>top: 20px</code> fixed. 로고와 메뉴 글자만 보입니다.</div>
+      <div><b>스크롤 24px 이상</b><code>blur(24px) saturate(1.4)</code> + 반투명 면 + 얇은 테두리, 폭 1200 → 980, 0.5s 전환.</div>
+      <div><b>현재 위치</b>보고 있는 섹션이 <code>[About]</code>처럼 파란 괄호로 표시됩니다.</div>
+      <div><b>모바일 &lt;720px</b>로고 + 버튼. 시트는 큰 글자 링크 4개, 하단에 메일과 서울 시각.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var hdr = document.getElementById('hdr');
+  var sheet = document.getElementById('sheet');
+  var burger = hdr.querySelector('.burger');
+
+  // 스크롤 상태
+  function onScroll() { hdr.classList.toggle('is-scrolled', window.scrollY > 24); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // 현재 섹션 표시 (scroll-spy)
+  var ids = ['about', 'work', 'library', 'contact'];
+  function setCurrent(id) {
+    document.querySelectorAll('[data-spy]').forEach(function (a) {
+      if (a.closest('.frame')) return;
+      if (a.dataset.spy === id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) setCurrent(e.target.id); });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    ids.forEach(function (id) { io.observe(document.getElementById(id)); });
+    window.addEventListener('scroll', function () { if (window.scrollY < 200) setCurrent(''); }, { passive: true });
+  }
+
+  // 서울 시각
+  var fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  function tick() { var t = 'SEOUL ' + fmt.format(new Date()); document.querySelectorAll('[data-clock]').forEach(function (c) { c.textContent = t; }); }
+  tick(); setInterval(tick, 1000);
+
+  // 모바일 시트
+  function setSheet(open) {
+    sheet.classList.toggle('open', open);
+    sheet.setAttribute('aria-hidden', String(!open));
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  burger.addEventListener('click', function () { setSheet(!sheet.classList.contains('open')); });
+  sheet.addEventListener('click', function (e) { if (e.target.closest('a')) setSheet(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setSheet(false); });
+  window.addEventListener('resize', function () { if (window.innerWidth >= 720) setSheet(false); });
+
+  // Library 필터 (샘플 글 기준)
+  var cats = [
+    { k: 'portfolio', l: '포트폴리오', h: 250 }, { k: 'tips', l: '디자인 팁', h: 155 },
+    { k: 'ai', l: 'AI · 프롬프트', h: 300 }, { k: 'tools', l: '툴 · 리소스', h: 65 }, { k: 'notes', l: '기록', h: 20 }
+  ];
+  var items = [
+    { c: 'portfolio', t: '샘플 케이스 스터디', s: '문제 · 과정 · 결과 형식의 예시 글', d: '2026.10' },
+    { c: 'tips', t: '샘플 디자인 팁', s: '실무에서 쓰는 작은 요령', d: '2026.10' },
+    { c: 'ai', t: '샘플 AI 프롬프트', s: '디자인 작업에 쓰는 프롬프트 예시', d: '2026.10' },
+    { c: 'tools', t: '샘플 툴 소개', s: '자주 쓰는 툴과 플러그인', d: '2026.10' },
+    { c: 'notes', t: '기록을 시작하며', s: '작업 노트와 회고', d: '2026.10' }
+  ];
+  var chips = document.getElementById('chips'), list = document.getElementById('list'), count = document.getElementById('count');
+  var cur = 'all';
+  function chip(k, label, n) { return '<button type="button" class="chip" data-k="' + k + '" aria-pressed="' + (k === cur) + '">' + label + '<em>' + n + '</em></button>'; }
+  function renderChips() { chips.innerHTML = chip('all', '전체', items.length) + cats.map(function (c) { return chip(c.k, c.l, items.filter(function (i) { return i.c === c.k; }).length); }).join(''); }
+  function renderList() {
+    var shown = items.filter(function (i) { return cur === 'all' || i.c === cur; });
+    count.textContent = shown.length + '개의 항목';
+    list.innerHTML = shown.map(function (i, n) {
+      var c = cats.filter(function (x) { return x.k === i.c; })[0];
+      return '<a class="row" href="#library"><span class="no mono">[' + String(n + 1).padStart(2, '0') + ']</span><span class="badge" style="--h:' + c.h + '">' + c.l + '</span><span class="t">' + i.t + '<small>' + i.s + '</small></span><span class="dt mono">' + i.d + '</span><span class="ar">→</span></a>';
+    }).join('');
+  }
+  chips.addEventListener('click', function (e) { var b = e.target.closest('.chip'); if (!b) return; cur = b.dataset.k; renderChips(); renderList(); });
+  renderChips(); renderList();
+
+  // 메일 복사
+  var copy = document.getElementById('copy-mail'), st = document.getElementById('copy-state');
+  copy.addEventListener('click', function () {
+    var done = function (m) { st.textContent = m; setTimeout(function () { st.textContent = '복사'; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText('tokyosol1992@gmail.com').then(function () { done('복사됨'); }, function () { done('직접 선택해 복사'); });
+    else done('직접 선택해 복사');
+  });
+
+  // 상태 정지 화면: 위 헤더를 복제해서 상태별로 고정
+  function clone(cls, current) {
+    var h = hdr.cloneNode(true); h.removeAttribute('id'); h.classList.remove('is-scrolled'); if (cls) h.classList.add(cls);
+    h.querySelectorAll('[aria-current]').forEach(function (a) { a.removeAttribute('aria-current'); });
+    if (current) { var a = h.querySelector('[data-spy="' + current + '"]'); if (a) a.setAttribute('aria-current', 'true'); }
+    h.querySelectorAll('a').forEach(function (a) { a.setAttribute('tabindex', '-1'); a.removeAttribute('href'); });
+    h.querySelectorAll('button').forEach(function (b) { b.setAttribute('tabindex', '-1'); });
+    return h;
+  }
+  document.getElementById('f1').appendChild(clone('', ''));
+  document.getElementById('f2').appendChild(clone('is-scrolled', 'work'));
+  document.getElementById('f3a').appendChild(clone('is-scrolled', ''));
+  var fb = document.getElementById('f3b');
+  fb.appendChild(clone('is-scrolled', ''));
+  var s = sheet.cloneNode(true); s.removeAttribute('id'); s.classList.add('open'); s.style.zIndex = 1;
+  s.querySelectorAll('a').forEach(function (a) { a.removeAttribute('href'); a.setAttribute('tabindex', '-1'); });
+  var cw = s.querySelector('a[data-spy="work"]'); if (cw) cw.setAttribute('aria-current', 'true');
+  s.setAttribute('aria-hidden', 'true');
+  fb.insertBefore(s, fb.firstChild);
+  var bb = fb.querySelector('.burger'); bb.setAttribute('aria-expanded', 'true');
+  fb.querySelector('.hdr').style.zIndex = 2;
+})();
+</script>

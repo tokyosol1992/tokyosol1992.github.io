@@ -196,7 +196,9 @@ src/
 
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
-0. **개편 진행** (최우선): ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
+0. **(2026-10-27 결정) 홈 스크롤 영역·헤더**: 메뉴 **A안 = About · Work · Library · Contact**(홈 앵커, 현재 섹션 `[ ]` 표시), 헤더는 reactbits.dev식 **맨 위 투명 → 스크롤 시 블러 pill**(fixed top 20px, blur 24px, 폭 1200→980, 0.5s), 모바일은 버튼+전체 화면 시트, 5개 항목은 Library 섹션 **필터 칩**으로 이동. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`) 피드백 대기 → 확정되면 `Base.astro` 헤더부터 코드 반영, 이어서 About → Work → Library → Contact 섹션을 하나씩. Work 카드·About 타일 내용은 사용자에게 받은 것만
+   - 참고: WebFetch는 DNS 때문에 허용 도메인도 막힐 수 있음 → curl/Playwright로 받을 것
+0-1. **개편 진행**: ① 홈 하프톤 아래 영역(지금은 예전 글 리스트)을 새 분위기로 — junheedot.com처럼 한 페이지 이력서형 섹션(소개·경력·프로젝트·기술·기록·연락처) 구성 여부를 사용자와 정하기 ② 나머지 페이지·헤더(로고 `SOLGIL_` → moho?)를 새 방향으로 ③ 옛 히어로 파일(`Hero.astro`·`Intro.astro`·`hero-scene.ts`·`hero-modes.ts`, `three` 의존성) 삭제 여부 결정. 경력·성과 등 내용은 사용자에게 받은 것만
 
 > 아래 1·3·7번은 옛 페르소나 히어로 기준 항목이라 개편 방향에 따라 폐기될 수 있음
 

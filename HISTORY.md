@@ -8,6 +8,16 @@
 
 ---
 
+## 2026-10-27 — 스크롤 영역 구성: 메뉴·헤더 시안
+
+**요청 → 반영**
+- "메인 컨셉은 잡혔으니 스크롤 시 나오는 영역을 구성하자. reactbits.dev처럼 메뉴 구성을 바꾸고, 스크롤 시 헤더 모습도 반영하고 싶다" → reactbits.dev를 Playwright로 렌더링해 분석했습니다. (WebFetch는 DNS 문제로 막히고 curl·Playwright는 됨)
+  - 헤더: `fixed top 20px`, 맨 위는 투명, 스크롤하면 안쪽 박스에 `blur(24px) saturate(1.4)` + 반투명 배경 + 테두리 + 폭 축소(0.5s). 숨김 동작 없음. 메뉴는 4개 + 오른쪽 CTA
+- 사용자 결정: **메뉴 A안(About · Work · Library · Contact, 홈 앵커) · 스크롤 시 블러 pill · 5개 항목은 Library 섹션의 필터 칩으로**
+- 시안 아티팩트 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (원본 `mockups/header-menu.html`): 실제 스크롤 프로토타입 + 헤더 상태(맨 위 / 스크롤 / 모바일 시트) 정지 화면. 코드 반영은 시안 피드백 후
+
+---
+
 ## 2026-10-26 (저녁) — 워드마크 폰트를 바탕체 계열로
 
 **요청 → 반영**
