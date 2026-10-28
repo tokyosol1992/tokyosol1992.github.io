@@ -8,6 +8,16 @@
 
 ---
 
+## 2026-10-28 — 포트폴리오 사이트 분리 (Oh SolGil)
+
+**요청 → 반영**
+- "MoHo가 개인 홍보용으로 어울리나 싶다" → 홍보용 포트폴리오를 **별도 사이트로 분리**하기로 결정(형제 사이트). MoHo는 운영 사이트로 유지. 도메인은 나중에 연결, 일단 GitHub 주소
+- 시안 https://claude.ai/artifact/E2awrer8gqNuoPrWADrMPG (junheedot.com 스타일, 이름 'Oh SolGil') 승인 → 새 저장소 `tokyosol1992/ohsolgil` 구현·배포: https://tokyosol1992.github.io/ohsolgil
+  - 배포 중 `github-pages` 환경이 `main`을 허용하지 않아 실패 → Environments에서 `main` 허용 후 해결
+- MoHo 푸터와 홈 Contact에 포트폴리오 링크 추가
+
+---
+
 ## 2026-10-27 — 스크롤 영역 구성: 메뉴·헤더 시안
 
 **요청 → 반영**
