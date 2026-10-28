@@ -197,6 +197,8 @@ src/
   - 경력은 회사 이름만 있음. `about.astro`의 `experience` 배열에 `period`·`role`·`desc`를 넣으면 화면에 나타남 (**사용자에게 받은 내용만**, 지어내지 말 것)
   - 스펙표·focus 문구는 기존 소개 문단에서만 가져옴. 'ONLINE'·'ID // SUBJ_01'은 장식
 
+- 🆕 **형제 사이트 분리 (2026-10-28)**: 개인 홍보용 포트폴리오는 별도 사이트 **Oh SolGil** (https://tokyosol1992.github.io/ohsolgil, 저장소 `tokyosol1992/ohsolgil`, junheedot.com 스타일 한 페이지, 다크 고정)로 만들어 배포함. **이 사이트(MoHo)는 운영 사이트(팁·AI·툴·기록 라이브러리)로 둠.** 푸터와 홈 Contact에 포트폴리오 링크 추가. MoHo 홈의 About·Work 섹션을 줄이거나 포트폴리오 쪽으로 옮길지는 미정. 포트폴리오 작업은 그 저장소의 `AGENTS.md` 참고
+
 ## 7. 다음 할 일 (우선순위 순, 사용자와 협의 필요)
 
 0. **(2026-10-27) 홈 스크롤 영역·헤더 1차 구현 완료** (브랜치 `claude/quirky-ramanujan-odxjtx`, PR 미생성 → 사용자 확인 후): 메뉴 A안(About · Work · Library · Contact) + reactbits식 블러 pill 헤더 + 모바일 시트 + 홈 4개 섹션 + Library 항목 필터 칩. 시안 https://claude.ai/artifact/M8exC9VHP4L1f1vgSioN1j (`mockups/header-menu.html`). 사용자가 "수정 포인트는 나중에 차차 알려주겠다"고 함(Work 카드 구성 등 지금 우선순위 아님)
