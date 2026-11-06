@@ -43,3 +43,9 @@ Figma·Blender·Tripo 같은 도구는 각 플랫폼의 연결·인증을 따로
 아사달은 `asadal-g1 → asadal`, 동물의GYM은 `stretching-app-product → animal-gym`으로 변경했다. 두 저장소의 README와 `REPOSITORY.md`는 main에 반영했다. 각 플랫폼은 저장소 목록을 새로고침하고 새 원본을 확인한다. 예전 전체 저장소명·고정 폴더 경로를 환경 설정에 사용했다면 새 이름 또는 저장소 루트 탐색으로 갱신한다.
 
 이 공개 저장소와 `lens-view-simulator`·`animal-gym-review`·`ohsolgil`의 이름은 기존 Pages 주소를 보존하기 위해 유지했다. 이 이름 변경은 현재 MoHo·포트폴리오 통합 PR의 병합·배포 완료를 의미하지 않는다.
+
+## 2026-11-06 · 실행 결과와 최신 시작 안내
+
+통합 #16·옛 주소 호환 #11을 병합·배포했다. Claude의 전용 Cloud 환경 4개를 실제로 생성해 원본 하나씩 연결했다. 전체 저장소 검색을 4개로 제한한 것은 아니며 환경 선택으로 지정된 원본에서 시작한다. 환경 설치의 위치 오류를 발견해 Node 24 준비와 저장소별 SessionStart를 분리했다.
+
+계정별 실제 확인 결과·실패 기록·설치 명령·Codex 시작 스킬은 루트 `CLOUD_HANDOFF.md`를 최신 기준으로 사용한다. 기존의 설정 화면 접근 차단 기록은 Codex에 해당한다. Claude 계정 설정 저장을 Codex 환경 재게시 완료로 확대하지 않는다.
