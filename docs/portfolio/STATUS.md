@@ -16,3 +16,7 @@
 ## Cloud 확인 범위
 
 Claude **MoHo · 포트폴리오** 환경에 이 원본 하나를 연결했다. 런타임 준비와 저장소별 SessionStart 설치를 분리했다. 환경 저장과 이 저장소의 새 세션 설치·Codex 재게시·양방향 시험은 구분한다. 상세는 루트 `CLOUD_HANDOFF.md`를 따른다.
+
+## Claude 실제 실행 확인
+
+새 MoHo·포트폴리오 Cloud 세션에서 Node 기본 선택 차이를 확인했다. 캐시 Node 24(v24.22.2)를 명시한 전체 빌드가 통과했고 MoHo 15페이지·포트폴리오 1페이지를 확인했다. Node 명령은 루트 scripts/with-node24.sh를 사용한다. Codex 환경 재게시·새 Codex Cloud 세션 확인은 별도로 남아 있다.
