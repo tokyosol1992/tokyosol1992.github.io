@@ -19,13 +19,13 @@ npm run dev:moho
 npm run build
 ```
 
-코드는 `dist/`에 함께 빌드됩니다. 기존 `/ohsolgil/` 주소의 안내 전환은 별도 호환 PR을 MoHo 배포 성공 뒤 병합합니다.
+코드는 `dist/`에 함께 빌드됩니다. 기존 `/ohsolgil/` 주소는 호환 PR #11 배포를 마쳤으며 새 `/portfolio/`로 이동합니다.
 
 ## 기기나 AI를 바꿔 이어가기
 
 두 플랫폼에서 이 저장소를 선택하고 다음처럼 요청합니다.
 
-> AGENTS.md와 docs/portfolio/STATUS.md, DECISIONS.md, HISTORY.md의 최신 항목을 읽고 포트폴리오 작업을 이어가 주세요. 작업 후 같은 문서에 실제 변경·검증·다음 작업을 기록하고 커밋·PR 상태를 알려주세요.
+> AGENTS.md와 docs/portfolio/STATUS.md, docs/portfolio/DECISIONS.md, docs/portfolio/HISTORY.md의 최신 항목을 읽고 포트폴리오 작업을 이어가 주세요. 작업 후 같은 문서에 실제 변경·검증·다음 작업을 기록하고 커밋·PR 상태를 알려주세요.
 
 MoHo는 위 경로의 `portfolio`를 `moho`로 바꿉니다. [미병합 작업](docs/PENDING.md)도 확인합니다. 대화 원문 전체가 두 플랫폼 사이에서 자동 동기화되는 것은 아니며, Git에 저장한 문서와 코드가 공통 인수인계 기준입니다.
 
@@ -33,7 +33,7 @@ MoHo는 위 경로의 `portfolio`를 `moho`로 바꿉니다. [미병합 작업](
 
 - [협업·인수인계 규칙](docs/workspace/HANDOFF.md)
 - [이번 작업과 PR 진행 기록](docs/workspace/HISTORY.md)
-- 이 통합안은 [PR #16](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/16)의 작업 브랜치에 있으며 main 병합 전입니다. 지금 다른 AI로 확인하려면 `codex/unify-cloud-workspaces-20261106` 브랜치를 선택합니다.
+- [통합 PR #16](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/16)은 main 병합·배포를 마쳤습니다. 새 작업은 최신 main에서 작업별 브랜치를 만들고, 기존 작업을 이어받을 때는 기록된 원격 작업 브랜치를 확인합니다.
 
 ## 2026-11-06 · 통합 실제 반영
 
