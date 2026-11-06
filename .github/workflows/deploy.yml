@@ -24,7 +24,7 @@ jobs:
           node-version-file: .nvmrc
       - id: pages
         uses: actions/configure-pages@v5
-      - run: npm install
+      - run: bash scripts/cloud-setup.sh
       - run: npm run build
         env:
           SITE: ${{ steps.pages.outputs.origin }}
