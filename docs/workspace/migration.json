@@ -1,0 +1,10 @@
+{
+  "dateKST": "2026-11-06",
+  "mohoSourceCommit": "3845b549d23602513ff691a1e3b1402fa6e830e0",
+  "portfolioSourceRepository": "https://github.com/tokyosol1992/ohsolgil",
+  "portfolioSourceCommit": "9e2def57af2b3920e2f2587b2c55db19a97baf6e",
+  "mohoOriginalAgentsSha256": "b2801ccde4f064374520fc7efb039b5549c0243360c627a99530658a61358c84",
+  "portfolioOriginalAgentsSha256": "27215d0940d59e086620752107f04bcc9806ad6567f4fdd8e14b2afd0cdf5ffb",
+  "historyImport": "Original portfolio Git history and branches remain in https://github.com/tokyosol1992/ohsolgil. This PR imports the main source snapshot and targeted work records only; no whole-history archive is uploaded.",
+  "state": "prepared-for-review"
+}
