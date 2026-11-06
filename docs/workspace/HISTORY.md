@@ -1,3 +1,11 @@
+## 2026-11-06 후속 · GitHub 저장소 이름 정리 (Asia/Seoul)
+
+- 사용자 요청: Claude의 저장소 목록에서도 프로젝트를 쉽게 구분하고 변경 이력을 Git에 남긴다.
+- 완료: `asadal-g1 → asadal`, `stretching-app-product → animal-gym`. 각 저장소의 동일 ID·이름 변경 전후 main SHA·기존 브랜치·비공개 상태를 확인했다. [아사달 기록 PR #3](https://github.com/tokyosol1992/asadal/pull/3)과 [동물의GYM 기록 PR #40](https://github.com/tokyosol1992/animal-gym/pull/40)은 main에 반영했다.
+- 유지: 현재 MoHo 저장소와 렌즈·공개 검토·기존 포트폴리오는 Pages 주소 변경을 피하기 위해 이름을 유지했다.
+- 반영: 공통 Cloud 표와 현재 개발 원본 지침을 새 이름으로 갱신했다. 과거 기록의 예전 이름·커밋 링크는 당시 사실로 보존한다.
+- 한계·다음: Claude·Codex의 목록 캐시와 실제 연결은 각 서비스에서 새로고침·확인한다. 코드·모델·공개 사이트는 변경하지 않았으며 MoHo 통합 PR #16·원본 통합 PR #39는 main 미병합이다.
+
 # 공통 환경 작업 기록
 
 ## 2026-11-06 후속 · README와 다른 AI 인수인계 확인
