@@ -1,3 +1,15 @@
+## 2026-11-06 후속 · README와 다른 AI 인수인계 확인
+
+- 사용자 확인 요청: 각 프로젝트·환경에서 기록을 읽고 다른 AI로 바꿔도 충돌을 줄일 수 있도록 남겼는지 확인한다.
+- 반영: 각 사이트·앱 폴더 README에서 원본 지침·현재 상태·결정·히스토리·환경 안내로 연결했다. 순차 인수인계와 동시 작업의 브랜치 분리 규칙을 보강했다.
+- 실제 Git 상태: 아래 PR은 생성됐고 아직 main 미병합이다. 통합 규칙을 지금 읽으려면 각 저장소의 `codex/unify-cloud-workspaces-20261106` 브랜치를 선택한다.
+- [MoHo·포트폴리오 통합 #16](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/16)
+- [동물의GYM 정리 #39](https://github.com/tokyosol1992/stretching-app-product/pull/39)
+- [동작검토 배포 지침 #15](https://github.com/tokyosol1992/animal-gym-review/pull/15)
+- [기존 포트폴리오 주소 호환 #11](https://github.com/tokyosol1992/ohsolgil/pull/11) — 통합 배포 성공 뒤 적용하는 초안.
+- 검증: 기존 통합 코드의 MoHo 15페이지·포트폴리오 1페이지 로컬 빌드와 GitHub 자동 빌드가 성공했다. 이번 후속은 문서만 보강하며 코드·배포·계정 설정은 변경하지 않는다.
+- 미완료: 사용자 병합 확인, 실제 Pages 전환, Codex·Claude의 계정별 Cloud 환경 적용·새 세션 검증. 자동 잠금이나 충돌 완전 차단을 구성했다고 보고하지 않는다.
+
 # 2026-11-06 · 작업 공간 통합 준비
 
 - 기존 소스와 기록을 사이트별 폴더로 분류했다. 사용자 요청·보존 방식·검증·배포 순서는 [공통 기록](../workspace/HISTORY.md)과 [통합 기록](../workspace/MIGRATION.md)을 확인한다.
@@ -6,7 +18,7 @@
 # 작업 히스토리
 
 사이트가 어떤 순서로, 어떤 결정과 피드백을 거쳐 지금 모습이 됐는지 날짜별로 기록합니다.
-최신 기록이 위에 있습니다. 현재 상태와 다음 할 일은 [`AGENTS.md`](AGENTS.md), 단계별 플랜은 [`PLAN.md`](PLAN.md)를 보세요.
+최신 기록이 위에 있습니다. 현재 상태와 다음 할 일은 [현재 상태](STATUS.md), 단계별 플랜은 [`PLAN.md`](PLAN.md)를 보세요.
 
 - 사이트: https://tokyosol1992.github.io
 - 작업 방식: 플랜 하나를 골라 **아티팩트(HTML 시안)** 로 먼저 보여드리고, 필요하면 Figma에서 수정한 뒤 코드에 반영하고, 확인을 받아 머지합니다.

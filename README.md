@@ -28,3 +28,9 @@ npm run build
 > AGENTS.md와 docs/portfolio/STATUS.md, DECISIONS.md, HISTORY.md의 최신 항목을 읽고 포트폴리오 작업을 이어가 주세요. 작업 후 같은 문서에 실제 변경·검증·다음 작업을 기록하고 커밋·PR 상태를 알려주세요.
 
 MoHo는 위 경로의 `portfolio`를 `moho`로 바꿉니다. [미병합 작업](docs/PENDING.md)도 확인합니다. 대화 원문 전체가 두 플랫폼 사이에서 자동 동기화되는 것은 아니며, Git에 저장한 문서와 코드가 공통 인수인계 기준입니다.
+
+## 이번 정리와 인수인계
+
+- [협업·인수인계 규칙](docs/workspace/HANDOFF.md)
+- [이번 작업과 PR 진행 기록](docs/workspace/HISTORY.md)
+- 이 통합안은 [PR #16](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/16)의 작업 브랜치에 있으며 main 병합 전입니다. 지금 다른 AI로 확인하려면 `codex/unify-cloud-workspaces-20261106` 브랜치를 선택합니다.
