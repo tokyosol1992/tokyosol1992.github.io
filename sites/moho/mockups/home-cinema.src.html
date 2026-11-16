@@ -75,9 +75,24 @@ button { font: inherit; color: inherit; }
 .word span { display: inline-block; animation: rise 1.4s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
 .word span:nth-child(2) { animation-delay: 0.08s; } .word span:nth-child(3) { animation-delay: 0.16s; } .word span:nth-child(4) { animation-delay: 0.24s; }
 @keyframes rise { from { transform: translateY(40%); opacity: 0; filter: blur(14px); } }
-.portrait { position: absolute; right: 5vw; bottom: -3svh; height: 96svh; aspect-ratio: 860 / 1037; background: var(--ink) center / cover no-repeat; mix-blend-mode: screen;
+.portrait { position: absolute; right: 5vw; bottom: -3svh; height: 96svh; aspect-ratio: 4 / 5; mix-blend-mode: screen; transition: opacity 0.7s;
   -webkit-mask-image: radial-gradient(ellipse 52% 56% at 50% 50%, #000 58%, transparent 100%); mask-image: radial-gradient(ellipse 52% 56% at 50% 50%, #000 58%, transparent 100%); animation: focus 1.8s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
-@keyframes focus { from { filter: blur(24px); opacity: 0; transform: scale(1.08); } }
+@keyframes focus { from { opacity: 0; transform: scale(1.06); } }
+.ph { position: absolute; inset: 0; background: var(--img) center / cover no-repeat; transition: filter 0.7s, opacity 0.7s; }
+.portrait canvas { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.7s; }
+#wipe { opacity: 0; }
+.ph.sharp { opacity: 0; --lx: 50%; --ly: 40%; -webkit-mask-image: radial-gradient(circle 150px at var(--lx) var(--ly), #000 35%, transparent 100%); mask-image: radial-gradient(circle 150px at var(--lx) var(--ly), #000 35%, transparent 100%); }
+#liquid { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: screen; opacity: 0; transition: opacity 0.7s; pointer-events: none; }
+[data-mode='a'] .ph.base { filter: blur(24px) brightness(0.82); }
+[data-mode='a'] .ph.sharp { opacity: 1; }
+[data-mode='b'] .ph.base { filter: blur(18px) brightness(0.7) contrast(0.9); }
+[data-mode='b'] #wipe { opacity: 1; }
+[data-mode='c'] .portrait { opacity: 0; }
+[data-mode='c'] #liquid { opacity: 1; }
+.modes { position: absolute; left: var(--gutter-l); top: calc(84px + env(safe-area-inset-top, 0px)); display: flex; gap: 6px; flex-wrap: wrap; z-index: 5; }
+.modes button { border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 999px; padding: 7px 14px; background: rgba(5, 6, 10, 0.4); color: var(--fg); cursor: pointer; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+.modes button[aria-pressed='true'] { background: var(--fg); color: var(--ink); border-color: var(--fg); }
+.modes button:hover:not([aria-pressed='true']) { border-color: var(--fg); }
 .sub { position: absolute; left: var(--gutter-l); top: 26%; margin: 0; max-width: 11em; font-family: var(--serif-ko); font-weight: 300; font-size: clamp(20px, 2.6vw, 38px); line-height: 1.35; }
 .sub em { font-style: normal; color: var(--amber); }
 .cap { position: absolute; right: var(--gutter-r); bottom: calc(66px + env(safe-area-inset-bottom, 0px)); text-align: right; color: var(--mute); line-height: 1.8; }
@@ -146,9 +161,10 @@ button { font: inherit; color: inherit; }
 
 @media (max-width: 760px) {
   .menu { display: none; }
-  .portrait { right: 50%; transform: translateX(50%); height: 70svh; bottom: 8svh; }
-  @keyframes focus { from { filter: blur(24px); opacity: 0; } }
-  .sub { top: 17svh; }
+  .portrait { right: 50%; translate: 50% 0; height: 64svh; bottom: 9svh; }
+  
+  .sub { top: 20svh; }
+  .modes { top: calc(76px + env(safe-area-inset-top, 0px)); }
   .cap { display: none; }
   .panels { flex-direction: column; height: min(58svh, 520px); }
   .panel.on { flex: 3.2; }
@@ -166,10 +182,17 @@ button { font: inherit; color: inherit; }
 
 <div class="stage" id="stage">
   <!-- 1 히어로 -->
-  <section class="scene s0" data-i="0" aria-label="MoHo">
+  <section class="scene s0" data-i="0" data-mode="c" id="hero" aria-label="MoHo">
     <div class="px" style="--k:-30"><div class="blob b1"></div><div class="blob b2"></div></div>
     <div class="px" style="--k:12" data-depth="-40"><h1 class="word" aria-label="MoHo"><span>M</span><span>o</span><span>H</span><span>o</span></h1></div>
-    <div class="px" style="--k:-18"><div class="portrait" style="background-image:url(data:image/webp;base64,__PORTRAIT__)" role="img" aria-label="프로덕트 디자이너 솔길 페르소나 이미지"></div></div>
+    <img id="srcimg" hidden alt="" src="data:image/webp;base64,__PORTRAIT__">
+    <div class="px" style="--k:-18"><div class="portrait" id="portrait" role="img" aria-label="Y2K 스트리트 페르소나 이미지"><div class="ph base"></div><div class="ph sharp"></div><canvas id="wipe"></canvas></div></div>
+    <canvas id="liquid" aria-hidden="true"></canvas>
+    <div class="modes mono" role="group" aria-label="히어로 표현 비교">
+      <button type="button" data-m="a" aria-pressed="false">A · Focus</button>
+      <button type="button" data-m="b" aria-pressed="false">B · Frost</button>
+      <button type="button" data-m="c" aria-pressed="true">C · Liquid</button>
+    </div>
     <p class="sub" data-depth="60">구조와 규칙을 만드는 <em>프로덕트 디자이너</em></p>
     <div class="cap mono" data-depth="30"><div>Product Designer</div><div>Seoul, KR</div></div>
   </section>
@@ -341,5 +364,118 @@ button { font: inherit; color: inherit; }
     try { navigator.clipboard.writeText('tokyosol1992@gmail.com').then(function () { done(true); }, sel); } catch (e) { sel(); }
   }
   mail.addEventListener('click', copy); document.getElementById('copy').addEventListener('click', copy);
+})();
+
+// ===== 히어로 비교: A 초점 렌즈 / B 서리 유리 / C 액체 덩어리 =====
+(function () {
+  var hero = document.getElementById('hero'), img = document.getElementById('srcimg');
+  var portrait = document.getElementById('portrait'), sharp = hero.querySelector('.ph.sharp');
+  var wipe = document.getElementById('wipe'), liq = document.getElementById('liquid');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var imgUrl = 'url(' + img.src + ')';
+  hero.style.setProperty('--img', imgUrl);
+
+  // 마우스 위치 (화면 좌표). 일정 시간 입력이 없으면 혼자 떠돈다 (모바일 포함)
+  var mouse = { x: innerWidth * 0.6, y: innerHeight * 0.45, t: 0 };
+  addEventListener('pointermove', function (e) { mouse.x = e.clientX; mouse.y = e.clientY; mouse.t = performance.now(); });
+  function idle(t) { return { x: innerWidth * (0.55 + 0.18 * Math.sin(t * 0.00031)), y: innerHeight * (0.42 + 0.16 * Math.sin(t * 0.00047 + 1.3)) }; }
+  function pointer(t) { return (t - mouse.t < 2500) ? mouse : idle(t); }
+  function heroVisible() { return !document.hidden && parseFloat(hero.style.opacity || 1) > 0.02; }
+
+  // --- 모드 전환 ---
+  var mode = 'c', btns = [].slice.call(document.querySelectorAll('.modes button'));
+  var gl = null;
+  function setMode(m) {
+    if (m === 'c' && !gl) m = 'a';
+    mode = m; hero.dataset.mode = m;
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.m === m)); });
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { setMode(b.dataset.m); }); });
+  addEventListener('keydown', function (e) { var k = { 1: 'a', 2: 'b', 3: 'c' }[e.key]; if (k) setMode(k); });
+
+  // --- A: 렌즈. 흐린 인물 위에 선명한 사본이 커서 둘레만 드러난다 ---
+  var lens = { x: 0, y: 0 };
+  function tickA(t) {
+    var r = portrait.getBoundingClientRect(), p = pointer(t);
+    lens.x += (p.x - r.left - lens.x) * 0.12; lens.y += (p.y - r.top - lens.y) * 0.12;
+    sharp.style.setProperty('--lx', lens.x.toFixed(1) + 'px'); sharp.style.setProperty('--ly', lens.y.toFixed(1) + 'px');
+  }
+
+  // --- B: 서리 유리. 문지른 곳만 선명해지고 천천히 다시 서린다 ---
+  var wctx = wipe.getContext('2d'), brush = document.createElement('canvas'), bctx = brush.getContext('2d');
+  var last = null, dpr = Math.min(devicePixelRatio || 1, 1.5);
+  function sizeWipe() { var r = portrait.getBoundingClientRect(); wipe.width = Math.max(2, Math.round(r.width * dpr)); wipe.height = Math.max(2, Math.round(r.height * dpr)); last = null; }
+  function stamp(x, y) {
+    var R = Math.round(wipe.width * 0.115), D = R * 2, k = img.naturalWidth / wipe.width;
+    brush.width = D; brush.height = D;
+    bctx.globalCompositeOperation = 'source-over'; bctx.clearRect(0, 0, D, D);
+    bctx.drawImage(img, (x - R) * k, (y - R) * k, D * k, D * k, 0, 0, D, D);
+    var g = bctx.createRadialGradient(R, R, R * 0.15, R, R, R); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    bctx.globalCompositeOperation = 'destination-in'; bctx.fillStyle = g; bctx.fillRect(0, 0, D, D);
+    wctx.globalCompositeOperation = 'source-over'; wctx.drawImage(brush, x - R, y - R);
+  }
+  function tickB(t) {
+    if (wipe.width < 4 || !img.naturalWidth) return;
+    wctx.globalCompositeOperation = 'destination-out'; wctx.fillStyle = 'rgba(0,0,0,0.014)'; wctx.fillRect(0, 0, wipe.width, wipe.height);   // 다시 서림
+    var r = portrait.getBoundingClientRect(), p = pointer(t);
+    var x = (p.x - r.left) * dpr, y = (p.y - r.top) * dpr;
+    if (x < 0 || y < 0 || x > wipe.width || y > wipe.height) { last = null; return; }
+    if (last) { var dx = x - last.x, dy = y - last.y, n = Math.max(1, Math.ceil(Math.hypot(dx, dy) / (wipe.width * 0.03))); for (var i = 1; i <= n; i++) stamp(last.x + dx * i / n, last.y + dy * i / n); }
+    else stamp(x, y);
+    last = { x: x, y: y };
+  }
+  addEventListener('resize', sizeWipe); setTimeout(sizeWipe, 50); if (img.complete) sizeWipe(); else img.addEventListener('load', sizeWipe);
+
+  // --- C: 액체 덩어리 (WebGL). 사람 같기도 구 같기도 한 형체가 계속 변하고 커서를 따라 늘어난다 ---
+  var vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  var fs = 'precision highp float;uniform vec2 uRes,uC,uM;uniform float uT,uS;' +
+    'void blob(vec2 p,vec2 c,float R,inout float f,inout vec2 g){vec2 d=p-c;float w=max(0.,1.-dot(d,d)/(R*R));f+=w*w*w;g+=-6.*w*w*d/(R*R);}' +
+    'void main(){vec2 p=(gl_FragCoord.xy-uC)/uS;float t=uT;float f=0.;vec2 g=vec2(0.);' +
+    ' blob(p,vec2(0.,.50)+.03*vec2(sin(t*.7),cos(t*.9)),.36,f,g);' +
+    ' blob(p,vec2(0.,.27)+.02*vec2(cos(t*.8),sin(t*.6)),.22,f,g);' +
+    ' blob(p,vec2(-.38,.06)+.04*vec2(sin(t*.5+1.),cos(t*.7)),.42,f,g);' +
+    ' blob(p,vec2(.38,.06)+.04*vec2(cos(t*.6),sin(t*.8+2.)),.42,f,g);' +
+    ' blob(p,vec2(0.,-.16)+.03*vec2(sin(t*.4),cos(t*.5)),.55,f,g);' +
+    ' blob(p,.72*vec2(cos(t*.37),.85*sin(t*.29+1.)),.17,f,g);' +
+    ' blob(p,.6*vec2(cos(t*.31+2.),sin(t*.41)),.14,f,g);' +
+    ' blob(p,.84*vec2(sin(t*.23),cos(t*.27+.5)),.12,f,g);' +
+    ' blob(p,uM,.26,f,g);' +
+    ' vec3 blue=vec3(.12,.42,1.),amber=vec3(1.,.5,.15);vec3 col=vec3(0.);float T=.42;' +
+    ' if(f>T){vec3 n=normalize(vec3(-g*.30,1.));vec3 r=reflect(vec3(0.,0.,-1.),n);' +
+    '  float k=smoothstep(-.8,.8,r.x*.9+r.y*.5+.12*sin(r.y*3.+t*.3));vec3 env=mix(blue,amber,k);' +
+    '  float st=pow(max(0.,sin(r.y*4.5+r.x*2.-t*.2)),16.);float rim=pow(1.-n.z,1.5);' +
+    '  vec3 irid=.5+.5*cos(6.2831*(n.xyx*.5+vec3(0.,.33,.67)+t*.03));' +
+    '  col=env*(.18+1.25*rim)+irid*.16*rim+vec3(.92,.96,1.)*st*.5*(.4+rim)+vec3(.03,.04,.08);}' +
+    ' else{float h=smoothstep(.0,T,f);col=mix(blue,amber,smoothstep(-.5,.5,p.x+p.y*.3))*h*h*.32;}' +
+    ' gl_FragColor=vec4(pow(col,vec3(.9)),1.);}';
+  var U = {}, prog;
+  try {
+    gl = liq.getContext('webgl', { antialias: false, alpha: false });
+    if (gl) {
+      var sh = function (type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+      prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog); gl.useProgram(prog);
+      var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      ['uRes', 'uC', 'uM', 'uT', 'uS'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+    }
+  } catch (e) { gl = null; }
+  var lm = { x: 0, y: 0 };
+  function tickC(t) {
+    var W = liq.clientWidth, H = liq.clientHeight, d = Math.min(devicePixelRatio || 1, 1.5);
+    if (liq.width !== Math.round(W * d)) { liq.width = Math.round(W * d); liq.height = Math.round(H * d); }
+    gl.viewport(0, 0, liq.width, liq.height);
+    var mobile = W < 760, cx = (mobile ? 0.5 : 0.69) * W * d, cy = (mobile ? 0.5 : 0.5) * H * d, S = (mobile ? Math.min(H * 0.27, W * 0.46) : H * 0.4) * d;
+    var p = pointer(t), tx = (p.x * d - cx) / S, ty = ((H - p.y) * d - cy) / S;
+    lm.x += (tx - lm.x) * 0.08; lm.y += (ty - lm.y) * 0.08;
+    gl.uniform2f(U.uRes, liq.width, liq.height); gl.uniform2f(U.uC, cx, cy); gl.uniform2f(U.uM, lm.x, lm.y);
+    gl.uniform1f(U.uT, reduce ? 3 : t * 0.001); gl.uniform1f(U.uS, S);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  setMode(gl ? 'c' : 'a');
+  (function loop(t) {
+    if (heroVisible()) { if (mode === 'a') tickA(t); else if (mode === 'b') tickB(t); else if (mode === 'c' && gl) tickC(t); }
+    requestAnimationFrame(loop);
+  })(0);
 })();
 </script>
