@@ -89,6 +89,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* 상세: 표지 자리에서 나오는 종이 */
 .sheet { position: fixed; z-index: 60; left: 0; top: 0; width: 100vw; height: 100vh; height: 100dvh; background: var(--paper-2); transform-origin: 0 0; visibility: hidden; box-shadow: 0 30px 80px rgba(40, 30, 20, 0.18); }
 .sheet.on { visibility: visible; }
+.sheet:not(.on) { pointer-events: none; }
+.sheet:not(.on) .d-grid { visibility: hidden !important; }
 .sheet .top, .sheet .d-grid { opacity: 0; }
 .d-grid { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 clamp(24px, 9vw, 150px) 0 clamp(24px, 7vw, 100px); gap: 4vw; }
 .d-info { display: flex; flex-direction: column; min-width: 0; }
@@ -228,7 +230,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     list.forEach(function (o) {
       var b = els[mod(o.a, POOL)], idx = mod(o.a, N);
       if (b._item !== idx || lastS !== S) fill(b, idx);
-      b._a = o.a; b._d = o.d;
+      b._a = o.a; b._d = o.d; b._cx = o.c + off; // 서가는 화면 왼쪽 0에서 시작
       var hov = (hoverSlot === b._slot && o.e < 0.5) ? 1 : 0; b._hov += (hov - b._hov) * 0.2;
       var z = (D / 2) * Math.abs(Math.cos(o.ang * RAD)) + (F / 2) * Math.abs(Math.sin(o.ang * RAD)) - LIFT * Math.pow(Math.abs(Math.sin(o.ang * RAD)), 6);
       b.style.transform = 'translate3d(' + (o.c + off).toFixed(2) + 'px,' + (-12 * S * b._hov).toFixed(2) + 'px,0)';
@@ -262,18 +264,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   document.getElementById('prev').addEventListener('click', function () { go(-1); });
   document.getElementById('next').addEventListener('click', function () { go(1); });
   chips.forEach(function (c) { c.addEventListener('click', function () { var g = c.dataset.g; if (g === 'all') { goTo(0); return; } for (var j = 1; j <= N; j++) { var idx = mod(mod(Math.round(target), N) + j, N); if (ITEMS[idx].g === g) { goTo(idx); break; } } }); });
-  addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1); else if (e.key === 'Enter' && !opened && Math.abs(target - pos) < 0.05) openDetail(); else if (e.key === 'Escape' && opened) closeDetail(); });
+  addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1); else if (e.key === 'Enter' && !opened && Math.abs(target - pos) < 0.05 && !/^(BUTTON|A)$/.test(document.activeElement && document.activeElement.tagName)) { e.preventDefault(); openDetail(); } else if (e.key === 'Escape' && opened) closeDetail(); });
   var acc = 0, lock = 0;
   addEventListener('wheel', function (e) { if (opened) return; var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY; acc += d; if (Math.abs(acc) > 40 && performance.now() - lock > 180) { go(acc > 0 ? 1 : -1); acc = 0; lock = performance.now(); } }, { passive: true });
   // 드래그: 손을 따라 연속으로 움직이고, 놓으면 가까운 칸으로 감속
   var dragging = false, sx = 0, sp = 0, moved = 0;
   stage.addEventListener('pointerdown', function (e) { if (opened) return; dragging = true; sx = e.clientX; sp = pos; moved = 0; });
-  addEventListener('pointermove', function (e) { if (!dragging) return; var dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx)); pos = sp - dx / (93 * S); target = pos; });
+  addEventListener('pointermove', function (e) { if (!dragging) return; var dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx)); if (moved <= 6) return; pos = sp - dx / (93 * S); target = pos; });
+  addEventListener('pointercancel', function () { if (dragging) { dragging = false; target = Math.round(pos); } });
   addEventListener('pointerup', function (e) {
     if (!dragging) return; dragging = false;
     if (moved > 6) { target = Math.round(pos); return; }
-    var hit = e.target.closest && e.target.closest('.box'); if (!hit) return;
-    if (Math.abs(hit._d) < 0.5) openDetail(); else target = hit._a;
+    // 3D 요소 감지는 브라우저마다 달라서 좌표로 판정: 선택 표지 안이면 열고, 아니면 가장 가까운 책으로 이동
+    var x = e.clientX, y = e.clientY, sr = shelf.getBoundingClientRect();
+    if (Math.abs(y - sr.top) > 250 * S) return;
+    var cur = els.filter(function (b) { return Math.abs(b._d) < 0.5; })[0];
+    if (cur) { var r = cur.querySelector('.cvf').getBoundingClientRect(); if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) { openDetail(); return; } }
+    var best = null; els.forEach(function (b) { if (b._cx == null || Math.abs(b._d) > HALF - 1) return; if (!best || Math.abs(b._cx - x) < Math.abs(best._cx - x)) best = b; });
+    if (best && Math.abs(best._d) >= 0.5) target = best._a;
   });
   shelf.addEventListener('pointerover', function (e) { var b = e.target.closest('.box'); hoverSlot = b ? b._slot : -1; ring.classList.toggle('open', !!b && Math.abs(b._d) < 0.5 && !opened); });
   shelf.addEventListener('pointerleave', function () { hoverSlot = -1; ring.classList.remove('open'); });
@@ -350,7 +358,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
       animate(1050, function (t) { var q = 1 - Math.pow(1 - t, 3), v = (8 + q * 312).toFixed(1) + '%'; cv.style.webkitMaskSize = v + ' ' + v; cv.style.maskSize = v + ' ' + v; }, function () { cv.style.webkitMaskImage = 'none'; cv.style.maskImage = 'none'; });
     }, 190));
     lines.forEach(function (l, j) { timers.push(setTimeout(function () { l.classList.add('on'); }, 420 + j * 70)); });
-    document.getElementById('close').focus({ preventScroll: true });
+    // 같은 키 입력이 닫기 버튼을 누르지 않도록 포커스는 입력이 끝난 뒤 옮긴다
+    setTimeout(function () { if (opened) document.getElementById('close').focus({ preventScroll: true }); }, 120);
   }
   function closeDetail() {
     if (!opened) return; timers.forEach(clearTimeout); timers = [];
@@ -360,7 +369,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     setTimeout(function () {
       animate(reduce ? 1 : 420, function (t) { var q = 1 - ease(t); var x = fr.left * (1 - q), y = fr.top * (1 - q), sx2 = fr.width / W + (1 - fr.width / W) * q, sy2 = fr.height / Hh + (1 - fr.height / Hh) * q;
         sheet.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (4.5 * (1 - q)) + 'deg) scale(' + sx2 + ',' + sy2 + ')'; sheet.style.opacity = t > 0.8 ? (1 - (t - 0.8) * 5) : 1; },
-        function () { sheet.classList.remove('on'); sheet.style.opacity = ''; sheet.setAttribute('aria-hidden', 'true'); lines.forEach(function (l) { l.firstChild.style.transition = ''; }); opened = false; });
+        function () { sheet.classList.remove('on'); sheet.style.opacity = ''; sGrid.style.visibility = ''; sGrid.style.opacity = ''; sTop.style.opacity = ''; if (sheet.contains(document.activeElement)) document.activeElement.blur(); sheet.setAttribute('aria-hidden', 'true'); lines.forEach(function (l) { l.firstChild.style.transition = ''; }); opened = false; });
     }, 200);
   }
   document.getElementById('close').addEventListener('click', closeDetail);
