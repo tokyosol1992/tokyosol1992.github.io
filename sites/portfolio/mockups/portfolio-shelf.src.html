@@ -1,0 +1,165 @@
+<title>Oh SolGil 서가 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Noto+Serif+KR:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 위는 선택한 프로젝트의 소개와 큰 표지, 아래는 책등 서가. 책등을 고르면 옆이 밀려나며 표지가 펼쳐진다 (레퍼런스: Shelf Hero) */
+:root {
+  /* 현재 정체성(sites/portfolio/src/styles/global.css 값): 다크 고정, 파랑 #2895f7 */
+  --bg: #09090b; --surface: #101114; --raise: #17181d; --fg: #f2f7ff; --muted: #9a9eab; --dim: #80838f; --line: #22232a;
+  --accent: #2895f7; --accent-ink: #06121f;
+  --sans: 'Plus Jakarta Sans', 'Noto Sans KR', system-ui, sans-serif;
+  --display: 'Plus Jakarta Sans', 'Noto Sans KR', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --spine-l: 22%; --spine-l2: 14%; --spine-s: 38%;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px)); --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: dark;
+}
+/* 레퍼런스에 가까운 밝은 안 */
+:root[data-t='light'] {
+  --bg: #eceef2; --surface: #e3e6ec; --raise: #dde1e8; --fg: #0b0d14; --muted: #4a5060; --dim: #5c6272; --line: #c9ced8;
+  --accent: #1b6fd1; --accent-ink: #ffffff;
+  --display: 'Instrument Serif', 'Noto Serif KR', serif;
+  --spine-l: 84%; --spine-l2: 76%; --spine-s: 30%;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); transition: background 0.5s, color 0.5s; }
+body { font-family: var(--sans); -webkit-font-smoothing: antialiased; min-height: 100svh; display: flex; flex-direction: column; padding-block: calc(18px + env(safe-area-inset-top, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+.name { font-family: var(--display); font-size: 24px; letter-spacing: -0.01em; }
+:root:not([data-t='light']) .name { font-weight: 600; font-size: 18px; font-family: var(--sans); }
+.bar nav { display: flex; gap: 6px; align-items: center; }
+.chip { border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; background: none; cursor: pointer; color: var(--muted); transition: color 0.25s, border-color 0.25s, background 0.25s; }
+.chip:hover, .chip[aria-pressed='true'] { color: var(--fg); border-color: var(--fg); }
+.chip.solid { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+.stage { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 24px; padding: 4svh var(--gutter-r) 2svh var(--gutter-l); }
+.info { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.info .eyebrow { color: var(--accent); display: flex; gap: 10px; align-items: center; }
+.info .eyebrow i { font-style: normal; color: var(--dim); }
+.info h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(40px, 6.2vw, 92px); line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
+:root:not([data-t='light']) .info h1 { font-weight: 600; letter-spacing: -0.04em; }
+.info .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); }
+.info p { margin: 0; max-width: 32em; color: var(--muted); line-height: 1.7; word-break: keep-all; }
+.info .go { align-self: flex-start; margin-top: 6px; }
+.swap { transition: opacity 0.35s, transform 0.35s; }
+.swap.out { opacity: 0; transform: translateY(8px); }
+
+.cover-wrap { display: flex; justify-content: center; perspective: 1100px; }
+.cover { position: relative; height: min(52svh, 460px); aspect-ratio: 3 / 4; max-width: 100%; border-radius: 6px; overflow: hidden; background: var(--c); color: #fff; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); transition: transform 0.25s, background 0.6s; transform: rotateY(calc(var(--rx, 0) * 7deg)) rotateX(calc(var(--ry, 0) * -5deg)); }
+:root[data-t='light'] .cover { box-shadow: 0 30px 70px rgba(20, 30, 60, 0.22); }
+.cover::before { content: ''; position: absolute; inset: 0; background: var(--art); opacity: 0.95; transition: background 0.6s; }
+.cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.55)); }
+.cover .tag { position: absolute; left: 16px; top: 14px; z-index: 2; opacity: 0.9; }
+.cover .big { position: absolute; left: 16px; bottom: 14px; z-index: 2; font-family: var(--display); font-size: clamp(34px, 4vw, 56px); line-height: 1; letter-spacing: -0.03em; }
+
+.shelf-wrap { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+.shelf { display: flex; align-items: flex-end; gap: 8px; height: min(26svh, 230px); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; scrollbar-width: none; padding: 0 2px; }
+.shelf::-webkit-scrollbar { display: none; }
+.spine { flex: none; width: 46px; height: var(--hh, 80%); border: 0; border-radius: 3px; padding: 0; cursor: pointer; position: relative; overflow: hidden; scroll-snap-align: center;
+  background: linear-gradient(180deg, hsl(var(--h) 42% var(--spine-l)), hsl(var(--h) 46% var(--spine-l2))); color: #fff; transition: width 0.7s cubic-bezier(0.2, 0.8, 0.1, 1), height 0.7s cubic-bezier(0.2, 0.8, 0.1, 1), filter 0.3s; }
+:root[data-t='light'] .spine { color: #0b0d14; }
+.spine:hover:not(.on) { filter: brightness(1.18); }
+.spine .lab { position: absolute; inset: 0; padding-top: 30px; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; font-size: 13px; letter-spacing: 0.04em; white-space: nowrap; opacity: 0.92; transition: opacity 0.3s; }
+.spine .num { position: absolute; left: 0; right: 0; top: 10px; text-align: center; opacity: 0.7; }
+.spine .face { position: absolute; inset: 0; background: var(--art); opacity: 0; transition: opacity 0.5s; }
+.spine.on { width: clamp(120px, 14vw, 170px); height: 100%; }
+.spine.on .lab { opacity: 0; }
+.spine.on .face { opacity: 1; }
+.spine.on .num { color: #fff; opacity: 0.9; }
+.ctrl { display: flex; justify-content: space-between; align-items: center; padding: 14px var(--gutter-r) 0 var(--gutter-l); color: var(--dim); }
+.ctrl .arrows { display: flex; gap: 8px; }
+.ctrl button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: none; cursor: pointer; transition: border-color 0.25s, color 0.25s; }
+.ctrl button:hover { border-color: var(--fg); color: var(--fg); }
+.note { color: var(--dim); }
+
+@media (max-width: 760px) {
+  .stage { grid-template-columns: 1fr; gap: 16px; padding-top: 2svh; }
+  .cover-wrap { order: -1; }
+  .cover { height: min(34svh, 300px); }
+  .info h1 { font-size: clamp(32px, 9vw, 48px); }
+  .info p { font-size: 14px; }
+  .shelf { height: min(22svh, 170px); }
+  .bar nav .chip.hide-m { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .spine, .swap, .cover { transition: none; } }
+</style>
+
+<header class="bar">
+  <span class="name">Oh SolGil</span>
+  <nav aria-label="시안 설정">
+    <button class="chip mono hide-m" type="button" id="t-dark" aria-pressed="true">현재 · 다크 + 파랑</button>
+    <button class="chip mono hide-m" type="button" id="t-light" aria-pressed="false">레퍼런스 · 밝은 안</button>
+    <button class="chip mono solid" type="button" id="t-flip" aria-label="밝기 전환">Theme</button>
+  </nav>
+</header>
+
+<main class="stage">
+  <section class="info" aria-live="polite">
+    <div class="eyebrow mono swap" id="eyebrow"><span>Selected Work</span><i>/</i><span id="count">01 / 09</span></div>
+    <h1 class="swap" id="title">샘플 프로젝트 01</h1>
+    <div class="meta mono swap" id="meta"><span>YYYY.MM.DD - YYYY.MM.DD</span><span>역할 입력 예정</span></div>
+    <p class="swap" id="desc">프로젝트 한 줄 요약이 들어갈 자리입니다. 문제, 과정, 결과 순서로 정리한 케이스 스터디로 이어집니다.</p>
+    <button class="chip mono solid go" type="button" id="go">케이스 스터디 보기 →</button>
+  </section>
+  <div class="cover-wrap"><div class="cover" id="cover"><span class="tag mono" id="ctag">샘플</span><span class="big" id="cbig">01</span></div></div>
+</main>
+
+<div class="shelf-wrap"><div class="shelf" id="shelf" role="listbox" aria-label="프로젝트 서가"></div></div>
+<div class="ctrl">
+  <span class="note mono">샘플 내용입니다. 실제 프로젝트·기간·역할은 입력 전입니다</span>
+  <div class="arrows"><button type="button" id="prev" aria-label="이전 프로젝트">←</button><button type="button" id="next" aria-label="다음 프로젝트">→</button></div>
+</div>
+
+<script>
+(function () {
+  var N = 9, hues = [212, 250, 190, 28, 330, 160, 270, 40, 200];
+  var heights = [86, 72, 92, 78, 84, 70, 90, 76, 82];
+  var root = document.documentElement, shelf = document.getElementById('shelf'), cover = document.getElementById('cover');
+  var el = { title: document.getElementById('title'), meta: document.getElementById('meta'), desc: document.getElementById('desc'), count: document.getElementById('count'), cbig: document.getElementById('cbig'), ctag: document.getElementById('ctag') };
+  var items = [], cur = -1, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  function art(h) {
+    return 'radial-gradient(120% 70% at 20% 10%, hsl(' + h + ' 70% 62% / 0.85), transparent 60%), radial-gradient(90% 70% at 85% 95%, hsl(' + ((h + 40) % 360) + ' 65% 40% / 0.9), transparent 62%), linear-gradient(160deg, hsl(' + h + ' 40% 22%), hsl(' + h + ' 45% 12%))';
+  }
+  for (var i = 0; i < N; i++) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'spine'; b.setAttribute('role', 'option');
+    b.style.setProperty('--h', hues[i]); b.style.setProperty('--hh', heights[i] + '%'); b.style.setProperty('--art', art(hues[i]));
+    b.innerHTML = '<span class="face"></span><span class="num mono">' + pad(i + 1) + '</span><span class="lab">샘플 프로젝트 ' + pad(i + 1) + '</span>';
+    (function (k) { b.addEventListener('click', function () { select(k, true); }); })(i);
+    shelf.appendChild(b); items.push(b);
+  }
+  function select(k, scroll) {
+    k = (k + N) % N; if (k === cur) return;
+    var first = cur < 0; cur = k;
+    items.forEach(function (b, j) { b.classList.toggle('on', j === k); b.setAttribute('aria-selected', String(j === k)); });
+    var sw = [].slice.call(document.querySelectorAll('.swap'));
+    function apply() {
+      el.title.textContent = '샘플 프로젝트 ' + pad(k + 1); el.count.textContent = pad(k + 1) + ' / ' + pad(N);
+      el.cbig.textContent = pad(k + 1); cover.style.setProperty('--art', art(hues[k])); cover.style.setProperty('--c', 'hsl(' + hues[k] + ' 40% 14%)');
+      sw.forEach(function (n) { n.classList.remove('out'); });
+    }
+    if (first || reduce) apply(); else { sw.forEach(function (n) { n.classList.add('out'); }); setTimeout(apply, 260); }
+    if (scroll) setTimeout(function () { items[k].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', inline: 'center', block: 'nearest' }); }, 60);
+  }
+  document.getElementById('prev').addEventListener('click', function () { select(cur - 1, true); });
+  document.getElementById('next').addEventListener('click', function () { select(cur + 1, true); });
+  addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft') select(cur - 1, true); if (e.key === 'ArrowRight') select(cur + 1, true); });
+
+  // 표지가 마우스를 따라 살짝 기운다
+  var cw = document.querySelector('.cover-wrap');
+  if (!reduce) { cw.addEventListener('pointermove', function (e) { var r = cw.getBoundingClientRect(); cover.style.setProperty('--rx', ((e.clientX - r.left) / r.width - 0.5) * 2); cover.style.setProperty('--ry', ((e.clientY - r.top) / r.height - 0.5) * 2); }); cw.addEventListener('pointerleave', function () { cover.style.setProperty('--rx', 0); cover.style.setProperty('--ry', 0); }); }
+
+  // 시안 비교: 현재 정체성(다크+파랑)과 레퍼런스에 가까운 밝은 안
+  var td = document.getElementById('t-dark'), tl = document.getElementById('t-light');
+  function theme(light) { if (light) root.setAttribute('data-t', 'light'); else root.removeAttribute('data-t'); td.setAttribute('aria-pressed', String(!light)); tl.setAttribute('aria-pressed', String(light)); }
+  td.addEventListener('click', function () { theme(false); }); tl.addEventListener('click', function () { theme(true); });
+  document.getElementById('t-flip').addEventListener('click', function () { theme(root.getAttribute('data-t') !== 'light'); });
+  select(2, false); setTimeout(function () { items[2].scrollIntoView({ inline: 'center', block: 'nearest' }); }, 100);
+})();
+</script>
