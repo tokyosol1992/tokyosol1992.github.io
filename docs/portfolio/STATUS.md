@@ -1,22 +1,30 @@
 # Oh SolGil 현재 상태
 
-기준: 2026-11-06. 통합 PR #16 병합·배포 완료. 포트폴리오 원본 main은 `9e2def57af2b3920e2f2587b2c55db19a97baf6e`다.
+기준: 2026-11-17. 실제 사이트(`/portfolio/`)는 2026-11-06 통합 배포본 그대로다. 이번 서가 시안은 시안 폴더에만 있고 사이트 코드는 바꾸지 않았다.
 
-- 기존 한 페이지 소스를 `sites/portfolio/`에 가져왔다. 검색·카드 Border Glow·Lenis·모바일 프로젝트 가로 스크롤을 유지했다. Soft Aurora는 제거된 상태다.
-- 경력·요약·연락처는 입력 예정이고, 프로젝트 상세와 PDF 연결은 후속이다. 사실을 임의로 채우지 않는다.
-- 기존 Figma 정리와 그로우 시안에는 main에 병합되지 않은 추가 작업이 있다. `../PENDING.md`를 먼저 확인하고, 원본 브랜치·패치에서 확인한다.
-- 새 배포 경로는 `/portfolio/`. 기존 `/ohsolgil/` 주소는 호환 PR #11 병합·배포 후 새 페이지로 이동한다. 실제 새 대상 200·정적 자산·이동 HTML을 확인했다.
+## 진행 중: 오솔길 서가 시안
+
+- 시안: `sites/portfolio/mockups/portfolio-shelf.src.html`, 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
+- 레퍼런스·실측값·버전 이력: `REFERENCES.md`
+- 상태: 사용자 열기 동작 확인(2026-11-17). 원본과 같은 치수·색·감속·열기 순서. 내용은 샘플.
+- 저장: 작업 브랜치 `claude/lucid-albattani-pr1jnv` → PR로 main 반영(병합 결과는 HISTORY 최신 항목 참조).
+
+## 결정 대기 (사용자)
+
+1. 서가 구조를 실제 포트폴리오에 채택할지.
+2. 배경: 시안은 밝은 종이(`#e7e5df`)다. 기존 결정은 다크 고정·파랑 `#2895f7`(`DECISIONS.md`, `sites/portfolio/AGENTS.md`). 채택 시 결정 문서를 먼저 갱신한다.
+3. 실제 프로젝트 목록·표지 이미지·기간·역할·요약(사용자에게 받은 사실만).
+4. 원본 일러스트 대신 쓸 표지 그림 방향(지금은 직접 만든 도형).
 
 ## 다음 작업
 
-1. 통합 #16·호환 #11 병합·배포는 확인했다. 현재 계정별 실행·기록 기준은 루트 CLOUD_HANDOFF.md를 따른다.
-2. PR #10 그로우 케이스 스터디 시안과 PR #3 Figma 기록 중 재개할 범위를 사용자 요청에 따라 고른다.
-3. Figma 정리→문서·프로토타입 구성→사이트 적용 순서를 이어간다.
+1. 위 결정을 받으면 시안을 다듬거나 `src/`로 이식한다(이식 시 `npm run build`, 모바일·데스크톱 확인).
+2. 기존 미병합 작업(PR #10 그로우 케이스 스터디 시안, PR #3 Figma 기록)은 `../PENDING.md`에서 확인하고 요청 범위만 옮긴다.
+3. Safari 동작 확인(이 Cloud 환경에는 Chromium만 있음).
 
-## Cloud 확인 범위
+## 이전 상태 (2026-11-06)
 
-Claude **MoHo · 포트폴리오** 환경에 이 원본 하나를 연결했다. 런타임 준비와 저장소별 SessionStart 설치를 분리했다. 환경 저장과 이 저장소의 새 세션 설치·Codex 재게시·양방향 시험은 구분한다. 상세는 루트 `CLOUD_HANDOFF.md`를 따른다.
-
-## Claude 실제 실행 확인
-
-새 MoHo·포트폴리오 Cloud 세션에서 Node 기본 선택 차이를 확인했다. 캐시 Node 24(v24.22.2)를 명시한 전체 빌드가 통과했고 MoHo 15페이지·포트폴리오 1페이지를 확인했다. Node 명령은 루트 scripts/with-node24.sh를 사용한다. Codex 환경 재게시·새 Codex Cloud 세션 확인은 별도로 남아 있다.
+- 기존 한 페이지 소스를 `sites/portfolio/`에 가져왔다. 검색·카드 Border Glow·Lenis·모바일 프로젝트 가로 스크롤을 유지했다. Soft Aurora는 제거된 상태다.
+- 경력·요약·연락처는 입력 예정이고, 프로젝트 상세와 PDF 연결은 후속이다. 사실을 임의로 채우지 않는다.
+- 새 배포 경로는 `/portfolio/`. 기존 `/ohsolgil/` 주소는 새 페이지로 이동한다.
+- Cloud·Node 24 실행 기준은 루트 `CLOUD_HANDOFF.md`와 `AGENTS.md`를 따른다(`bash scripts/with-node24.sh`).

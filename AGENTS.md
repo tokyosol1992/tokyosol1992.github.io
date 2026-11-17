@@ -14,6 +14,13 @@
 | Oh SolGil 포트폴리오 | `sites/portfolio/` | `docs/portfolio/` |
 | 공통 환경·저장소 구조 | 루트 `scripts/`, 설정 파일 | `docs/workspace/` |
 
+## 새 채팅 시작 명령
+
+사용자가 새 채팅을 아래 문장으로 시작하면 코드를 고치기 전에 해당 자료를 읽고 브리핑부터 한다. 브리핑: 현재 시안과 상태 → 사용자 결정 대기 → 다음 작업 제안 순서로 짧게. 링크·파일 경로를 함께 준다.
+
+- **"포트폴리오 페이지 수정하자"**: `docs/portfolio/STATUS.md`, `docs/portfolio/REFERENCES.md`, 최신 `docs/portfolio/HISTORY.md` 항목을 읽는다. 오솔길 서가 시안 원본 `sites/portfolio/mockups/portfolio-shelf.src.html`을 불러온다. Claude는 게시본(https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s)을 아티팩트로 열어 보여준다.
+- **"moho 작업하자"**: `docs/moho/STATUS.md`, `docs/moho/REFERENCES.md`, 최신 `docs/moho/HISTORY.md` 항목을 읽는다. 시안 원본 `sites/moho/mockups/home-glass.src.html`(최신)과 `home-cinema.src.html`(이전)을 불러오고, 레퍼런스 목록·선택한 Glass Orb·피드백 이력까지 브리핑한다. Claude는 최신 게시본(https://claude.ai/artifact/E3XdBWkfHg6Ccm3JhtAEbC)을 열어 보여준다.
+
 ## 실행 환경
 
 - Node.js 24, npm workspaces. 저장소 루트에서 `bash scripts/cloud-setup.sh`로 설치한다.
