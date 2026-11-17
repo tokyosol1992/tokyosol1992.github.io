@@ -1,0 +1,6 @@
+# The model is the user's own upload; the repo is public, so model files stay local
+# unless the user decides to publish them. Regenerate with rig-toto.mjs.
+*.glb
+toto-rig.json
+toto-basecolor.jpg
+toto-facemask.png

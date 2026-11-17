@@ -11,6 +11,13 @@
 - 진행 방식(2026-11-17): "하나씩" — 포트폴리오 서가를 먼저 마쳤고 MoHo가 다음 차례다. v4는 사용자 기준에 못 미친다는 피드백이 있어 원본 실측 방식으로 다시 맞춰야 한다.
 - 저장: 작업 브랜치 `claude/lucid-albattani-pr1jnv` → PR로 main 반영(병합 결과는 HISTORY 최신 항목 참조).
 
+## 실험: TOTO 얼굴 리그 (2026-11-17)
+
+- 사용자가 올린 강아지 캐릭터 GLB에 Blender 없이 얼굴 리그(눈·눈꺼풀·턱·입꼬리·눈썹·귀)를 굽고, 커서를 따라보는 페이지를 만들었다. 홈 개편과 별개이며 사이트 코드는 바꾸지 않았다.
+- 소스: `sites/moho/mockups/toto/rig-toto.mjs`, `toto-face.src.html`. 게시본(비공개): https://claude.ai/artifact/8szpiZ7xQTPGh7sZBRNehf
+- 저장: 작업 브랜치 `claude/eager-ride-u9coz2`에 커밋·push. PR·main 병합 전. 모델 파일은 공개 저장소라 커밋하지 않았다(로컬 생성, `.gitignore`).
+- 결정 대기: 모델 파일 커밋 여부, 사이트에 실을지와 경로(예: 라이브러리 실험 글), 실기기 확인 후 귀·표정 세기 조정.
+
 ## 결정 대기 (사용자)
 
 1. Glass Orb 방향 확정 여부와 원본 대비 다듬을 범위.

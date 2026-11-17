@@ -1,0 +1,715 @@
+<title>TOTO Face Rig</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Graduate&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-bleed stage; the dog stands centred in the free area, a varsity patch names it top-left,
+   and the rig panel docks right on desktop / slides up as a sheet on phones. Palette = TOTO's jacket. */
+:root {
+  --bg: #dde3ee;
+  --bg-deep: #c4cddf;
+  --ink: #141a2e;
+  --muted: #59627e;
+  --accent: #2238c4;
+  --trim: #1d4a3a;
+  --panel: rgba(248, 250, 255, 0.86);
+  --line: rgba(20, 26, 46, 0.12);
+  --chip: rgba(34, 56, 196, 0.08);
+  --patch-ink: #f4e7c3;
+  --jacket: #2238c4;
+  --on-accent: #f4e7c3;
+  --font-display: "Graduate", "Rockwell", "Georgia", serif;
+  --font-ui: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141a2c; --bg-deep: #090c16; --ink: #e8ebf5; --muted: #9aa3bf; --accent: #8593ff; --trim: #58b493;
+    --panel: rgba(20, 25, 42, 0.86); --line: rgba(232, 235, 245, 0.12); --chip: rgba(133, 147, 255, 0.12); --patch-ink: #f4e7c3;
+    --jacket: #2238c4; --on-accent: #0d1020;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141a2c; --bg-deep: #090c16; --ink: #e8ebf5; --muted: #9aa3bf; --accent: #8593ff; --trim: #58b493;
+  --panel: rgba(20, 25, 42, 0.86); --line: rgba(232, 235, 245, 0.12); --chip: rgba(133, 147, 255, 0.12); --patch-ink: #f4e7c3;
+  --jacket: #2238c4; --on-accent: #0d1020;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 14px; overflow: hidden; }
+#stage {
+  position: fixed; inset: 0; touch-action: none; cursor: crosshair;
+  background: radial-gradient(120% 90% at 50% 38%, var(--bg) 0%, var(--bg) 42%, var(--bg-deep) 100%);
+}
+#stage canvas { display: block; width: 100%; height: 100%; outline: none; }
+
+.patch {
+  position: fixed; z-index: 2;
+  top: calc(env(safe-area-inset-top, 0px) + 18px); left: max(16px, env(safe-area-inset-left, 0px));
+  display: grid; gap: 6px; pointer-events: none;
+}
+.patch b {
+  justify-self: start; font: 400 26px/1 var(--font-display); letter-spacing: 0.08em; color: var(--patch-ink);
+  background: var(--jacket); padding: 8px 12px 6px; border-radius: 6px;
+  outline: 2px dashed color-mix(in srgb, var(--patch-ink) 70%, transparent); outline-offset: -6px;
+  box-shadow: 0 0 0 3px var(--trim);
+}
+.patch span { font: 500 12px/1.4 var(--font-data); color: var(--muted); letter-spacing: 0.02em; }
+
+.hint {
+  position: fixed; z-index: 2; left: 50%; transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+  font: 600 13px/1 var(--font-ui); color: var(--muted); letter-spacing: 0.02em;
+  background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; border-radius: 999px;
+  transition: opacity 0.6s ease; pointer-events: none; white-space: nowrap;
+}
+.hint.gone { opacity: 0; }
+
+.loading {
+  position: fixed; inset: 0; z-index: 3; display: grid; place-content: center; gap: 12px; text-align: center;
+  font: 500 13px/1.4 var(--font-data); color: var(--muted); pointer-events: none;
+}
+.loading .bar { width: min(240px, 60vw); height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.loading .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+.loading.err { color: var(--ink); pointer-events: auto; }
+
+/* rig panel */
+.rig {
+  position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  right: max(16px, env(safe-area-inset-right, 0px)); width: 300px;
+  display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 12px 40px rgba(10, 14, 30, 0.12);
+}
+.rig header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.rig h2 { margin: 0; font: 700 13px/1 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; }
+.rig h2 small { font: 500 11px var(--font-data); letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 6px; }
+.rig .body { overflow-y: auto; padding: 4px 16px 16px; display: grid; gap: 18px; }
+.rig.collapsed { bottom: auto; }
+.rig.collapsed .body { display: none; }
+.rig.collapsed header { border-bottom: 0; }
+.group { display: grid; gap: 10px; }
+.group > h3 { margin: 12px 0 0; font: 600 11px/1 var(--font-ui); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.row { display: grid; grid-template-columns: 74px 1fr 44px; align-items: center; gap: 10px; }
+.row label { font-weight: 600; font-size: 13px; }
+.row output { font: 500 12px var(--font-data); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; font-size: 13px; }
+.switch input { appearance: none; -webkit-appearance: none; width: 34px; height: 20px; border-radius: 20px; background: var(--line); position: relative; cursor: pointer; transition: background 0.2s; flex: none; margin: 0; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); box-shadow: 0 1px 2px rgba(0,0,0,0.25); transition: transform 0.2s; }
+.switch input:checked { background: var(--accent); }
+.switch input:checked::after { transform: translateX(14px); }
+button {
+  font: 600 13px/1 var(--font-ui); color: var(--ink); background: var(--chip); border: 1px solid var(--line);
+  border-radius: 9px; padding: 9px 12px; cursor: pointer;
+}
+button.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+button:hover { filter: brightness(1.06); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg { display: grid; grid-template-columns: 1fr 1fr 1fr; background: var(--chip); border: 1px solid var(--line); border-radius: 9px; padding: 3px; gap: 3px; }
+.seg button { background: transparent; border: 0; padding: 7px 4px; border-radius: 6px; font-size: 12px; }
+.seg button[aria-pressed="true"] { background: var(--panel); box-shadow: 0 1px 3px rgba(10,14,30,0.12); color: var(--accent); }
+.readout { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font: 400 12px/1.5 var(--font-data); font-variant-numeric: tabular-nums; }
+.readout dt { color: var(--muted); }
+.readout dd { margin: 0; text-align: right; white-space: pre; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 10px; font: 400 11px/1.3 var(--font-data); color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.note { margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+@media (max-width: 760px) {
+  .rig { top: auto; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: auto; max-height: 56vh; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
+  .rig.collapsed { left: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); }
+  .patch b { font-size: 21px; }
+  .hint { bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); }
+}
+@media (prefers-reduced-motion: reduce) { .hint, .loading .bar i { transition: none; } }
+</style>
+
+<div id="stage" aria-label="TOTO, a 3D dog whose face follows your pointer. Click or tap to make him bark."></div>
+
+<div class="patch"><b>TOTO</b><span>face rig · 16 joints</span></div>
+<div class="hint" id="hint">Move your cursor · click to bark</div>
+<div class="loading" id="loading"><div id="loadText">Loading TOTO…</div><div class="bar"><i id="loadBar"></i></div></div>
+
+<aside class="rig" id="rig" aria-label="Rig controls">
+  <header>
+    <h2>Rig <small id="fps"></small></h2>
+    <button id="collapse" aria-expanded="true" aria-controls="rigBody">Hide</button>
+  </header>
+  <div class="body" id="rigBody">
+    <div class="group">
+      <h3>Behaviour</h3>
+      <label class="switch" for="follow">Follow cursor <input type="checkbox" id="follow" checked></label>
+      <label class="switch" for="auto">Auto blink, smile, idle <input type="checkbox" id="auto" checked></label>
+      <div class="btns"><button class="primary" id="bark">Bark</button><button id="reset">Reset sliders</button></div>
+    </div>
+    <div class="group">
+      <h3>Face</h3>
+      <div class="row"><label for="s-jaw">Jaw</label><input type="range" id="s-jaw" min="0" max="1" step="0.01" value="0"><output for="s-jaw" id="o-jaw">0.00</output></div>
+      <div class="row"><label for="s-smile">Smile</label><input type="range" id="s-smile" min="-1" max="1" step="0.01" value="0"><output for="s-smile" id="o-smile">0.00</output></div>
+      <div class="row"><label for="s-blinkL">Lid L</label><input type="range" id="s-blinkL" min="0" max="1" step="0.01" value="0"><output for="s-blinkL" id="o-blinkL">0.00</output></div>
+      <div class="row"><label for="s-blinkR">Lid R</label><input type="range" id="s-blinkR" min="0" max="1" step="0.01" value="0"><output for="s-blinkR" id="o-blinkR">0.00</output></div>
+      <div class="row"><label for="s-squint">Squint</label><input type="range" id="s-squint" min="0" max="1" step="0.01" value="0"><output for="s-squint" id="o-squint">0.00</output></div>
+      <div class="row"><label for="s-brows">Brows</label><input type="range" id="s-brows" min="-1" max="1" step="0.01" value="0"><output for="s-brows" id="o-brows">0.00</output></div>
+      <p class="note">Sliders set a base pose. With auto on, blinks, smiles and barks play on top of it.</p>
+    </div>
+    <div class="group">
+      <h3>View</h3>
+      <div class="seg" role="group" aria-label="Shading">
+        <button id="v-shaded" aria-pressed="true">Shaded</button>
+        <button id="v-weights" aria-pressed="false">Weights</button>
+        <button id="v-bones" aria-pressed="false">Bones</button>
+      </div>
+      <div class="legend" id="legend" hidden></div>
+    </div>
+    <div class="group">
+      <h3>Joints, live</h3>
+      <dl class="readout" id="readout"></dl>
+    </div>
+  </div>
+</aside>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const MODEL_URL = 'toto-rig.json';
+const DEG = Math.PI / 180;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (id) => document.getElementById(id);
+
+// ───────── renderer / scene
+const stage = $('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.05;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+const key = new THREE.DirectionalLight(0xfff4e2, 1.6); key.position.set(-0.8, 1.9, 1.6); scene.add(key);
+const rim = new THREE.DirectionalLight(0xc9d6ff, 1.1); rim.position.set(1.2, 1.4, -1.2); scene.add(rim);
+scene.add(new THREE.HemisphereLight(0xf2f4ff, 0x4a4436, 0.55));
+
+const camera = new THREE.PerspectiveCamera(26, 1, 0.05, 20);
+const view = { center: new THREE.Vector3(0, 0.74, 0), shiftX: 0 };
+
+// ───────── state
+const pointer = { ndc: new THREE.Vector2(0, 0.05), active: false, lastMove: -1e9, type: 'mouse' };
+const S = { // springs: x value, v velocity
+  yaw: { x: 0, v: 0 }, pitch: { x: 0, v: 0 }, roll: { x: 0, v: 0 },
+  gx: { x: 0, v: 0 }, gy: { x: 0.74, v: 0 }, gz: { x: 0.6, v: 0 },
+  hx: { x: 0, v: 0 }, hy: { x: 0.74, v: 0 }, hz: { x: 0.6, v: 0 },
+  jaw: { x: 0, v: 0 }, smile: { x: 0.2, v: 0 }, brows: { x: 0, v: 0 }, squint: { x: 0, v: 0 }, pupil: { x: 0.62, v: 0 },
+  earL: { x: 0, v: 0 }, earR: { x: 0, v: 0 },
+};
+const ctl = { follow: true, auto: true, jaw: 0, smile: 0, blinkL: 0, blinkR: 0, squint: 0, brows: 0 };
+const fx = { bark: -1, blinkT: -1, blinkNext: 1.8, blinkSkew: 0, browsKick: 0, saccade: new THREE.Vector2(), saccadeNext: 0, idleSeed: Math.random() * 100 };
+let rig, mesh, bones = {}, rest = {}, U, frozen = null, ready = false, camOverride = null;
+
+function spring(s, target, omega, dt) { // critically damped, implicit
+  const f = 1 + 2 * dt * omega, hoo = dt * omega * omega, hhoo = dt * hoo, inv = 1 / (f + hhoo);
+  const x = (f * s.x + dt * s.v + hhoo * target) * inv;
+  s.v = (s.v + hoo * (target - s.x)) * inv; s.x = x;
+}
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const smoothstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+// ───────── shader: virtual eyeballs, lids, mouth opening, weight view
+const PALETTE = [ // per joint, for the Weights view
+  ['root', '#8a8f9c'], ['spine', '#9b8f5a'], ['chest', '#3f63d9'], ['neck', '#2fa59a'], ['head', '#e9ddc0'],
+  ['jaw', '#f08a2c'], ['mouth_L', '#e64a7b'], ['mouth_R', '#b23ad1'], ['brow_L', '#f2cb2a'], ['brow_R', '#c9a316'],
+  ['eye_L', '#ffffff'], ['eye_R', '#ffffff'], ['lid_L', '#ffffff'], ['lid_R', '#ffffff'], ['ear_L', '#3fbf5a'], ['ear_R', '#27a0e0'],
+];
+function patchMaterial(material, maskTex) {
+  const lin = (rgb) => new THREE.Color().setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, THREE.SRGBColorSpace);
+  const e = rig.eyes, c = rig.colors;
+  const v3 = (a) => new THREE.Vector3(...a);
+  U = {
+    uMask: { value: maskTex },
+    uEyeC: { value: [v3(e.L.center), v3(e.R.center)] },
+    uEyeO: { value: [v3(e.L.openCenter), v3(e.R.openCenter)] },
+    uEyeU: { value: [v3(e.L.u), v3(e.R.u)] },
+    uEyeV: { value: [v3(e.L.v), v3(e.R.v)] },
+    uEyeAB: { value: [new THREE.Vector2(...e.L.openRadius), new THREE.Vector2(...e.R.openRadius)] },
+    uGaze: { value: [new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 1)] },
+    uLid: { value: [0, 0] },
+    uSquint: { value: 0 },
+    uIrisAng: { value: (e.L.irisAngle + e.R.irisAngle) / 2 * 1.08 },
+    uPupilR: { value: 0.62 },
+    uIris: { value: lin(c.iris) }, uIrisRim: { value: lin(c.irisRim) }, uPupilC: { value: lin(c.pupil) },
+    uLidC: { value: lin(c.lid) }, uLash: { value: lin([38, 24, 16]) },
+    uMouthC: { value: lin([122, 34, 40]) }, uMouthDeep: { value: lin([46, 10, 14]) }, uTongue: { value: lin([214, 104, 112]) },
+    uJaw: { value: 0 }, uWeightView: { value: 0 }, uDebug: { value: 0 },
+  };
+  const pal = PALETTE.map(([, hex]) => { const k = new THREE.Color(hex); return `vec3(${k.r.toFixed(3)},${k.g.toFixed(3)},${k.b.toFixed(3)})`; }).join(',');
+  material.onBeforeCompile = (sh) => {
+    Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', `#include <common>
+        attribute vec2 _mouth;
+        varying vec3 vRest; varying vec2 vMouth; varying vec3 vWCol;
+        const vec3 JPAL[16] = vec3[16](${pal});`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        vRest = position; vMouth = _mouth;
+        vWCol = JPAL[int(skinIndex.x)] * skinWeight.x + JPAL[int(skinIndex.y)] * skinWeight.y
+              + JPAL[int(skinIndex.z)] * skinWeight.z + JPAL[int(skinIndex.w)] * skinWeight.w;`);
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', `#include <common>
+        varying vec3 vRest; varying vec2 vMouth; varying vec3 vWCol;
+        uniform sampler2D uMask;
+        uniform vec3 uEyeC[2]; uniform vec3 uEyeO[2]; uniform vec3 uEyeU[2]; uniform vec3 uEyeV[2]; uniform vec2 uEyeAB[2];
+        uniform vec3 uGaze[2]; uniform float uLid[2]; uniform float uSquint; uniform float uIrisAng; uniform float uPupilR;
+        uniform vec3 uIris; uniform vec3 uIrisRim; uniform vec3 uPupilC; uniform vec3 uLidC; uniform vec3 uLash;
+        uniform vec3 uMouthC; uniform vec3 uMouthDeep; uniform vec3 uTongue; uniform float uJaw; uniform float uWeightView; uniform int uDebug;`)
+      .replace('#include <map_fragment>', `#include <map_fragment>
+        float faceGloss = 0.0;
+        {
+          vec3 base = diffuseColor.rgb;
+          vec4 mk = texture2D(uMask, vMapUv);
+          int si = vRest.x > 0.0 ? 0 : 1;
+          // virtual eyeball: angle from the gaze axis, in iris radii
+          vec3 g = normalize(uGaze[si]);
+          vec3 d = normalize(vRest - uEyeC[si]);
+          vec3 rt = normalize(cross(vec3(0.0, 1.0, 0.0), g));
+          vec3 up = cross(g, rt);
+          float dz = max(dot(d, g), 1e-3);
+          vec2 a = vec2(atan(dot(d, rt), dz), atan(dot(d, up), dz)) / uIrisAng;
+          float r = length(a);
+          float aa = clamp(fwidth(r), 1e-3, 0.2) * 1.2;
+          float irisM = 1.0 - smoothstep(1.0 - aa, 1.0 + aa, r);
+          float pupM = 1.0 - smoothstep(uPupilR - aa, uPupilR + aa, r);
+          float fib = 0.5 + 0.5 * sin(atan(a.y, a.x) * 34.0 + r * 9.0);
+          vec3 ic = mix(uIris * 1.7, uIris, smoothstep(0.2, 0.95, r));
+          ic *= 0.86 + 0.28 * fib * smoothstep(uPupilR, 1.0, r);
+          ic = mix(ic, uIris * 2.4, smoothstep(0.0, -0.9, a.y) * 0.45);
+          ic = mix(ic, uIrisRim, smoothstep(0.8, 0.99, r));
+          vec3 eyeCol = mix(ic, uPupilC, pupM);
+          float h1 = 1.0 - smoothstep(0.16 - aa, 0.16 + aa, length(a - vec2(-0.33, 0.36)));
+          float h2 = 1.0 - smoothstep(0.07 - aa, 0.07 + aa, length(a - vec2(0.3, -0.3)));
+          float minc = min(base.r, min(base.g, base.b));
+          float sclera = smoothstep(0.08, 0.45, mk.r) * smoothstep(0.03, 0.12, minc);
+          base = mix(base, eyeCol, irisM * sclera);
+          float hl = max(h1, h2 * 0.75) * irisM * sclera;
+          // lids: upper lid edge slides from above the opening down to its lower rim
+          vec3 q = vRest - uEyeO[si];
+          float lu = dot(q, uEyeU[si]), lv = dot(q, uEyeV[si]);
+          vec2 ab = uEyeAB[si];
+          float xn = clamp(lu / ab.x, -1.0, 1.0);
+          float arc = sqrt(max(0.0, 1.0 - xn * xn));
+          float topE = ab.y * arc + 0.009;
+          float botE = -ab.y * arc * 0.86;
+          float bl = uLid[si];
+          float edge = mix(topE, botE, bl);
+          float lw = max(fwidth(lv), 1e-5);
+          float cover = smoothstep(edge - lw, edge + lw, lv);
+          float lowE = mix(botE - 0.01, botE + ab.y * 0.8, uSquint);
+          float coverLow = 1.0 - smoothstep(lowE - lw, lowE + lw, lv);
+          float region = smoothstep(0.04, 0.5, mk.g);
+          float lidAmt = max(cover, coverLow) * region;
+          vec3 lidCol = uLidC * mix(0.8, 1.0, smoothstep(0.0, 0.014, min(lv - edge, lowE - lv + 0.03)));
+          base = mix(base, lidCol, lidAmt);
+          float lashW = 0.0012 + 0.0014 * bl;
+          float lash = (1.0 - smoothstep(lashW, lashW + lw * 1.5, abs(lv - edge))) * smoothstep(0.03, 0.12, bl);
+          float lashLow = (1.0 - smoothstep(0.0009, 0.0009 + lw * 1.5, abs(lv - lowE))) * smoothstep(0.04, 0.15, uSquint);
+          base = mix(base, uLash, max(lash, lashLow) * region);
+          hl *= 1.0 - lidAmt;
+          faceGloss = irisM * sclera * (1.0 - lidAmt);
+          totalEmissiveRadiance += hl * 0.4;
+          base = mix(base, vec3(1.0), hl);
+          // mouth: the stretched lip band opens into a dark mouth with a tongue
+          float m = vMouth.x, mm = vMouth.y;
+          float op = uJaw * 0.92;
+          float maw = clamp(fwidth(m) * 1.5, 1e-3, 1.0);
+          float inside = (1.0 - smoothstep(op - maw, op + maw, abs(m))) * step(0.001, uJaw);
+          float t = clamp(-m / max(op, 1e-3), -1.0, 1.0);
+          vec3 mc = mix(uMouthDeep, uMouthC, smoothstep(0.15, 1.0, abs(t)));
+          mc = mix(mc, uTongue, smoothstep(0.2, 0.75, t) * smoothstep(0.12, 0.45, uJaw));
+          float lip = (1.0 - smoothstep(0.0, maw * 1.8, abs(abs(m) - op))) * smoothstep(0.02, 0.12, uJaw);
+          base = mix(base, mc, inside * mm);
+          base = mix(base, uLash, lip * mm * 0.8);
+          diffuseColor.rgb = mix(base, vWCol, uWeightView);
+          if (uDebug == 1) { diffuseColor.rgb = texture2D(map, vMapUv).rgb; totalEmissiveRadiance = vec3(0.0); }
+          if (uDebug == 2) { diffuseColor.rgb = vec3(mk.r, mk.g, 0.0); }
+          faceGloss *= 1.0 - uWeightView;
+          totalEmissiveRadiance *= 1.0 - uWeightView;
+        }`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+        roughnessFactor = mix(roughnessFactor, 0.22, faceGloss);`);
+  };
+  material.customProgramCacheKey = () => 'toto-face-v1';
+  material.needsUpdate = true;
+}
+
+// ───────── load
+// toto-rig.json carries the rigged glTF with its geometry as base64 (artifact hosting
+// serves .json/.jpg/.png but not .glb); the two textures sit next to it as files.
+function progress(loaded, total) {
+  if (!total) return;
+  $('loadBar').style.width = `${(100 * loaded / total).toFixed(0)}%`;
+  $('loadText').textContent = `Loading TOTO… ${(loaded / 1e6).toFixed(1)} / ${(total / 1e6).toFixed(1)} MB`;
+}
+async function fetchText(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+  const total = +res.headers.get('content-length') || 4.6e6;
+  if (!res.body) return res.text();
+  const reader = res.body.getReader(), parts = [];
+  let loaded = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); loaded += value.length; progress(loaded, Math.max(total, loaded)); }
+  const all = new Uint8Array(loaded); let o = 0;
+  for (const p of parts) { all.set(p, o); o += p.length; }
+  return new TextDecoder().decode(all);
+}
+function makeGlb(json, bin) {
+  const js = new TextEncoder().encode(JSON.stringify(json));
+  const jl = Math.ceil(js.length / 4) * 4, bl = Math.ceil(bin.length / 4) * 4, total = 28 + jl + bl;
+  const buf = new ArrayBuffer(total), dv = new DataView(buf), u8 = new Uint8Array(buf);
+  dv.setUint32(0, 0x46546c67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true);
+  dv.setUint32(12, jl, true); dv.setUint32(16, 0x4e4f534a, true); u8.fill(0x20, 20, 20 + jl); u8.set(js, 20);
+  dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004e4942, true); u8.set(bin, 28 + jl);
+  return buf;
+}
+async function loadRig() {
+  const pkg = JSON.parse(await fetchText(MODEL_URL));
+  const raw = atob(pkg.bin), bin = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) bin[i] = raw.charCodeAt(i);
+  const base = new URL('.', new URL(MODEL_URL, document.baseURI)).href;
+  return new GLTFLoader().parseAsync(makeGlb(pkg.gltf, bin), base);
+}
+loadRig().then(async (gltf) => {
+  const root = gltf.scene;
+  rig = root.getObjectByName('toto').userData.faceRig;
+  root.traverse((o) => { if (o.isSkinnedMesh) mesh = o; });
+  mesh.frustumCulled = false;
+  for (const b of mesh.skeleton.bones) bones[b.name] = b;
+  root.updateMatrixWorld(true);
+  for (const [n, b] of Object.entries(bones)) rest[n] = { pos: b.position.clone(), world: b.getWorldPosition(new THREE.Vector3()) };
+  const maskTex = await gltf.parser.getDependency('texture', rig.maskTexture);
+  maskTex.colorSpace = THREE.NoColorSpace;
+  mesh.material.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  patchMaterial(mesh.material, maskTex);
+  scene.add(root);
+  buildBoneOverlay(root);
+  buildLegend();
+  $('loading').remove();
+  ready = true;
+  resize();
+}).catch((err) => {
+  console.error(err);
+  $('loading').classList.add('err');
+  $('loadText').textContent = `TOTO could not load (${err.message || err}). The page needs toto-rig.json, toto-basecolor.jpg and toto-facemask.png beside it; run rig-toto.mjs to make them.`;
+});
+
+// ───────── bones overlay
+let boneOverlay, boneDots, gazeLines;
+function buildBoneOverlay(root) {
+  const helper = new THREE.SkeletonHelper(root);
+  helper.material.depthTest = false; helper.material.transparent = true; helper.material.opacity = 0.9;
+  helper.renderOrder = 10;
+  const names = Object.keys(bones);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(names.length * 3), 3));
+  boneDots = new THREE.Points(geo, new THREE.PointsMaterial({ size: 7, sizeAttenuation: false, color: 0xff4f6d, depthTest: false, transparent: true }));
+  boneDots.renderOrder = 11; boneDots.userData.names = names;
+  const lg = new THREE.BufferGeometry();
+  lg.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(12), 3));
+  gazeLines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: 0x2bd9a0, depthTest: false, transparent: true }));
+  gazeLines.renderOrder = 12;
+  boneOverlay = new THREE.Group(); boneOverlay.add(helper, boneDots, gazeLines); boneOverlay.visible = false;
+  scene.add(boneOverlay);
+}
+const tmpV = new THREE.Vector3(), tmpQ = new THREE.Quaternion();
+function updateBoneOverlay() {
+  if (!boneOverlay.visible) return;
+  const p = boneDots.geometry.attributes.position;
+  boneDots.userData.names.forEach((n, i) => { bones[n].getWorldPosition(tmpV); p.setXYZ(i, tmpV.x, tmpV.y, tmpV.z); });
+  p.needsUpdate = true;
+  const l = gazeLines.geometry.attributes.position;
+  ['eye_L', 'eye_R'].forEach((n, i) => {
+    const b = bones[n]; b.getWorldPosition(tmpV); l.setXYZ(i * 2, tmpV.x, tmpV.y, tmpV.z);
+    b.getWorldQuaternion(tmpQ); const end = new THREE.Vector3(0, 0, 0.09).applyQuaternion(tmpQ).add(tmpV);
+    l.setXYZ(i * 2 + 1, end.x, end.y, end.z);
+  });
+  l.needsUpdate = true;
+}
+
+// ───────── framing
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  const panel = $('rig'), open = !panel.classList.contains('collapsed');
+  const docked = w > 760 && open, sheet = w <= 760 && open;
+  const freeW = docked ? w - panel.offsetWidth - 32 : w;
+  const freeH = sheet ? Math.max(200, h - panel.offsetHeight - 24) : h;
+  const tanV = Math.tan(camera.fov * DEG / 2);
+  // whole dog on phones, chest-up on wide screens, head only above an open sheet
+  const centerY = sheet ? 0.8 : w <= 760 ? 0.62 : 0.74;
+  const needH = sheet ? 0.42 : w <= 760 ? 1.08 : 0.64, needW = sheet ? 0.58 : 0.68;
+  const fitH = needH / 2 / tanV * (h / freeH);
+  const fitW = needW / 2 / (tanV * (freeW / h));
+  const dist = Math.max(fitH, fitW);
+  const worldPerPx = (2 * dist * tanV) / h;
+  view.shiftX = docked ? (panel.offsetWidth + 32) / 2 * worldPerPx : 0;
+  const shiftY = sheet ? (h - freeH) / 2 * worldPerPx : 0;
+  view.center.set(0, centerY, 0);
+  camera.position.set(view.shiftX, centerY - shiftY, dist + 0.15);
+  camera.lookAt(view.shiftX, centerY - shiftY, 0.15);
+  if (camOverride) { camera.fov = camOverride.fov; camera.position.set(...camOverride.pos); camera.lookAt(...camOverride.tgt); }
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+// ───────── input
+const raycaster = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -0.6);
+function onMove(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  pointer.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  pointer.active = true; pointer.lastMove = performance.now(); pointer.type = e.pointerType;
+  hideHint();
+}
+stage.addEventListener('pointermove', onMove);
+let press = null; // a short, still press is a tap → bark; a drag only steers
+stage.addEventListener('pointerdown', (e) => { onMove(e); press = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+stage.addEventListener('pointerleave', () => { pointer.active = false; });
+stage.addEventListener('pointerup', (e) => {
+  if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 10 && performance.now() - press.t < 400) bark();
+  press = null;
+  if (e.pointerType !== 'mouse') setTimeout(() => { pointer.active = false; }, 1400);
+});
+let hintTimer = setTimeout(hideHint, 9000);
+function hideHint() { $('hint').classList.add('gone'); clearTimeout(hintTimer); }
+if (matchMedia('(pointer: coarse)').matches) $('hint').textContent = 'Drag to steer · tap to bark';
+
+function bark() { fx.bark = 0; fx.browsKick = 1; S.earL.v += 2.2; S.earR.v -= 2.2; if (Math.random() < 0.5) fx.blinkT = 0; }
+$('bark').addEventListener('click', bark);
+
+// ───────── panel wiring
+const sliders = ['jaw', 'smile', 'blinkL', 'blinkR', 'squint', 'brows'];
+for (const k of sliders) {
+  const el = $(`s-${k}`), out = $(`o-${k}`);
+  el.addEventListener('input', () => { ctl[k] = +el.value; out.textContent = (+el.value).toFixed(2); });
+}
+$('reset').addEventListener('click', () => { for (const k of sliders) { ctl[k] = 0; $(`s-${k}`).value = 0; $(`o-${k}`).textContent = '0.00'; } });
+$('follow').addEventListener('change', (e) => { ctl.follow = e.target.checked; });
+$('auto').addEventListener('change', (e) => { ctl.auto = e.target.checked; });
+function setView(mode) {
+  for (const m of ['shaded', 'weights', 'bones']) $(`v-${m}`).setAttribute('aria-pressed', String(m === mode));
+  if (U) U.uWeightView.value = mode === 'weights' ? 1 : 0;
+  if (boneOverlay) boneOverlay.visible = mode === 'bones';
+  $('legend').hidden = mode !== 'weights';
+}
+for (const m of ['shaded', 'weights', 'bones']) $(`v-${m}`).addEventListener('click', () => setView(m));
+function buildLegend() {
+  const shown = PALETTE.filter(([n]) => !/^(eye|lid)_/.test(n));
+  $('legend').innerHTML = shown.map(([n, c]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
+}
+const collapseBtn = $('collapse');
+function setCollapsed(c) {
+  $('rig').classList.toggle('collapsed', c);
+  collapseBtn.textContent = c ? 'Show' : 'Hide';
+  collapseBtn.setAttribute('aria-expanded', String(!c));
+  try { localStorage.setItem('toto-rig-collapsed', c ? '1' : '0'); } catch {}
+  resize();
+}
+collapseBtn.addEventListener('click', () => setCollapsed(!$('rig').classList.contains('collapsed')));
+let startCollapsed = innerWidth <= 760;
+try { const v = localStorage.getItem('toto-rig-collapsed'); if (v !== null) startCollapsed = v === '1'; } catch {}
+setCollapsed(startCollapsed);
+
+// ───────── animation
+const timer = new THREE.Timer();
+const target = new THREE.Vector3(), tmpM = new THREE.Matrix4(), headInv = new THREE.Matrix4();
+const eul = new THREE.Euler(0, 0, 0, 'YXZ');
+const LID_MAX = 1.15, JAW_MAX = 0.36;
+let fpsAcc = 0, fpsN = 0, readoutT = 0;
+
+function pickTarget(t, now) {
+  const idle = !pointer.active || !ctl.follow;
+  if (!idle) {
+    raycaster.setFromCamera(pointer.ndc, camera);
+    if (raycaster.ray.intersectPlane(plane, target)) return false;
+  }
+  // idle: drift around, glance at the viewer now and then
+  const s = fx.idleSeed, k = reduceMotion || !ctl.auto ? 0 : 1;
+  target.set(
+    k * (0.22 * Math.sin(t * 0.31 + s) + 0.1 * Math.sin(t * 0.83 + s * 2)),
+    0.78 + k * (0.08 * Math.sin(t * 0.47 + s * 3) + 0.04 * Math.sin(t * 1.1)),
+    0.6);
+  const glance = Math.sin(t * 0.13 + s) > 0.55;
+  if (glance) target.set(camera.position.x, camera.position.y, 0.6);
+  return true;
+}
+
+function animate(time) {
+  timer.update(time);
+  const dt = Math.min(timer.getDelta(), 1 / 20), t = timer.getElapsed(), now = performance.now();
+  fpsAcc += dt; fpsN++;
+  if (ready) step(dt, t, now);
+  renderer.render(scene, camera);
+}
+renderer.setAnimationLoop(animate);
+
+function step(dt, t, now) {
+  const idle = pickTarget(t, now);
+  const auto = ctl.auto;
+  // eye target leads (fast, with micro-saccades), head follows (slow)
+  if (auto && now / 1000 > fx.saccadeNext) {
+    const amp = idle ? 0.05 : 0.012;
+    fx.saccade.set((Math.random() - 0.5) * amp, (Math.random() - 0.5) * amp * 0.6);
+    fx.saccadeNext = now / 1000 + (idle ? 0.5 + Math.random() * 1.3 : 0.8 + Math.random() * 2.2);
+  }
+  const ex = target.x + (auto ? fx.saccade.x : 0), ey = target.y + (auto ? fx.saccade.y : 0);
+  const jump = Math.hypot(ex - S.gx.x, ey - S.gy.x);
+  if (auto && jump > 0.32 && fx.blinkT < 0 && Math.random() < 0.05) fx.blinkT = 0;
+  spring(S.gx, ex, 26, dt); spring(S.gy, ey, 26, dt); spring(S.gz, target.z, 26, dt);
+  const hw = idle ? 2.4 : 5.5;
+  spring(S.hx, target.x, hw, dt); spring(S.hy, target.y, hw, dt); spring(S.hz, target.z, hw, dt);
+
+  // head aim (from the neck pivot, relative to rest)
+  const hp = rest.head.world;
+  let yaw = Math.atan2(S.hx.x - hp.x, S.hz.x - hp.z);
+  let pitch = Math.atan2(S.hy.x - (hp.y + 0.17), Math.hypot(S.hx.x - hp.x, S.hz.x - hp.z));
+  yaw = clamp(yaw, -40 * DEG, 40 * DEG); pitch = clamp(pitch, -18 * DEG, 24 * DEG);
+
+  // bark envelope
+  let barkAmt = 0;
+  if (fx.bark >= 0) {
+    fx.bark += dt;
+    const b = fx.bark;
+    barkAmt = b < 0.07 ? b / 0.07 : b < 0.17 ? 1 : b < 0.42 ? 1 - smoothstep(0.17, 0.42, b) : 0;
+    if (b > 0.5) fx.bark = -1;
+  }
+  fx.browsKick = Math.max(0, fx.browsKick - dt * 2.2);
+  pitch += barkAmt * 7 * DEG + Math.max(ctl.jaw, barkAmt) * 5 * DEG;
+  const prevYaw = S.yaw.x;
+  spring(S.yaw, yaw, 7, dt); spring(S.pitch, pitch, 7, dt);
+  spring(S.roll, -S.yaw.x * 0.18 + (auto && !reduceMotion ? 0.03 * Math.sin(t * 0.7) : 0), 4, dt);
+  const yawVel = (S.yaw.x - prevYaw) / Math.max(dt, 1e-4);
+
+  const breathe = auto && !reduceMotion ? Math.sin(t * 1.6) : 0;
+  bones.chest.rotation.set(0.01 * breathe, S.yaw.x * 0.12, 0);
+  bones.neck.quaternion.setFromEuler(eul.set(-S.pitch.x * 0.35, S.yaw.x * 0.33, S.roll.x * 0.4));
+  bones.head.quaternion.setFromEuler(eul.set(-S.pitch.x * 0.65, S.yaw.x * 0.55, S.roll.x * 0.6));
+
+  // proximity of the cursor to the face (screen space) drives smile and pupils
+  const face = tmpV.set(0, 0.8, 0.15).project(camera);
+  const prox = pointer.active && ctl.follow ? 1 - smoothstep(0.1, 0.6, Math.hypot((pointer.ndc.x - face.x) * camera.aspect, pointer.ndc.y - face.y)) : 0;
+  const smileAuto = auto ? 0.18 + 0.6 * prox + 0.25 * barkAmt : 0;
+  spring(S.smile, clamp(ctl.smile + smileAuto, -1, 1), 8, dt);
+  spring(S.jaw, Math.max(ctl.jaw, barkAmt * 0.95), barkAmt > 0 ? 40 : 14, dt);
+  spring(S.brows, clamp(ctl.brows + (auto ? 0.35 * prox + 0.7 * fx.browsKick : 0), -1, 1), 10, dt);
+  spring(S.squint, clamp(ctl.squint + (auto ? Math.max(0, S.smile.x - 0.55) * 0.55 : 0), 0, 1), 8, dt);
+  spring(S.pupil, 0.6 + (auto ? 0.08 * prox : 0), 4, dt);
+
+  // jaw / chin
+  const jaw = clamp(S.jaw.x, 0, 1);
+  bones.jaw.rotation.x = jaw * JAW_MAX;
+  // mouth corners: smile pulls up and back, frown pulls down
+  const sm = S.smile.x;
+  for (const [n, sgn] of [['mouth_L', 1], ['mouth_R', -1]]) {
+    const p0 = rest[n].pos;
+    bones[n].position.set(p0.x + sgn * 0.004 * sm, p0.y + 0.013 * sm - 0.004 * jaw, p0.z - 0.006 * Math.abs(sm));
+  }
+  for (const n of ['brow_L', 'brow_R']) {
+    const p0 = rest[n].pos;
+    bones[n].position.set(p0.x, p0.y + 0.011 * S.brows.x, p0.z + 0.002 * S.brows.x);
+  }
+
+  // ears: springs that lag the head's turn
+  if (!reduceMotion) {
+    S.earL.v += -yawVel * 0.9 * dt * 6; S.earR.v += -yawVel * 0.9 * dt * 6;
+    spring(S.earL, 0, 9, dt); spring(S.earR, 0, 9, dt);
+  }
+  bones.ear_L.rotation.set(0, 0, clamp(S.earL.x * 0.12 + (auto ? 0.02 * Math.sin(t * 1.3) : 0), -0.14, 0.14));
+  bones.ear_R.rotation.set(0, 0, clamp(S.earR.x * 0.12 - (auto ? 0.02 * Math.sin(t * 1.3 + 0.6) : 0), -0.14, 0.14));
+
+  mesh.parent.updateMatrixWorld(true);
+
+  // eyes: aim each eye at the target, in the head's rest frame
+  headInv.copy(bones.head.matrixWorld).invert();
+  const tgtHead = tmpV.set(S.gx.x, S.gy.x, S.gz.x).applyMatrix4(headInv).add(rest.head.world); // bind space
+  const gazePitch = [];
+  ['L', 'R'].forEach((side, i) => {
+    const c = rest[`eye_${side}`].world;
+    const d = new THREE.Vector3().subVectors(tgtHead, c);
+    let ey2 = Math.atan2(d.x, d.z), ep = Math.atan2(d.y, Math.hypot(d.x, d.z));
+    ey2 = clamp(ey2, -26 * DEG, 26 * DEG); ep = clamp(ep, -20 * DEG, 18 * DEG);
+    bones[`eye_${side}`].quaternion.setFromEuler(eul.set(-ep, ey2, 0));
+    U.uGaze.value[i].set(0, 0, 1).applyQuaternion(bones[`eye_${side}`].quaternion);
+    gazePitch.push(ep);
+  });
+
+  // blinks
+  if (auto) {
+    fx.blinkNext -= dt;
+    if (fx.blinkNext <= 0 && fx.blinkT < 0) { fx.blinkT = 0; fx.blinkSkew = (Math.random() - 0.5) * 0.03; }
+  }
+  let blink = 0;
+  if (fx.blinkT >= 0) {
+    fx.blinkT += dt; const b = fx.blinkT;
+    blink = b < 0.07 ? b / 0.07 : b < 0.11 ? 1 : 1 - smoothstep(0.11, 0.24, b);
+    if (b > 0.24) { fx.blinkT = -1; fx.blinkNext = Math.random() < 0.18 ? 0.12 : 2.2 + Math.random() * 3.8; }
+  }
+  const lookDown = (p) => clamp(-p / (20 * DEG), 0, 1) * 0.28;
+  const lidL = clamp(Math.max(ctl.blinkL, blink) + (auto ? lookDown(gazePitch[0]) : 0), 0, 1);
+  const lidR = clamp(Math.max(ctl.blinkR, fx.blinkT >= 0 ? clamp(blink + fx.blinkSkew * 10, 0, 1) : 0) + (auto ? lookDown(gazePitch[1]) : 0), 0, 1);
+  bones.lid_L.rotation.x = lidL * LID_MAX; bones.lid_R.rotation.x = lidR * LID_MAX;
+
+  if (frozen) applyFreeze();
+  U.uLid.value[0] = bones.lid_L.rotation.x / LID_MAX; U.uLid.value[1] = bones.lid_R.rotation.x / LID_MAX;
+  U.uJaw.value = bones.jaw.rotation.x / JAW_MAX;
+  U.uSquint.value = clamp(S.squint.x, 0, 1);
+  U.uPupilR.value = S.pupil.x;
+
+  updateBoneOverlay();
+  readoutT -= dt;
+  if (readoutT <= 0) { readoutT = 0.12; writeReadout(); }
+}
+function applyFreeze() { // scripting hook: hard-set lids/jaw after the springs ran
+  const f = frozen;
+  if (f.lidL !== undefined) bones.lid_L.rotation.x = f.lidL * LID_MAX;
+  if (f.lidR !== undefined) bones.lid_R.rotation.x = f.lidR * LID_MAX;
+  if (f.jaw !== undefined) bones.jaw.rotation.x = f.jaw * JAW_MAX;
+}
+
+const fmt = (v, d = 1) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(d)}`;
+function writeReadout() {
+  const r = (b) => { eul.setFromQuaternion(bones[b].quaternion, 'YXZ'); return [eul.y / DEG, -eul.x / DEG]; };
+  const [hy, hp] = r('head'), [ly, lp] = r('eye_L'), [ry, rp] = r('eye_R');
+  $('readout').innerHTML = [
+    ['head', `yaw ${fmt(hy)}°  pitch ${fmt(hp)}°`],
+    ['eye_L', `yaw ${fmt(ly)}°  pitch ${fmt(lp)}°`],
+    ['eye_R', `yaw ${fmt(ry)}°  pitch ${fmt(rp)}°`],
+    ['jaw', `${(bones.jaw.rotation.x / DEG).toFixed(1)}° open`],
+    ['lid_L · lid_R', `${Math.round(100 * U.uLid.value[0])}% · ${Math.round(100 * U.uLid.value[1])}%`],
+    ['mouth_L', `${fmt((bones.mouth_L.position.y - rest.mouth_L.pos.y) * 1000)} mm`],
+    ['brows', `${fmt((bones.brow_L.position.y - rest.brow_L.pos.y) * 1000)} mm`],
+  ].map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+  if (fpsN) { $('fps').textContent = `${Math.round(fpsN / fpsAcc)} fps`; fpsAcc = 0; fpsN = 0; }
+}
+
+// test / scripting hook
+window.__toto = {
+  look(nx, ny) { pointer.ndc.set(nx, ny); pointer.active = true; pointer.lastMove = performance.now() + 1e7; },
+  set(k, v) { ctl[k] = v; },
+  freeze(pose) { frozen = pose; },
+  camera(pos, tgt, fov = 26) { camOverride = { pos, tgt, fov }; resize(); },
+  bark, setView, debug(n) { U.uDebug.value = n; },
+  get ready() { return ready; },
+};
+</script>
