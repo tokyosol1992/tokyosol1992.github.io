@@ -6,8 +6,8 @@
 
 - 시안: `sites/portfolio/mockups/portfolio-shelf.src.html`, 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
 - 레퍼런스·실측값·버전 이력: `REFERENCES.md`
-- 상태: v12(2026-11-18) 가운데 영문 제목, 선택 표지 위 16px에 뜬 유리 분류 메뉴(겹침 해소), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창(고르면 서가 이동), 가운데 아래 브레드크럼, 한글 SUIT·제목/영문 메뉴 함렛. 사용자 확인 대기. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
-- 저장: v3까지는 PR #19로 main 병합. v4~v12는 작업 브랜치 `claude/determined-brahmagupta-1vorl9`(PR 전, main 미병합).
+- 상태: v13(2026-11-18) 가운데 영문 제목, 넓은 유리 분류 메뉴(항목 양쪽, 양옆 책등에만 걸치고 선택 표지는 메뉴 앞, 모바일은 표지 위 한 줄), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창, 가운데 아래 브레드크럼, 한글 SUIT·제목/영문 메뉴 함렛. 사용자 확인 대기. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
+- 저장: v3까지는 PR #19로 main 병합. v4~v13은 작업 브랜치 `claude/determined-brahmagupta-1vorl9`(PR 전, main 미병합).
 
 ## 결정 대기 (사용자)
 

@@ -38,7 +38,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .top .r { justify-self: end; padding-top: 7px; }
 /* 서가 분류 메뉴: 유리(글래스모피즘) 알약. 원본처럼 파란 채움이 서가 위치를 따라 항목 사이를 연속으로 미끄러지고,
    채움이 덮은 부분의 글자만 흰색이 된다(흰 글자 층을 채움 모양으로 잘라 겹침) */
-.snav { position: absolute; z-index: 20; left: 50%; top: calc(50% - 250px * var(--s) - 58px); /* 선택 표지 윗변(가운데에서 약 250×s 위, 기울기 포함)보다 16px 위에 뜬다. 메뉴 높이 42px */ transform: translateX(-50%); display: flex; padding: 4px; border-radius: 999px;
+.snav { position: absolute; z-index: 99; left: 50%; top: calc(50% - 236px * var(--s) - 34px); /* 서가 안 층: 책등(z ≤96)보다 앞, 선택 표지(z 100)보다 뒤. 높이 42px 중 아래 8px가 양옆 책등 윗부분에 걸치고, 가운데는 선택 표지가 메뉴 앞에 선다 */ transform: translateX(-50%); display: flex; padding: 4px; border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.05)); border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.4), inset 1px 0 0 rgba(255, 255, 255, 0.35), inset -1px 0 0 rgba(255, 255, 255, 0.2), 0 12px 26px -8px rgba(60, 45, 30, 0.16), 0 1px 1px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(4px) saturate(1.6); backdrop-filter: blur(4px) saturate(1.6); }
@@ -48,7 +48,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .snav::after { content: ''; position: absolute; left: 6%; right: 40%; top: 2px; height: 42%; border-radius: 999px; pointer-events: none;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0)); }
-.snav button, .snav .hi span { position: relative; display: flex; align-items: center; height: 32px; padding: 0 17px; border-radius: 999px; white-space: nowrap; font-family: var(--ko); font-weight: 600; font-size: 12.5px; letter-spacing: -0.01em; color: rgba(12, 12, 12, 0.72); }
+.snav button, .snav .hi span { position: relative; display: flex; align-items: center; height: 32px; padding: 0 22px; border-radius: 999px; white-space: nowrap; font-family: var(--ko); font-weight: 600; font-size: 12.5px; letter-spacing: -0.01em; color: rgba(12, 12, 12, 0.72); }
 .snav .en, .snav .hi .en { font-family: var(--kr); font-weight: 700; font-size: 13.5px; letter-spacing: 0.02em; }
 .snav button:hover { color: var(--ink); }
 .snav button + button::before { content: ''; position: absolute; left: 0; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: rgba(12, 12, 12, 0.16); }
@@ -56,6 +56,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: linear-gradient(180deg, #3552b8, var(--blue)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 14px rgba(28, 54, 148, 0.35); }
 .snav .hi { position: absolute; inset: 0; display: flex; padding: 4px; pointer-events: none; }
 .snav .hi span { color: #fff; }
+/* 가운데 빈칸: 선택 표지(기운 폭 약 290×s)가 설 자리. 항목은 양옆 책등 위에 놓인다 */
+.snav .gap, .snav .hi .gap { flex: none; width: calc(300px * var(--s) + 28px); padding: 0; }
 
 
 /* 서가: 상자마다 자기 원근 */
@@ -216,7 +218,10 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
 @media (max-width: 760px) {
   .top { grid-template-columns: auto 1fr auto; } .sk-label, .sk-kbd { display: none; } .sk-btn { width: 36px; padding: 0; justify-content: center; }
   .foot .crumb { position: absolute; left: 0; right: 0; transform: none; bottom: calc(54px + env(safe-area-inset-bottom, 0px)); text-align: center; }
-  .snav button, .snav .hi span { padding: 0 12px; font-size: 12px; } .snav .en { font-size: 12.5px; }
+  .snav button, .snav .hi span { padding: 0 12px; font-size: 12px; } .snav .en, .snav .hi .en { font-size: 12.5px; }
+  /* 모바일은 폭이 좁아 가운데를 비우지 않고, 표지 위 16px에 한 줄로 띄운다 */
+  .snav { top: calc(50% - 250px * var(--s) - 58px); } .snav .gap, .snav .hi .gap { display: none; }
+  .snav .gap + button::before { content: ''; position: absolute; left: 0; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: rgba(12, 12, 12, 0.16); }
   .cap h2 { font-size: 24px; }
   .d-grid { grid-template-columns: 1fr; align-content: center; padding: 80px var(--gr) 24px var(--gl); gap: 22px; }
   .d-cover { order: -1; } .d-cv { height: 34vh; }
@@ -236,16 +241,18 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
   <div class="logo" aria-label="OSOL LIBRARY"><b>OSOL</b><i>LIBRARY</i></div>
   <div class="r"><button class="sk-btn" type="button" id="sk-open" aria-haspopup="dialog" aria-controls="sk" aria-keyshortcuts="Control+K Meta+K"><svg class="sk-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg><span class="sk-label">Search</span><kbd class="sk-kbd"><span data-mod>Ctrl</span> K</kbd><span class="sr-only">검색 열기 (단축키 Ctrl 또는 ⌘ + K)</span></button></div>
 </header>
-<nav class="snav" id="chips" aria-label="분류">
-  <span class="ind" aria-hidden="true"></span>
-  <button type="button" data-g="ai" class="en" aria-pressed="false">AI/AX</button>
-  <button type="button" data-g="platform" aria-pressed="false">플랫폼</button>
-  <button type="button" data-g="system" aria-pressed="false">디자인 시스템</button>
-  <button type="button" data-g="etc" aria-pressed="false">기타</button>
-  <span class="hi" aria-hidden="true"><span class="en">AI/AX</span><span>플랫폼</span><span>디자인 시스템</span><span>기타</span></span>
-</nav>
 
-<main class="stage" id="stage"><div class="shelf" id="shelf" role="listbox" aria-label="프로젝트 서가"></div></main>
+<main class="stage" id="stage"><div class="shelf" id="shelf" role="listbox" aria-label="프로젝트 서가"></div>
+  <nav class="snav" id="chips" aria-label="분류">
+    <span class="ind" aria-hidden="true"></span>
+    <button type="button" data-g="ai" class="en" aria-pressed="false">AI/AX</button>
+    <button type="button" data-g="platform" aria-pressed="false">플랫폼</button>
+    <span class="gap" aria-hidden="true"></span>
+    <button type="button" data-g="system" aria-pressed="false">디자인 시스템</button>
+    <button type="button" data-g="etc" aria-pressed="false">기타</button>
+    <span class="hi" aria-hidden="true"><span class="en">AI/AX</span><span>플랫폼</span><span class="gap"></span><span>디자인 시스템</span><span>기타</span></span>
+  </nav>
+</main>
 
 <div class="cap" id="cap"><h2 id="c-t"></h2><div class="sub" id="c-s"></div><div class="yr" id="c-y"></div></div>
 <button class="arr l" id="prev" type="button" aria-label="이전">←</button>
@@ -463,7 +470,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
     var W = snav.offsetWidth, h = 4; // 흰 글자 층을 채움과 같은 모양으로 자른다
     sHi.style.clipPath = sHi.style.webkitClipPath = 'inset(' + h + 'px ' + (W - R).toFixed(1) + 'px ' + h + 'px ' + L.toFixed(1) + 'px round 999px)';
   }
-  addEventListener('resize', measure); if (document.fonts) document.fonts.ready.then(measure); measure();
+  addEventListener('resize', function () { requestAnimationFrame(measure); }); if (document.fonts) document.fonts.ready.then(measure); measure();
   function caption() {
     var idx = mod(Math.round(pos), N); if (idx === lastCap) return; var first = lastCap < 0; lastCap = idx; var it = ITEMS[idx];
     function set() { document.getElementById('c-t').textContent = it.ko; document.getElementById('c-s').textContent = GLAB[it.g] + ' / ' + it.en.toUpperCase(); document.getElementById('c-y').textContent = 'YYYY'; cap.classList.remove('out'); }
@@ -482,7 +489,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
   addEventListener('wheel', function (e) { if (opened || skOpen()) return; var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY; acc += d; if (Math.abs(acc) > 40 && performance.now() - lock > 180) { go(acc > 0 ? 1 : -1); acc = 0; lock = performance.now(); } }, { passive: true });
   // 드래그: 손을 따라 연속으로 움직이고, 놓으면 가까운 칸으로 감속
   var dragging = false, sx = 0, sp = 0, moved = 0;
-  stage.addEventListener('pointerdown', function (e) { if (opened) return; dragging = true; sx = e.clientX; sp = pos; moved = 0; });
+  stage.addEventListener('pointerdown', function (e) { if (opened || e.target.closest('.snav')) return; dragging = true; sx = e.clientX; sp = pos; moved = 0; });
   addEventListener('pointermove', function (e) { if (!dragging) return; var dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx)); if (moved <= 6) return; pos = sp - dx / (93 * S); target = pos; });
   addEventListener('pointercancel', function () { if (dragging) { dragging = false; target = Math.round(pos); } });
   addEventListener('pointerup', function (e) {
