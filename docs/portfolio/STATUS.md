@@ -6,8 +6,8 @@
 
 - 시안: `sites/portfolio/mockups/portfolio-shelf.src.html`, 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
 - 레퍼런스·실측값·버전 이력: `REFERENCES.md`
-- 상태: v9(2026-11-18) 함렛 확정, 이름 OSOL LIBRARY(오솔문고, 영문만 표기) 반영. GNB는 포트폴리오식 초안으로 사용자 리터칭 대기. v5~v7(둥근 이음매·헤짐·표지 기울기·바닥 반사)은 사용자 확인 완료. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
-- 저장: v3까지는 PR #19로 main 병합. v4~v9는 작업 브랜치 `claude/determined-brahmagupta-1vorl9`(PR 전, main 미병합).
+- 상태: v10(2026-11-18) 가운데 영문 제목(OSOL LIBRARY), 서가 위 유리 분류 메뉴(AI/AX·플랫폼·디자인 시스템·기타, 원본처럼 연속 채움), HOME·현재 페이지 표시 복귀, 한글 SUIT·제목/영문 메뉴 함렛. 사용자 확인·메뉴 리터칭 대기. v5~v7은 확인 완료. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
+- 저장: v3까지는 PR #19로 main 병합. v4~v10은 작업 브랜치 `claude/determined-brahmagupta-1vorl9`(PR 전, main 미병합).
 
 ## 결정 대기 (사용자)
 
@@ -19,7 +19,7 @@
 
 ## 다음 작업
 
-0. GNB 리터칭(사용자). 물결 전환은 사용자 레퍼런스를 받은 뒤 다시 만들고, 시작 종이 기울기를 표지(-4°)와 맞춘다.
+0. 유리 분류 메뉴 리터칭(사용자). 문구를 바꾸면 `sites/portfolio/mockups/suit-subset.py`로 SUIT 부분 글꼴을 다시 만든다. 물결 전환은 사용자 레퍼런스를 받은 뒤 다시 만들고, 시작 종이 기울기를 표지(-4°)와 맞춘다.
 1. 위 결정을 받으면 시안을 다듬거나 `src/`로 이식한다(이식 시 `npm run build`, 모바일·데스크톱 확인).
 2. 기존 미병합 작업(PR #10 그로우 케이스 스터디 시안, PR #3 Figma 기록)은 `../PENDING.md`에서 확인하고 요청 범위만 옮긴다.
 3. Safari 동작 확인(사용자가 나중에 확인 예정, 이 Cloud 환경에는 Chromium만 있음).
