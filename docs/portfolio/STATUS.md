@@ -1,13 +1,13 @@
 # Oh SolGil 현재 상태
 
-기준: 2026-11-18. 실제 사이트(`/portfolio/`)를 OSOL LIBRARY 서가(v13)로 교체하는 배포를 진행했다(사용자 결정). 원본은 `sites/portfolio/mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다. 이전 다크 페이지는 `src/legacy/`에 보존.
+기준: 2026-11-18. 실제 사이트(`/portfolio/`)를 OSOL LIBRARY 서가(v13)로 교체해 배포했다(사용자 결정, PR #20 main 병합, Pages 배포 실행 #19 성공). 원본은 `sites/portfolio/mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다. 이전 다크 페이지는 `src/legacy/`에 보존.
 
 ## 현재: OSOL LIBRARY 서가 (실제 /portfolio/)
 
 - 원본: `sites/portfolio/mockups/portfolio-shelf.src.html`(실제 페이지가 그대로 불러옴), 아티팩트 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
 - 레퍼런스·실측값·버전 이력: `REFERENCES.md`
-- 상태: v13(2026-11-18) 가운데 영문 제목, 넓은 유리 분류 메뉴(항목마다 같은 좌우 여백 30px, 양쪽으로 나눔, 양옆 책등에만 걸치고 선택 표지는 메뉴 앞, 모바일은 표지 위 한 줄), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창, 가운데 아래 브레드크럼, 한글 SUIT·제목/영문 메뉴 함렛. 사용자 확정·배포 결정. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
-- 저장: v3까지는 PR #19로 main 병합. v4~v13과 실제 페이지 교체는 작업 브랜치 `claude/determined-brahmagupta-1vorl9` → PR로 main 병합 진행(결과는 HISTORY 최신 항목).
+- 상태: v13(2026-11-18) 가운데 영문 제목, 넓은 유리 분류 메뉴(서가 비율로 함께 줄어듦, 항목마다 같은 좌우 여백 30px×비율, 양쪽으로 나눔, 양옆 책등에만 걸치고 선택 표지는 메뉴 앞, 모바일은 표지 위 한 줄), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창, 가운데 아래 브레드크럼, 한글 SUIT·제목/영문 메뉴 함렛. 사용자 확정·배포 결정. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
+- 저장: v3까지는 PR #19, v4~v13과 실제 페이지 교체는 [PR #20](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/20)으로 main 병합(`c05dcd0`)·배포 완료. 배포 주소를 이 Cloud 환경에서 직접 열어 확인하지는 못했다.
 
 ## 결정 대기 (사용자)
 
