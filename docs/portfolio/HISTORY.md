@@ -4,7 +4,7 @@
 - 변경: `sites/portfolio/src/pages/index.astro`가 서가 원본(`mockups/portfolio-shelf.src.html`)을 `?raw`로 불러와 앞부분(제목·글꼴·스타일)은 `<head>`, 나머지는 `<body>`에 그대로 넣는다(원본 한 곳만 고치면 아티팩트와 실제 사이트가 같이 바뀜). 아티팩트 전용 메타는 뺐고 lang·viewport·theme-color·description을 붙였다. 이전 다크 한 페이지는 `src/legacy/index-dark-2026-11-06.astro`로 옮겨 보존했다(경로 없음, 되돌리려면 PR 되돌리기). 탭 제목을 "Osol Library 서가 시안" → "OSOL LIBRARY"로, 동작 없던 HOME을 MoHo 홈(https://tokyosol1992.github.io/)으로 연결했다. 포트폴리오 `AGENTS.md`·`DECISIONS.md`·`REFERENCES.md`를 새 기준으로 갱신했다.
 - 검증: `npm run build` 두 사이트 성공(MoHo 15페이지, 포트폴리오 1페이지, `dist/portfolio/index.html` 약 205KB). `dist`를 로컬에서 `/portfolio/` 경로로 띄워 Chromium 확인: 탭 제목, SUIT·함렛 적용, 서가 넘김, 상세 열기·닫기, 검색 이동, 모바일 390×800, 콘솔 오류·가로 넘침 없음.
 - 그대로: 내용은 샘플(자리표시). 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자 확인 예정.
-- PR·병합·Pages 배포 결과는 아래 STATUS와 다음 기록에 적는다.
+- PR·배포: [tokyosol1992/tokyosol1992.github.io#20](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/20) 생성 후 사용자 배포 결정에 따라 main에 병합(병합 커밋 `c05dcd0`). GitHub Pages 배포 워크플로 실행 #19(build·deploy) 성공. 이 Cloud 환경은 `tokyosol1992.github.io`가 허용 목록에 없어 배포된 주소를 직접 열어 보지는 못했다(배포 결과는 Actions 기준). 아티팩트 게시본도 같은 원본으로 갱신했다.
 
 ## 2026-11-18 · 서가 시안 v13 재수정 (메뉴 항목 같은 여백)
 
