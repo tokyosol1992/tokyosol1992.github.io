@@ -1,4 +1,4 @@
-<title>Osol Library 서가 시안</title>
+<title>OSOL LIBRARY</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@500;600&family=Noto+Sans+KR:wght@400;500&family=Hahmlet:wght@600;700&display=swap">
 <style>
@@ -238,7 +238,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
 <div class="ring" id="ring"><span>OPEN<br>열기</span></div>
 
 <header class="top">
-  <div><a class="btn u" href="#" id="home">HOME / 홈</a></div>
+  <div><a class="btn u" href="https://tokyosol1992.github.io/" id="home">HOME / 홈</a></div>
   <div class="logo" aria-label="OSOL LIBRARY"><b>OSOL</b><i>LIBRARY</i></div>
   <div class="r"><button class="sk-btn" type="button" id="sk-open" aria-haspopup="dialog" aria-controls="sk" aria-keyshortcuts="Control+K Meta+K"><svg class="sk-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg><span class="sk-label">Search</span><kbd class="sk-kbd"><span data-mod>Ctrl</span> K</kbd><span class="sr-only">검색 열기 (단축키 Ctrl 또는 ⌘ + K)</span></button></div>
 </header>
@@ -633,7 +633,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
     }, 200);
   }
   document.getElementById('close').addEventListener('click', closeDetail);
-  document.getElementById('home').addEventListener('click', function (e) { e.preventDefault(); });
+  // HOME은 MoHo 홈(저장소 루트 사이트)으로 간다
 
   // ===== 검색(포트폴리오 헤더 Search + ⌘K/Ctrl+K를 서가용으로): 분류·프로젝트를 찾고, 고르면 서가가 그 책으로 간다. 한글 초성 검색(ㅍㄹ → 플랫폼) =====
   var skIn = document.getElementById('sk-input'), skList = document.getElementById('sk-list'), skCount = skDlg.querySelector('.sk-foot .c'), skShown = [], skAct = 0;

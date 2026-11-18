@@ -6,10 +6,10 @@
 
 | 항목 | 위치 |
 | --- | --- |
-| 시안 원본 | `sites/portfolio/mockups/portfolio-shelf.src.html` (빌드 대상 아님, 단일 HTML) |
+| 원본 | `sites/portfolio/mockups/portfolio-shelf.src.html` (단일 HTML. 2026-11-18부터 실제 `/portfolio/` 페이지가 이 파일을 그대로 불러옴) |
 | 게시본(Claude 아티팩트, 비공개) | https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s |
 | 레퍼런스 | motionsites.ai "Shelf Hero" — https://motionsites.ai/?prompt=vasari-vhs-hero |
-| 사용자 확인 | 2026-11-17 열기 동작 확인. 채택 여부와 배경색 결정은 대기 |
+| 사용자 확인 | 2026-11-18 v13 확정, 실제 사이트 배포 결정 |
 
 레퍼런스는 유료 AI 웹사이트 프롬프트 판매 사이트의 미리보기 영상이다. 프롬프트·코드는 열지 않았다. 원본 일러스트, 영화 제목, "LEON VASARI" 등 브랜드 문구는 제3자 작품이라 복제하지 않는다. 같은 판형 위에 직접 만든 도형 그림과 샘플 이름을 쓴다.
 
@@ -51,3 +51,4 @@
 - v13(2026-11-18): 유리 메뉴를 넓히고 항목을 양쪽으로 나눔(가운데 빈칸), 서가 안 층에서 양옆 책등에만 8px 걸치고 선택 표지는 메뉴 앞. 모바일은 표지 위 한 줄.
 - v13 수정(2026-11-18): 메뉴 네 칸을 같은 폭(좌우 여백 넓힘, 데스크톱 128px)으로, 파란 채움은 칸 전체.
 - v13 재수정(2026-11-18): 메뉴 항목은 같은 칸 폭이 아니라 같은 좌우 여백(30px, 모바일 12px). 묶음 폭 차이는 메뉴 위치로 보정.
+- 배포(2026-11-18): v13을 실제 `/portfolio/`로. 탭 제목 OSOL LIBRARY, HOME → MoHo 홈.

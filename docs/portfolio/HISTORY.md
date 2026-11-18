@@ -1,3 +1,11 @@
+## 2026-11-18 · OSOL LIBRARY 서가를 실제 /portfolio/로 배포
+
+- 사용자 결정: "배포합시다 이정도면 좋소". 첫 요청에서 서가를 다듬어 포트폴리오 사이트와 바꿀 예정이라고 했으므로 실제 `/portfolio/` 페이지를 서가로 교체한다.
+- 변경: `sites/portfolio/src/pages/index.astro`가 서가 원본(`mockups/portfolio-shelf.src.html`)을 `?raw`로 불러와 앞부분(제목·글꼴·스타일)은 `<head>`, 나머지는 `<body>`에 그대로 넣는다(원본 한 곳만 고치면 아티팩트와 실제 사이트가 같이 바뀜). 아티팩트 전용 메타는 뺐고 lang·viewport·theme-color·description을 붙였다. 이전 다크 한 페이지는 `src/legacy/index-dark-2026-11-06.astro`로 옮겨 보존했다(경로 없음, 되돌리려면 PR 되돌리기). 탭 제목을 "Osol Library 서가 시안" → "OSOL LIBRARY"로, 동작 없던 HOME을 MoHo 홈(https://tokyosol1992.github.io/)으로 연결했다. 포트폴리오 `AGENTS.md`·`DECISIONS.md`·`REFERENCES.md`를 새 기준으로 갱신했다.
+- 검증: `npm run build` 두 사이트 성공(MoHo 15페이지, 포트폴리오 1페이지, `dist/portfolio/index.html` 약 205KB). `dist`를 로컬에서 `/portfolio/` 경로로 띄워 Chromium 확인: 탭 제목, SUIT·함렛 적용, 서가 넘김, 상세 열기·닫기, 검색 이동, 모바일 390×800, 콘솔 오류·가로 넘침 없음.
+- 그대로: 내용은 샘플(자리표시). 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자 확인 예정.
+- PR·병합·Pages 배포 결과는 아래 STATUS와 다음 기록에 적는다.
+
 ## 2026-11-18 · 서가 시안 v13 재수정 (메뉴 항목 같은 여백)
 
 - 사용자 피드백: 간격이 맞지 않는다. 모든 칸 폭을 같게 하는 게 아니라, 글자에 따라 같은 패딩을 주면 폭은 달라도 여백이 같으니 그렇게 해야 한다. (직전 보고에서 "간격이 맞다"고 한 것은 칸 폭·가운데 위치 기준이었고, 글자 길이가 달라 실제 여백은 불균등했다. 잘못된 보고였다.)
