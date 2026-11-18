@@ -38,7 +38,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .top .r { justify-self: end; padding-top: 7px; }
 /* 서가 분류 메뉴: 유리(글래스모피즘) 알약. 원본처럼 파란 채움이 서가 위치를 따라 항목 사이를 연속으로 미끄러지고,
    채움이 덮은 부분의 글자만 흰색이 된다(흰 글자 층을 채움 모양으로 잘라 겹침) */
-.snav { position: absolute; z-index: 20; left: 50%; top: calc(50% - 232px * var(--s) - 74px); transform: translateX(-50%); display: flex; padding: 4px; border-radius: 999px;
+.snav { position: absolute; z-index: 20; left: 50%; top: calc(50% - 232px * var(--s) - 30px); /* 책 윗부분에 살짝 걸쳐 유리 너머로 책이 비친다 */ transform: translateX(-50%); display: flex; padding: 4px; border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.05)); border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.4), inset 1px 0 0 rgba(255, 255, 255, 0.35), inset -1px 0 0 rgba(255, 255, 255, 0.2), 0 12px 26px -8px rgba(60, 45, 30, 0.16), 0 1px 1px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(4px) saturate(1.6); backdrop-filter: blur(4px) saturate(1.6); }
@@ -151,25 +151,31 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
 /* 검색 창: 화면 가운데 종이 패널. 결과는 분류·프로젝트, 고르면 서가가 그 책으로 간다 */
 .sk { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 24px 16px; border: 0; background: transparent; color: var(--ink); }
 .sk[open] { display: flex; justify-content: center; align-items: flex-start; padding-top: 14vh; }
-.sk::backdrop { background: rgba(40, 32, 22, 0.28); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-.sk-panel { width: min(560px, 100%); padding: 8px; border-radius: 26px; border: 1px solid var(--ink); background: var(--paper-2); box-shadow: 0 30px 80px rgba(40, 30, 20, 0.25); }
+.sk::backdrop { background: rgba(40, 32, 22, 0.1); -webkit-backdrop-filter: blur(.1px); backdrop-filter: blur(.1px); }
+.sk-panel { position: relative; width: min(560px, 100%); padding: 8px; border-radius: 26px; border: 1px solid rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, rgba(248, 246, 240, 0.42), rgba(243, 242, 238, 0.28)); -webkit-backdrop-filter: blur(18px) saturate(1.7); backdrop-filter: blur(18px) saturate(1.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.35), 0 30px 70px rgba(40, 30, 20, 0.22), 0 2px 6px rgba(40, 30, 20, 0.08); }
+/* 유리 가장자리 빛(메뉴와 같은 방식) */
+.sk-panel::before { content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.12) 35%, rgba(255, 255, 255, 0.05) 65%, rgba(255, 255, 255, 0.55));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .sk[open] .sk-panel { animation: sk-in 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes sk-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
-.sk-field { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 8px 0 16px; border-radius: 18px; background: #fff; box-shadow: inset 0 0 0 1px rgba(12, 12, 12, 0.12); }
+.sk-field { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 8px 0 16px; border-radius: 18px; background: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(40, 30, 20, 0.06); }
 .sk-field input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; font: 500 16px var(--ko); color: var(--ink); }
 .sk-field input::placeholder { color: rgba(12, 12, 12, 0.38); }
 .sk-x { flex: none; }
 .sk-list { max-height: min(360px, 50svh); overflow-y: auto; overscroll-behavior: contain; padding: 6px 2px 2px; }
 .sk-gl { padding: 12px 12px 6px; font: 600 10px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
 .sk-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 14px; cursor: pointer; }
-.sk-item[aria-selected='true'] { background: rgba(28, 54, 148, 0.08); }
+.sk-item[aria-selected='true'] { background: rgba(255, 255, 255, 0.5); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6); }
 .sk-sw { flex: none; width: 10px; height: 30px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
 .sk-t { font: 600 15px var(--ko); white-space: nowrap; } .sk-t mark { background: none; color: var(--blue); }
 .sk-t.en { font-family: var(--kr); font-weight: 700; }
 .sk-s { flex: 1; min-width: 0; font-size: 11px; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sk-go { flex: none; color: var(--blue); font-size: 13px; opacity: 0; } .sk-item[aria-selected='true'] .sk-go { opacity: 1; }
 .sk-empty { margin: 0; padding: 40px 12px; text-align: center; color: var(--mute); font: 400 14px var(--ko); }
-.sk-foot { display: flex; align-items: center; gap: 14px; padding: 10px 12px 4px; border-top: 1px solid rgba(12, 12, 12, 0.1); font: 500 11px var(--ko); color: var(--mute); }
+.sk-foot { display: flex; align-items: center; gap: 14px; padding: 10px 12px 4px; border-top: 1px solid rgba(255, 255, 255, 0.45); font: 500 11px var(--ko); color: rgba(12, 12, 12, 0.6); }
 .sk-foot .c { margin-left: auto; }
 
 /* 커서 */
