@@ -42,20 +42,23 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .box { position: absolute; left: 0; top: 0; width: 0; height: 0; }
 .box::after { content: ''; position: absolute; left: calc(-34px * var(--s)); width: calc(68px * var(--s)); top: calc(228px * var(--s)); height: calc(70px * var(--s)); background: linear-gradient(rgba(60, 50, 40, 0.34), transparent); filter: blur(5px); pointer-events: none; opacity: var(--sh, 1); }
 .rot { position: absolute; left: calc(-39px * var(--s)); top: calc(-232.5px * var(--s)); width: calc(78px * var(--s)); height: calc(465px * var(--s)); transform-style: preserve-3d; cursor: pointer; }
-.face { position: absolute; top: 0; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 6px; overflow: hidden; }
+.face { position: absolute; top: 0; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
 .fr { left: 0; width: 100%; transform: translateZ(calc(125px * var(--s))); background: linear-gradient(180deg, var(--t1), var(--t2)); color: var(--tx);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), inset 0 2px 3px rgba(255, 255, 255, 0.18), inset 0 -3px 5px rgba(0, 0, 0, 0.3); }
-.fr::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent 18%, transparent 80%, rgba(0, 0, 0, 0.25)); }
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.18), inset 0 -3px 5px rgba(0, 0, 0, 0.3); }
+/* 책등은 위·아래만 평평하게 마감한다. 좌우는 표지·뒷면과 직각으로 맞물리는 이음매라 둥글리지 않는다 */
+.fr::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.12), transparent 10%, transparent 90%, rgba(0, 0, 0, 0.14)); }
 .fr .art { position: absolute; left: 50%; top: 4.5%; transform: translateX(-50%); }
 .fr .ttl { position: absolute; left: 0; right: 0; top: 36%; bottom: 14%; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; text-orientation: sideways; white-space: nowrap; font-family: 'Noto Serif KR', serif; font-weight: 700; font-size: calc(22px * var(--s)); letter-spacing: 0.02em; }
 .fr .mk { position: absolute; left: 0; right: 0; bottom: calc(14px * var(--s)); display: flex; flex-direction: column; align-items: center; gap: calc(5px * var(--s)); }
 .fr .mk i { font-style: normal; font-size: calc(7.5px * var(--s)); font-weight: 600; letter-spacing: 0.2em; opacity: 0.85; }
 .fr .mk b { font-family: var(--display); font-weight: 700; font-size: calc(10px * var(--s)); padding: calc(2px * var(--s)) calc(5px * var(--s)); border: 1px solid currentColor; opacity: 0.9; letter-spacing: 0.04em; }
 .sd { left: calc(-86px * var(--s)); width: calc(250px * var(--s)); }
-.cvf { transform: rotateY(90deg) translateZ(calc(39px * var(--s))); }
-.bkf { transform: rotateY(-90deg) translateZ(calc(39px * var(--s))); background: linear-gradient(180deg, var(--t2), var(--t3)); }
+/* 표지(오른쪽 면)는 책등과 닿는 왼쪽이 직각, 바깥쪽(오른쪽)만 둥글다. 뒷면(왼쪽 면)은 반대 */
+.cvf { transform: rotateY(90deg) translateZ(calc(39px * var(--s))); border-radius: 0 6px 6px 0; }
+.bkf { transform: rotateY(-90deg) translateZ(calc(39px * var(--s))); background: linear-gradient(180deg, var(--t2), var(--t3)); border-radius: 6px 0 0 6px; }
 .bkf::after { content: ''; position: absolute; inset: 8% 10%; border: 1px solid rgba(255, 255, 255, 0.1); }
 .cv { position: absolute; inset: 0; background: var(--cp); color: var(--ci); border-radius: 5px; overflow: hidden; }
+.cvf .cv { border-radius: 0 5px 5px 0; }
 .cv::before { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.35), transparent 60%), linear-gradient(90deg, rgba(0, 0, 0, 0.14), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.1)); pointer-events: none; z-index: 3; }
 .cv .tag { position: absolute; left: 7%; top: 3.2%; font-family: var(--sans); font-weight: 600; font-size: calc(8.5px * var(--cs, var(--s))); letter-spacing: 0.14em; text-transform: uppercase; }
 .cv h3 { position: absolute; left: 6%; right: 6%; top: 7.5%; margin: 0; text-align: center; font-family: var(--display); font-weight: 700; font-size: calc(43px * var(--cs, var(--s))); line-height: 0.96; letter-spacing: -0.01em; text-transform: uppercase; color: var(--ct); }
@@ -87,7 +90,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (hover: hover) and (pointer: fine) { .ring { display: flex; } }
 
 /* 상세: 표지 자리에서 나오는 종이 */
-.sheet { position: fixed; z-index: 60; left: 0; top: 0; width: 100vw; height: 100vh; height: 100dvh; background: var(--paper-2); transform-origin: 0 0; visibility: hidden; box-shadow: 0 30px 80px rgba(40, 30, 20, 0.18); }
+/* 종이는 화면 크기 그대로 두고 clip-path 윤곽만 표지 자리에서 물결치며 퍼진다(상세 레이아웃은 처음부터 최종 자리) */
+.sheet { position: fixed; z-index: 60; left: 0; top: 0; width: 100vw; height: 100vh; height: 100dvh; background: var(--paper-2); visibility: hidden; }
+.rip { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.rip path { fill: none; stroke: #1c3694; stroke-width: 1.2; stroke-linejoin: round; opacity: 0; }
 .sheet.on { visibility: visible; }
 .sheet:not(.on) { pointer-events: none; }
 .sheet:not(.on) .d-grid { visibility: hidden !important; }
@@ -146,6 +152,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 <footer class="foot u"><span>© OH SOLGIL. ALL RIGHTS RESERVED.</span><span><a href="https://github.com/tokyosol1992" target="_blank" rel="noopener">GITHUB</a> / MAIL</span></footer>
 
 <section class="sheet" id="sheet" aria-label="프로젝트 상세" aria-hidden="true">
+  <svg class="rip" id="rip" aria-hidden="true"><path></path><path></path><path></path></svg>
   <header class="top">
     <div><button class="btn u" id="close" type="button">CLOSE / 닫기</button></div>
     <div class="logo"><b>솔길</b><i>OH SOLGIL</i></div>
@@ -304,6 +311,43 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   var ease = function (t) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); };
   function animate(ms, fn, done) { var t0 = performance.now(); (function f(now) { var p = clamp((now - t0) / ms, 0, 1); fn(p); if (p < 1) requestAnimationFrame(f); else if (done) done(); })(t0); }
   var fromRect = null, lines = [], timers = [];
+  // 물결 윤곽: 표지 크기 사각형(4.5° 기울임)이 화면보다 조금 큰 사각형까지 커지는 동안, 가장자리를 따라 물결이 흐른다.
+  // q: 0(표지 자리)~1(화면 전체), tm: 물결 위상(초). 마루 개수는 고정(6개 + 17개)이라 커져도 물결이 튀지 않는다.
+  var DUR = 780, ECHO = [120, 240, 360], TAU = Math.PI * 2;
+  var rip = document.getElementById('rip'), ripP = [].slice.call(rip.querySelectorAll('path'));
+  function front(q, tm) {
+    var W = innerWidth, Hh = innerHeight, fr = fromRect, pad = 120, k = Math.max(0.6, S);
+    var L = fr.left + (-pad - fr.left) * q, T = fr.top + (-pad - fr.top) * q, R = fr.right + (W + pad - fr.right) * q, B = fr.bottom + (Hh + pad - fr.bottom) * q;
+    var w = R - L, h = B - T, cx = (L + R) / 2, cy = (T + B) / 2, rad = Math.min(6 + 240 * k * q * (1 - q), w / 2, h / 2);
+    var amp = 24 * k * 4 * q * (1 - q), rot = 4.5 * (1 - q) * RAD, cr = Math.cos(rot), sr = Math.sin(rot);
+    var raw = [];
+    function edge(x0, y0, x1, y1, nx, ny) { var len = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.ceil(len / 14)); for (var i = 0; i < n; i++) raw.push([x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, nx, ny]); }
+    function arc(ax, ay, a0) { for (var i = 0; i < 6; i++) { var a = (a0 + 90 * i / 6) * RAD; raw.push([ax + Math.cos(a) * rad, ay + Math.sin(a) * rad, Math.cos(a), Math.sin(a)]); } }
+    edge(L + rad, T, R - rad, T, 0, -1); arc(R - rad, T + rad, -90);
+    edge(R, T + rad, R, B - rad, 1, 0); arc(R - rad, B - rad, 0);
+    edge(R - rad, B, L + rad, B, 0, 1); arc(L + rad, B - rad, 90);
+    edge(L, B - rad, L, T + rad, -1, 0); arc(L + rad, T + rad, 180);
+    var tot = 0, i, pts = [], seg = [0];
+    for (i = 1; i < raw.length; i++) { tot += Math.hypot(raw[i][0] - raw[i - 1][0], raw[i][1] - raw[i - 1][1]); seg.push(tot); }
+    tot += Math.hypot(raw[0][0] - raw[raw.length - 1][0], raw[0][1] - raw[raw.length - 1][1]);
+    for (i = 0; i < raw.length; i++) {
+      var u = seg[i] / tot, o = amp * (Math.sin(TAU * (6 * u - tm * 1.5)) + 0.35 * Math.sin(TAU * (17 * u - tm * 2.6)));
+      var x = raw[i][0] + raw[i][2] * o - cx, y = raw[i][1] + raw[i][3] * o - cy;
+      pts.push([cx + x * cr - y * sr, cy + x * sr + y * cr]);
+    }
+    return pts;
+  }
+  function setClip(pts) { var v = pts ? 'polygon(' + pts.map(function (p) { return p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px'; }).join(',') + ')' : 'none'; sheet.style.webkitClipPath = v; sheet.style.clipPath = v; }
+  // 앞쪽 물결을 뒤따르는 잔물결 선(시간 차를 둔 같은 윤곽): 종이 안쪽에 겹겹이 남아 사라진다
+  function echoes(ms, tm) {
+    ripP.forEach(function (el, j) {
+      var tt = clamp((ms - ECHO[j]) / DUR, 0, 1), q = 1 - (1 - tt) * (1 - tt);
+      if (tt <= 0 || q > 0.96) { el.style.opacity = 0; return; }
+      el.setAttribute('d', 'M' + front(q, tm - ECHO[j] / 1000).map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join('L') + 'Z');
+      el.style.opacity = (0.34 * Math.pow(1 - q, 0.8)).toFixed(3);
+    });
+  }
+  function clearEchoes() { ripP.forEach(function (el) { el.style.opacity = 0; }); }
   function lineWrap(el) { var w = document.createElement('span'); w.className = 'ln'; var inner = document.createElement('span'); while (el.firstChild) inner.appendChild(el.firstChild); w.appendChild(inner); el.appendChild(w); return w; }
   function buildInfo(it) {
     dinfo.innerHTML = '';
@@ -331,7 +375,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     var cvEl = cur.querySelector('.cvf'); fromRect = cvEl.getBoundingClientRect();
     var p = buildInfo(it);
     dcv.innerHTML = coverHTML(it);
-    sheet.style.transform = 'none'; sheet.style.opacity = '';
+    sheet.style.opacity = ''; sheet.style.transform = ''; clearEchoes();
+    setClip(reduce ? null : front(0, 0)); // 보이기 전에 표지 크기로 먼저 잘라 둔다(깜박임 방지)
     sheet.classList.add('on'); sheet.setAttribute('aria-hidden', 'false');
     var ch = dcv.getBoundingClientRect(); dcv.style.setProperty('--cs', ch.width / 250);
     dcv.querySelector('.art').innerHTML = motif(it.m, ch.width * 0.8, ch.height * 0.56, it.th.ci, it.th.acc);
@@ -342,17 +387,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     cv.style.webkitMaskImage = mask; cv.style.maskImage = mask; cv.style.webkitMaskPosition = '58% 34%'; cv.style.maskPosition = '58% 34%';
     cv.style.webkitMaskSize = '0% 0%'; cv.style.maskSize = '0% 0%';
     sTop.style.opacity = 0; sGrid.style.opacity = 1; lines.forEach(function (l) { l.classList.remove('on'); });
-    var W = innerWidth, Hh = innerHeight, fr = fromRect;
-    function place(q) {
-      var x = fr.left * (1 - q), y = fr.top * (1 - q), sx2 = fr.width / W + (1 - fr.width / W) * q, sy2 = fr.height / Hh + (1 - fr.height / Hh) * q, rot = 4.5 * (1 - q);
-      sheet.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg) scale(' + sx2 + ',' + sy2 + ')';
-    }
-    place(0);
-    if (reduce) { place(1); sTop.style.opacity = 1; cv.style.maskImage = cv.style.webkitMaskImage = 'none'; lines.forEach(function (l) { l.classList.add('on'); }); return; }
+    if (reduce) { sTop.style.opacity = 1; cv.style.maskImage = cv.style.webkitMaskImage = 'none'; lines.forEach(function (l) { l.classList.add('on'); }); return; }
     sGrid.style.visibility = 'hidden';
-    // 원본 실측: 종이는 0.12초 33% → 0.28초 77% → 0.45초 94% → 0.62초 100% (ease-out quad 640ms)
-    animate(640, function (t) { place(1 - (1 - t) * (1 - t)); });
-    timers.push(setTimeout(function () { sGrid.style.visibility = 'visible'; }, 240));
+    // 종이가 표지 자리에서 물결치며 퍼진다(ease-out quad 780ms). 물결 진폭은 중간에 가장 크고 끝에서 0
+    animate(DUR, function (t) { var q = 1 - (1 - t) * (1 - t), tm = t * DUR / 1000; setClip(front(q, tm)); echoes(t * DUR, tm); }, function () { setClip(null); clearEchoes(); });
+    timers.push(setTimeout(function () { sGrid.style.visibility = 'visible'; }, 260));
     timers.push(setTimeout(function () { animate(180, function (t) { sTop.style.opacity = t; }); }, 300));
     timers.push(setTimeout(function () {
       animate(1050, function (t) { var q = 1 - Math.pow(1 - t, 3), v = (8 + q * 312).toFixed(1) + '%'; cv.style.webkitMaskSize = v + ' ' + v; cv.style.maskSize = v + ' ' + v; }, function () { cv.style.webkitMaskImage = 'none'; cv.style.maskImage = 'none'; });
@@ -365,11 +404,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     if (!opened) return; timers.forEach(clearTimeout); timers = [];
     lines.forEach(function (l) { l.firstChild.style.transition = 'transform 0.25s ease-in'; l.classList.remove('on'); });
     var cv = dcv.querySelector('.cv'); animate(260, function (t) { cv.style.opacity = 1 - t; sTop.style.opacity = 1 - t; });
-    var W = innerWidth, Hh = innerHeight, fr = fromRect;
+    clearEchoes();
     setTimeout(function () {
-      animate(reduce ? 1 : 420, function (t) { var q = 1 - ease(t); var x = fr.left * (1 - q), y = fr.top * (1 - q), sx2 = fr.width / W + (1 - fr.width / W) * q, sy2 = fr.height / Hh + (1 - fr.height / Hh) * q;
-        sheet.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (4.5 * (1 - q)) + 'deg) scale(' + sx2 + ',' + sy2 + ')'; sheet.style.opacity = t > 0.8 ? (1 - (t - 0.8) * 5) : 1; },
-        function () { sheet.classList.remove('on'); sheet.style.opacity = ''; sGrid.style.visibility = ''; sGrid.style.opacity = ''; sTop.style.opacity = ''; if (sheet.contains(document.activeElement)) document.activeElement.blur(); sheet.setAttribute('aria-hidden', 'true'); lines.forEach(function (l) { l.firstChild.style.transition = ''; }); opened = false; });
+      // 닫을 때도 같은 물결 윤곽이 표지 자리로 되감긴다
+      animate(reduce ? 1 : 520, function (t) { var q = Math.pow(1 - t, 1.8); if (!reduce) setClip(front(q, 0.5 + t * 0.52)); sheet.style.opacity = t > 0.8 ? (1 - (t - 0.8) * 5) : 1; },
+        function () { sheet.classList.remove('on'); sheet.style.opacity = ''; setClip(null); sGrid.style.visibility = ''; sGrid.style.opacity = ''; sTop.style.opacity = ''; if (sheet.contains(document.activeElement)) document.activeElement.blur(); sheet.setAttribute('aria-hidden', 'true'); lines.forEach(function (l) { l.firstChild.style.transition = ''; }); opened = false; });
     }, 200);
   }
   document.getElementById('close').addEventListener('click', closeDetail);
