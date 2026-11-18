@@ -38,7 +38,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .top .r { justify-self: end; padding-top: 7px; }
 /* 서가 분류 메뉴: 유리(글래스모피즘) 알약. 원본처럼 파란 채움이 서가 위치를 따라 항목 사이를 연속으로 미끄러지고,
    채움이 덮은 부분의 글자만 흰색이 된다(흰 글자 층을 채움 모양으로 잘라 겹침) */
-.snav { position: absolute; z-index: 20; left: 50%; top: calc(50% - 232px * var(--s) - 30px); /* 책 윗부분에 살짝 걸쳐 유리 너머로 책이 비친다 */ transform: translateX(-50%); display: flex; padding: 4px; border-radius: 999px;
+.snav { position: absolute; z-index: 20; left: 50%; top: calc(50% - 250px * var(--s) - 58px); /* 선택 표지 윗변(가운데에서 약 250×s 위, 기울기 포함)보다 16px 위에 뜬다. 메뉴 높이 42px */ transform: translateX(-50%); display: flex; padding: 4px; border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.05)); border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.4), inset 1px 0 0 rgba(255, 255, 255, 0.35), inset -1px 0 0 rgba(255, 255, 255, 0.2), 0 12px 26px -8px rgba(60, 45, 30, 0.16), 0 1px 1px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(4px) saturate(1.6); backdrop-filter: blur(4px) saturate(1.6); }
