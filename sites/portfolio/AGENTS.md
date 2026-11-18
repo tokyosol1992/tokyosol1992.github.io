@@ -2,7 +2,7 @@
 
 - 소스는 이 폴더, 상태·결정·기록은 `../../docs/portfolio/`다. 루트 공통 규칙도 적용한다.
 - 2026-11-18부터 실제 `/portfolio/` 페이지는 OSOL LIBRARY 서가다. 원본은 `mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다(아티팩트 게시본과 같은 파일). 서가를 고칠 때는 이 파일을 고치고 `npm run build`로 확인한다. 한글 문구를 바꾸면 `mockups/suit-subset.py`로 SUIT 부분 글꼴을 다시 만든다.
-- 서가 기준: 밝은 종이 배경 `#e7e5df`, 포인트 파랑 `#1c3694`, 제목·영문 메뉴는 함렛, 한글은 SUIT, 이름은 영문 OSOL LIBRARY. 결정은 `../../docs/portfolio/DECISIONS.md`.
+- 서가 기준: 밝은 종이 배경 `#e7e5df`, 포인트 파랑 `#1c3694`, 함렛은 가운데 제목(OSOL LIBRARY)에만, 메뉴(AI/AX 포함)·한글은 SUIT, 이름은 영문 OSOL LIBRARY. 결정은 `../../docs/portfolio/DECISIONS.md`.
 - 경력·성과·요약·연락처는 사용자에게 받은 사실만 쓴다. 지금 서가 내용(샘플 프로젝트 01~09, YYYY 기간, 역할 입력 예정)은 자리표시다.
 - 이전 다크 한 페이지(다크 고정, 파랑 #2895f7, Border Glow, Lenis·검색 등)는 `src/legacy/index-dark-2026-11-06.astro`에 보존했다(경로 없음). Soft Aurora와 오로라 배경은 사용자 철회 사항이므로 되살리지 않는다.
 - 기간 표기는 YYYY - YYYY / YYYY.MM.DD 규칙을 따른다(`src/lib/period.ts`). 연차 표기를 새로 넣지 않는다.
