@@ -41,6 +41,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .shelf { position: absolute; left: 0; right: 0; top: 50%; height: 0; }
 .box { position: absolute; left: 0; top: 0; width: 0; height: 0; }
 .box::after { content: ''; position: absolute; left: calc(-34px * var(--s)); width: calc(68px * var(--s)); top: calc(228px * var(--s)); height: calc(70px * var(--s)); background: linear-gradient(rgba(60, 50, 40, 0.34), transparent); filter: blur(5px); pointer-events: none; opacity: var(--sh, 1); }
+/* .cl: 상자의 화면 윤곽을 둥근 모서리로 자르는 2D 틀(그림자·▶ 버튼은 바깥에 둔다) */
+.cl { position: absolute; left: 0; top: 0; width: 0; height: 0; }
 .rot { position: absolute; left: calc(-39px * var(--s)); top: calc(-232.5px * var(--s)); width: calc(78px * var(--s)); height: calc(465px * var(--s)); transform-style: preserve-3d; cursor: pointer; }
 .face { position: absolute; top: 0; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
 .fr { left: 0; width: 100%; transform: translateZ(calc(125px * var(--s))); background: linear-gradient(180deg, var(--t1), var(--t2)); color: var(--tx);
@@ -54,11 +56,34 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .fr .mk b { font-family: var(--display); font-weight: 700; font-size: calc(10px * var(--s)); padding: calc(2px * var(--s)) calc(5px * var(--s)); border: 1px solid currentColor; opacity: 0.9; letter-spacing: 0.04em; }
 .sd { left: calc(-86px * var(--s)); width: calc(250px * var(--s)); }
 /* 표지(오른쪽 면)는 책등과 닿는 왼쪽이 직각, 바깥쪽(오른쪽)만 둥글다. 뒷면(왼쪽 면)은 반대 */
-.cvf { transform: rotateY(90deg) translateZ(calc(39px * var(--s))); border-radius: 0 6px 6px 0; }
-.bkf { transform: rotateY(-90deg) translateZ(calc(39px * var(--s))); background: linear-gradient(180deg, var(--t2), var(--t3)); border-radius: 6px 0 0 6px; }
+.cvf { transform: rotateY(90deg) translateZ(calc(39px * var(--s))); }
+.bkf { transform: rotateY(-90deg) translateZ(calc(39px * var(--s))); background: linear-gradient(180deg, var(--t2), var(--t3)); }
 .bkf::after { content: ''; position: absolute; inset: 8% 10%; border: 1px solid rgba(255, 255, 255, 0.1); }
-.cv { position: absolute; inset: 0; background: var(--cp); color: var(--ci); border-radius: 5px; overflow: hidden; }
-.cvf .cv { border-radius: 0 5px 5px 0; }
+.cv { position: absolute; inset: 0; background: var(--cp); color: var(--ci); overflow: hidden; }
+.d-cv .cv { border-radius: calc(11px * var(--cs, 1)); }
+
+/* 헤진 서가: 가장자리·모서리의 때(어두운 얼룩)와 닳아 밝아진 긁힘, 누렇게 바랜 종이. 책마다 무늬 위치(--wx, --wy)를 달리한다 */
+:root {
+  --grime: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='720'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.028' numOctaves='4' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .27  0 0 0 0 .2  0 0 0 0 .12  2.1 0 0 0 -.9'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  --speck: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='.5' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .95  0 0 0 0 .91  0 0 0 0 .83  7 0 0 0 -3.9'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+  --mottle: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='720'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='4' seed='23' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .36  0 0 0 0 .31  0 0 0 0 .24  1.5 0 0 0 -.55'/></filter><rect width='100%' height='100%' filter='url(%23m)'/></svg>");
+  --foxing: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='720'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.12' numOctaves='2' seed='19' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .29  0 0 0 0 .15  18 0 0 0 -13.1'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  --edge-mask: linear-gradient(90deg, #000, rgba(0,0,0,.35) 7%, transparent 16%, transparent 84%, rgba(0,0,0,.35) 93%, #000), linear-gradient(180deg, #000, rgba(0,0,0,.3) 4%, transparent 9%, transparent 91%, rgba(0,0,0,.3) 96%, #000), linear-gradient(rgba(0,0,0,var(--wall, .3)), rgba(0,0,0,var(--wall, .3)));
+  --rub-mask: radial-gradient(28% 9% at 0 0, #000, transparent), radial-gradient(28% 9% at 100% 0, #000, transparent), radial-gradient(28% 9% at 0 100%, #000, transparent), radial-gradient(28% 9% at 100% 100%, #000, transparent), linear-gradient(90deg, #000, transparent 5%, transparent 95%, #000), linear-gradient(180deg, #000, transparent 1.6%, transparent 98.4%, #000);
+}
+.wr { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.wr::before, .wr::after { content: ''; position: absolute; inset: 0; background-position: var(--wx, 0) var(--wy, 0); }
+.wr::before { background-image: var(--grime); opacity: var(--go, .55); -webkit-mask-image: var(--edge-mask); mask-image: var(--edge-mask); }
+.wr::after { background-image: var(--speck); opacity: var(--so, .7); -webkit-mask-image: var(--rub-mask); mask-image: var(--rub-mask); }
+/* 책등: 위쪽이 햇빛에 바래고, 위·아래 끝이 닳아 하얗게 일어난다 */
+.fr .wr { --go: .7; --so: .8; --wall: .22; background: linear-gradient(180deg, rgba(232, 220, 196, .16), transparent 26%), linear-gradient(180deg, rgba(236, 226, 206, .5), transparent 0.7%, transparent 99.3%, rgba(236, 226, 206, .45)); }
+.bkf .wr { --go: .7; --so: .8; --wall: .25; }
+/* 표지: 누렇게 바랜 종이, 갈색 반점, 가장자리 때 */
+/* 상세의 큰 표지는 무늬도 같은 비율로 키워 서가에서 본 표지와 같은 헤짐으로 보이게 한다 */
+.d-cv .wr { background-size: calc(720px * var(--cs, 1)), calc(720px * var(--cs, 1)), 100% 100%, 100% 100%; }
+.d-cv .wr::before { background-size: calc(720px * var(--cs, 1)); }
+.d-cv .wr::after { background-size: calc(200px * var(--cs, 1)); }
+.cv .wr { --go: .5; --so: .5; --wall: .3; background: var(--foxing) var(--wy, 0) var(--wx, 0), var(--mottle) var(--wx, 0) var(--wy, 0), radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(120, 88, 40, .16)), linear-gradient(rgba(176, 140, 72, .08), rgba(176, 140, 72, .08)); }
 .cv::before { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.35), transparent 60%), linear-gradient(90deg, rgba(0, 0, 0, 0.14), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.1)); pointer-events: none; z-index: 3; }
 .cv .tag { position: absolute; left: 7%; top: 3.2%; font-family: var(--sans); font-weight: 600; font-size: calc(8.5px * var(--cs, var(--s))); letter-spacing: 0.14em; text-transform: uppercase; }
 .cv h3 { position: absolute; left: 6%; right: 6%; top: 7.5%; margin: 0; text-align: center; font-family: var(--display); font-weight: 700; font-size: calc(43px * var(--cs, var(--s))); line-height: 0.96; letter-spacing: -0.01em; text-transform: uppercase; color: var(--ct); }
@@ -201,16 +226,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   var mod = function (a, n) { return ((a % n) + n) % n; }, clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var S = 1, target = 2, pos = 2, opened = false, hoverSlot = -1;
 
-  function coverHTML(it) { return '<span class="cv" style="--cp:' + it.th.cp + ';--ci:' + it.th.ci + ';--ct:' + it.th.ct + '"><span class="tag">AN OH SOLGIL SAMPLE</span><h3>' + it.en.replace(' ', '<br>') + '</h3><span class="art"></span><span class="mk2">SOLGIL</span><span class="mk">CASE</span></span>'; }
+  // 책마다 고정된 무작위 값(헤짐 무늬 위치·모서리 반경)
+  function hash(i, k) { var x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); }
+  function coverHTML(it) { return '<span class="cv" style="--cp:' + it.th.cp + ';--ci:' + it.th.ci + ';--ct:' + it.th.ct + '"><span class="tag">AN OH SOLGIL SAMPLE</span><h3>' + it.en.replace(' ', '<br>') + '</h3><span class="art"></span><span class="mk2">SOLGIL</span><span class="mk">CASE</span><i class="wr"></i></span>'; }
   var els = [];
   for (var k = 0; k < POOL; k++) {
     var b = document.createElement('div'); b.className = 'box'; b._slot = k; b._item = -1; b._hov = 0;
-    b.innerHTML = '<div class="rot" role="option"><div class="face fr"><span class="art"></span><span class="ttl"></span><span class="mk"><i>SOLGIL</i><b>CASE</b></span></div><div class="face sd cvf"></div><div class="face sd bkf"></div></div><span class="play"></span>';
-    b._rot = b.firstChild; b._play = b.lastChild; shelf.appendChild(b); els.push(b);
+    b.innerHTML = '<div class="cl"><div class="rot" role="option"><div class="face fr"><span class="art"></span><span class="ttl"></span><span class="mk"><i>SOLGIL</i><b>CASE</b></span><i class="wr"></i></div><div class="face sd cvf"></div><div class="face sd bkf"><i class="wr"></i></div></div></div><span class="play"></span>';
+    b._cl = b.firstChild; b._rot = b._cl.firstChild; b._play = b.lastChild; shelf.appendChild(b); els.push(b);
   }
   function fill(b, idx) {
     var it = ITEMS[idx], th = it.th; b._item = idx;
     ['t1', 't2', 't3', 'tx'].forEach(function (p) { b.style.setProperty('--' + p, th[p]); });
+    b.style.setProperty('--wx', -Math.round(hash(idx, 1) * 200) + 'px'); b.style.setProperty('--wy', -Math.round(hash(idx, 2) * 200) + 'px');
     var fr = b.querySelector('.fr');
     fr.querySelector('.art').innerHTML = motif(it.m, 62 * S, 128 * S, th.tx, th.acc);
     fr.querySelector('.ttl').textContent = it.ko;
@@ -220,6 +248,47 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
   // 위치값 pos 하나로 모든 상자의 각도·폭·자리를 계산 (원본처럼 두 표지가 함께 반쯤 열리는 중간 상태가 생김)
   var RAD = Math.PI / 180, lastS = 0;
+  // ===== 둥근 이음매: 면마다 모서리를 둥글리면 맞닿는 곳에 홈이 생긴다. 대신 상자(8개 꼭짓점)를 화면에 투영한 윤곽을
+  // 반경 r만큼 안으로 줄였다가 원호로 다시 부풀려, 어느 각도에서든 윤곽 모서리(책등-표지 이음매 포함)가 같은 반경으로 둥글게 보이게 한다 =====
+  function hull(pts) {
+    pts.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }, lo = [], up = [], i;
+    for (i = 0; i < pts.length; i++) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], pts[i]) <= 0) lo.pop(); lo.push(pts[i]); }
+    for (i = pts.length - 1; i >= 0; i--) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], pts[i]) <= 0) up.pop(); up.push(pts[i]); }
+    lo.pop(); up.pop(); return lo.concat(up);
+  }
+  function outN(a, b, c) { var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, nx = dy / L, ny = -dx / L; if (nx * ((a[0] + b[0]) / 2 - c[0]) + ny * ((a[1] + b[1]) / 2 - c[1]) < 0) { nx = -nx; ny = -ny; } return [nx, ny]; }
+  function center(poly) { var x = 0, y = 0; poly.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / poly.length, y / poly.length]; }
+  function roundHull(h, r) {
+    var c = center(h), poly = h.slice();
+    h.forEach(function (a, i) {
+      var n = outN(a, h[(i + 1) % h.length], c), out = [], f = function (p) { return (p[0] - a[0]) * n[0] + (p[1] - a[1]) * n[1] + r; };
+      for (var j = 0; j < poly.length; j++) { var p = poly[j], q = poly[(j + 1) % poly.length], fp = f(p), fq = f(q); if (fp <= 0) out.push(p); if ((fp <= 0) !== (fq <= 0)) { var t = fp / (fp - fq); out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]); } }
+      poly = out;
+    });
+    poly = poly.filter(function (p, j) { var q = poly[(j + 1) % poly.length]; return Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.05; });
+    if (poly.length < 3) return h;
+    var c2 = center(poly), res = [], R = r + 0.6; // 0.6px는 가장자리 안티앨리어싱이 잘리지 않게
+    for (var i = 0; i < poly.length; i++) {
+      var p0 = poly[(i - 1 + poly.length) % poly.length], p = poly[i], p1 = poly[(i + 1) % poly.length];
+      var n1 = outN(p0, p, c2), n2 = outN(p, p1, c2), a1 = Math.atan2(n1[1], n1[0]), da = Math.atan2(n2[1], n2[0]) - a1;
+      while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+      var steps = Math.max(1, Math.ceil(Math.abs(da) / 0.26));
+      for (var k = 0; k <= steps; k++) { var a = a1 + da * k / steps; res.push([p[0] + Math.cos(a) * R, p[1] + Math.sin(a) * R]); }
+    }
+    return res;
+  }
+  // .rot과 같은 변환(perspective → translateZ → rotateY)으로 상자 꼭짓점을 투영. 좌표는 .cl(상자 중심) 기준
+  function silhouette(ang, z, r) {
+    var c = Math.cos(ang * RAD), sn = Math.sin(ang * RAD), P = PERS * S, pts = [];
+    for (var m = 0; m < 8; m++) {
+      var x = (m & 1 ? 1 : -1) * F / 2 * S, zz = (m & 2 ? 1 : -1) * D / 2 * S, y = (m & 4 ? 1 : -1) * H / 2 * S;
+      var X = c * x + sn * zz, Z = -sn * x + c * zz - z * S, w = P / (P - Z);
+      pts.push([X * w, y * w]);
+    }
+    var v = 'polygon(' + roundHull(hull(pts), r).map(function (p) { return p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px'; }).join(',') + ')';
+    return v;
+  }
   function frame() {
     var W = stage.clientWidth, cx = W / 2;
     var base = Math.round(pos), list = [];
@@ -242,6 +311,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
       var z = (D / 2) * Math.abs(Math.cos(o.ang * RAD)) + (F / 2) * Math.abs(Math.sin(o.ang * RAD)) - LIFT * Math.pow(Math.abs(Math.sin(o.ang * RAD)), 6);
       b.style.transform = 'translate3d(' + (o.c + off).toFixed(2) + 'px,' + (-12 * S * b._hov).toFixed(2) + 'px,0)';
       b._rot.style.transform = 'perspective(' + PERS * S + 'px) translateZ(' + (-z * S).toFixed(2) + 'px) rotateY(' + o.ang.toFixed(3) + 'deg)';
+      // 각도가 바뀐 상자만 윤곽을 다시 계산(쉬는 책은 그대로). 모서리 반경은 책마다 9~13px로 조금씩 다르게 닳았다
+      var ck = o.ang.toFixed(1) + '|' + S + '|' + idx; // 0.1° 단위로만 다시 계산(각도가 정해지면 z도 정해진다)
+      if (b._ck !== ck) { b._ck = ck; var cl = silhouette(o.ang, z, (9 + 4 * hash(idx, 3)) * S); b._cl.style.webkitClipPath = cl; b._cl.style.clipPath = cl; }
       b.style.zIndex = 100 - Math.round(Math.abs(o.d) * 4);
       b.style.setProperty('--sh', (1 - o.e).toFixed(3));
       var pw = (F * Math.abs(Math.cos(o.ang * RAD)) + D * Math.abs(Math.sin(o.ang * RAD))) * S; b._play.style.left = (-pw / 2 - 15 * S).toFixed(1) + 'px'; b._play.style.top = (232.5 * S * 0.62).toFixed(1) + 'px';
