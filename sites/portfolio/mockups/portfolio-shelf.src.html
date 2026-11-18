@@ -1,12 +1,12 @@
-<title>Oh SolGil 서가 시안</title>
+<title>Osol Library 서가 시안</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@500;600&family=Noto+Serif+KR:wght@500;700;900&family=Noto+Sans+KR:wght@400;500&family=Hahmlet:wght@500;600;700;800&family=Nanum+Myeongjo:wght@700;800&family=Song+Myung&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@500;600&family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500&family=Hahmlet:wght@600;700&display=swap">
 <style>
 /* 레이아웃(원본 1440×960 실측): 3D 비디오 케이스 상자(정면 책등 78 × 깊이 250 × 높이 465)를 3.5° 기울여 세운 서가. 선택한 상자는 -86° 돌아 표지가 정면. 넘김은 프레임마다 목표를 따라가는 감속(계수 0.068/60fps) */
 :root {
   --paper: #e7e5df; --paper-2: #f3f2ee; --ink: #0c0c0c; --blue: #1c3694; --mute: #6b6a66;
   --serif: 'EB Garamond', 'Noto Serif KR', Georgia, serif;
-  /* 제목용 명조(시안 옵션에서 후보 비교). --kr-w: 책등·로고 굵기, --kr-h: 큰 제목 굵기 */
+  /* 제목용 명조: 함렛 확정(2026-11-18). --kr-w: 책등·로고 굵기, --kr-h: 큰 제목 굵기 */
   --kr: 'Hahmlet', 'Noto Serif KR', Georgia, serif; --kr-w: 700; --kr-h: 600;
   --display: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
   --sans: 'Inter', 'Noto Sans KR', system-ui, sans-serif;
@@ -29,7 +29,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .btn { display: inline-block; border: 1px solid var(--ink); padding: 6px 9px 5px; line-height: 1; transition: background 0.2s, color 0.2s; color: var(--ink); text-decoration: none; }
 .btn:hover { background: var(--ink); color: var(--paper); }
 .logo { text-align: center; color: var(--blue); line-height: 1; }
-.logo b { display: block; font-family: var(--kr); font-weight: var(--kr-w); font-size: 26px; letter-spacing: 0.04em; }
+.logo b { display: block; font-family: var(--kr); font-weight: var(--kr-w); font-size: 26px; letter-spacing: 0.08em; }
 .logo i { display: block; margin-top: 6px; font-style: normal; font-family: var(--sans); font-weight: 500; font-size: 10px; letter-spacing: 0.22em; }
 /* GNB: 포트폴리오 상단 헤더(로고 / 메뉴 + 미끄러지는 하이라이트 … 오른쪽 버튼, 모바일 햄버거·번호 목록) 구조를
    종이 서가에 맞춘 초안. 메뉴 = 서가 분류, 하이라이트 = 지금 고른 책의 분류(파랑) */
@@ -38,7 +38,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .g-pill { display: flex; align-items: center; gap: 18px; padding: 7px 7px 7px 20px; border: 1px solid var(--ink); border-radius: 999px;
   background: rgba(243, 242, 238, 0.72); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset; }
 .g-logo { display: flex; align-items: baseline; gap: 9px; color: var(--blue); text-decoration: none; white-space: nowrap; }
-.g-logo b { font-family: var(--kr); font-weight: var(--kr-w); font-size: 21px; line-height: 1; letter-spacing: 0.02em; }
+.g-logo b { font-family: var(--kr); font-weight: var(--kr-w); font-size: 21px; line-height: 1; letter-spacing: 0.06em; }
 .g-logo i { font-style: normal; font-family: var(--sans); font-weight: 600; font-size: 9.5px; letter-spacing: 0.2em; }
 .g-sep { color: rgba(12, 12, 12, 0.35); font-size: 20px; font-weight: 300; line-height: 1; margin-left: -4px; }
 .g-nav { position: relative; display: flex; gap: 2px; margin-left: -4px; }
@@ -62,19 +62,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .g-drop button[aria-pressed='true'] { background: var(--blue); color: #fff; } .g-drop button[aria-pressed='true'] small { color: rgba(255, 255, 255, 0.75); }
 @media (max-width: 760px) { .g-sep, .g-nav, .g-cta { display: none; } .g-menu { display: block; } .g-pill { padding-left: 16px; } }
 
-/* 시안 옵션(글꼴·이름 비교용, 확정 뒤 제거) */
-.opt { position: fixed; z-index: 85; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font-family: var(--sans); }
-.opt > button { display: block; margin: 0 auto; padding: 8px 14px 7px; border: 1px dashed var(--ink); border-radius: 999px; background: var(--paper-2); font-size: 10.5px; }
-.opt-p { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: min(560px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; padding: 14px; border: 1px solid var(--ink); border-radius: 18px; background: var(--paper-2); box-shadow: 0 20px 50px rgba(40, 30, 20, 0.2); }
-.opt-p[hidden] { display: none; }
-.opt-p h4 { margin: 2px 4px 8px; font-size: 10px; letter-spacing: 0.08em; color: var(--mute); }
-.opt-p .row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin-bottom: 14px; }
-.opt-p .row:last-child { margin-bottom: 0; }
-.opt-p .row button { text-align: left; padding: 10px 12px; border: 1px solid rgba(12, 12, 12, 0.18); border-radius: 12px; }
-.opt-p .row button[aria-pressed='true'] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
-.opt-p .row b { display: block; font-size: 17px; line-height: 1.25; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.opt-p .row small { display: block; margin-top: 4px; font-size: 10px; color: var(--mute); }
-@media (max-width: 760px) { .opt { bottom: calc(54px + env(safe-area-inset-bottom, 0px)); } }
 
 /* 서가: 상자마다 자기 원근 */
 .stage { position: absolute; inset: 0; z-index: 1; overflow: hidden; touch-action: pan-y; }
@@ -202,13 +189,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 </svg>
 
 <div class="paper"></div>
-<div class="opt" id="opt"><div class="opt-p u" id="opt-p" hidden></div><button type="button" class="u" aria-expanded="false" aria-controls="opt-p">시안 옵션 · 글꼴 / 이름</button></div>
 <div class="ring" id="ring"><span>OPEN<br>열기</span></div>
 
 <header class="gnb" id="gnb">
   <div class="g-bar">
     <div class="g-pill">
-      <a class="g-logo" href="#" id="home"><b class="nm-ko">솔길</b><i class="nm-en">OH SOLGIL</i></a>
+      <a class="g-logo" href="#" id="home" aria-label="OSOL LIBRARY"><b>OSOL</b><i>LIBRARY</i></a>
       <span class="g-sep" aria-hidden="true">/</span>
       <nav class="g-nav u" id="chips" aria-label="분류">
         <span class="g-ind" aria-hidden="true"></span>
@@ -234,13 +220,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 <div class="cap" id="cap"><h2 id="c-t"></h2><div class="sub" id="c-s"></div><div class="yr" id="c-y"></div></div>
 <button class="arr l" id="prev" type="button" aria-label="이전">←</button>
 <button class="arr r" id="next" type="button" aria-label="다음">→</button>
-<footer class="foot u"><span>© <span class="nm-en">OH SOLGIL</span>. ALL RIGHTS RESERVED.</span><span><a href="https://github.com/tokyosol1992" target="_blank" rel="noopener">GITHUB</a> / MAIL</span></footer>
+<footer class="foot u"><span>© OSOL LIBRARY. ALL RIGHTS RESERVED.</span><span><a href="https://github.com/tokyosol1992" target="_blank" rel="noopener">GITHUB</a> / MAIL</span></footer>
 
 <section class="sheet" id="sheet" aria-label="프로젝트 상세" aria-hidden="true">
   <svg class="rip" id="rip" aria-hidden="true"><path></path><path></path><path></path></svg>
   <header class="top">
     <div><button class="btn u" id="close" type="button">CLOSE / 닫기</button></div>
-    <div class="logo"><b class="nm-ko">솔길</b><i class="nm-en">OH SOLGIL</i></div>
+    <div class="logo" aria-label="OSOL LIBRARY"><b>OSOL</b><i>LIBRARY</i></div>
     <div></div>
   </header>
   <div class="d-grid">
@@ -263,7 +249,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   ];
   var ORDER = [0, 1, 2, 3, 4, 5, 2, 0, 1], GROUP = ['platform', 'system', 'etc', 'platform', 'system', 'etc', 'platform', 'system', 'etc'];
   var GLAB = { platform: '플랫폼', system: '디자인 시스템', etc: '기타' };
-  var NAME = { ko: '솔길', en: 'OH SOLGIL', mk: 'SOLGIL', tag: 'AN OH SOLGIL SAMPLE' };
+  // 이름: 오솔문고, 표기는 영문만(2026-11-18 사용자 결정)
+  var NAME = { en: 'OSOL LIBRARY', mk: 'OSOL', tag: 'AN OSOL LIBRARY SAMPLE' };
   var ITEMS = [];
   for (var i = 0; i < N; i++) { var n2 = '0' + (i + 1); ITEMS.push({ ko: '샘플 프로젝트 ' + n2, en: 'Sample ' + n2, g: GROUP[i], th: TH[ORDER[i]], m: i, n: n2 }); }
 
@@ -587,42 +574,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   document.getElementById('home').addEventListener('click', function (e) { e.preventDefault(); });
   document.getElementById('cta').addEventListener('click', function (e) { e.preventDefault(); });
 
-  // ===== 시안 옵션: 글꼴 후보(굵고 날카로운 명조)와 이름 후보를 바로 바꿔 본다. 선택은 이 브라우저에만 기억 =====
-  var FONTS = [
-    { id: 'hahmlet', name: '함렛 Hahmlet', fam: "'Hahmlet'", w: 700, h: 600, note: '추천 · 각진 세리프, 100~900' },
-    { id: 'nanum', name: '나눔명조 ExtraBold', fam: "'Nanum Myeongjo'", w: 800, h: 800, note: '가는 획 대비 큼, 끝이 뾰족' },
-    { id: 'noto', name: '본명조 Black', fam: "'Noto Serif KR'", w: 900, h: 700, note: '가장 두꺼움, 단정한 세리프' },
-    { id: 'song', name: '송명 Song Myung', fam: "'Song Myung'", w: 400, h: 400, note: '붓끝처럼 날카로움, 한 굵기' },
-    { id: 'now', name: '현재(비교용)', fam: "'EB Garamond', 'Noto Serif KR'", w: 700, h: 400, note: '가라몬드 + 본명조' }
-  ];
-  var NAMES = [
-    { id: 'osol', ko: '오솔문고', en: 'OSOL LIBRARY', mk: 'OSOL', note: '추천 · 이름 소리 유지 + 문고(작은 책 총서)' },
-    { id: 'spread', ko: '펼침면', en: 'THE SPREAD', mk: 'SPREAD', note: '책을 펼친 두 면, 열기 동작과 맞물림' },
-    { id: 'solshelf', ko: '솔서가', en: 'SOL SHELF', mk: 'SOL', note: '솔 + 서가, 짧고 직관적' },
-    { id: 'copy', ko: '작업본', en: 'WORKING COPY', mk: 'W.COPY', note: '완성 전 작업 사본, 과정 중심' },
-    { id: 'now', ko: '솔길', en: 'OH SOLGIL', mk: 'SOLGIL', note: '현재' }
-  ];
-  var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-  function setFont(f) {
-    root.style.setProperty('--kr', f.fam + ", 'Noto Serif KR', Georgia, serif"); root.style.setProperty('--kr-w', f.w); root.style.setProperty('--kr-h', f.h);
-    store.set('shelf-font', f.id); markOpt('f', f.id); if (document.fonts) document.fonts.ready.then(moveInd);
-  }
-  function setName(n) {
-    NAME = { ko: n.ko, en: n.en, mk: n.mk, tag: 'AN ' + n.en + ' SAMPLE' };
-    [].forEach.call(document.querySelectorAll('.nm-ko'), function (e) { e.textContent = n.ko; });
-    [].forEach.call(document.querySelectorAll('.nm-en'), function (e) { e.textContent = n.en; });
-    document.title = n.ko + ' 서가 시안'; els.forEach(function (b) { b._item = -1; }); // 책등·표지 표기를 다시 채운다
-    store.set('shelf-name', n.id); markOpt('n', n.id); moveInd();
-  }
-  var optP = document.getElementById('opt-p'), optB = document.querySelector('#opt > button');
-  function markOpt(k, id) { [].forEach.call(optP.querySelectorAll('[data-' + k + ']'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-' + k) === id)); }); }
-  optP.innerHTML = '<h4>글꼴 · 책등·캡션·상세 제목·로고</h4><div class="row">' + FONTS.map(function (f) { return '<button type="button" data-f="' + f.id + '"><b style="font-family:' + f.fam.replace(/"/g, '') + ',serif;font-weight:' + f.w + ';text-transform:none">샘플 프로젝트 Aa</b><small>' + f.name + ' · ' + f.note + '</small></button>'; }).join('') + '</div>' +
-    '<h4>이름 · 로고·푸터·책등 표기</h4><div class="row">' + NAMES.map(function (n) { return '<button type="button" data-n="' + n.id + '"><b style="font-family:var(--kr);font-weight:var(--kr-w);color:var(--blue);text-transform:none">' + n.ko + '</b><small>' + n.en + ' · ' + n.note + '</small></button>'; }).join('') + '</div>';
-  optP.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.f) setFont(FONTS.filter(function (f) { return f.id === b.dataset.f; })[0]); if (b.dataset.n) setName(NAMES.filter(function (n) { return n.id === b.dataset.n; })[0]); });
-  optB.addEventListener('click', function () { var open = optP.hidden; optP.hidden = !open; optB.setAttribute('aria-expanded', String(open)); });
-  var f0 = store.get('shelf-font'), n0 = store.get('shelf-name');
-  setFont(FONTS.filter(function (f) { return f.id === f0; })[0] || FONTS[0]);
-  setName(NAMES.filter(function (n) { return n.id === n0; })[0] || NAMES[NAMES.length - 1]);
+  if (document.fonts) document.fonts.ready.then(moveInd); // 함렛 로고가 불러와진 뒤 하이라이트 위치를 다시 맞춘다
 
   function resize() { S = Math.max(0.5, Math.min(1, innerWidth / 1440, innerHeight / 960)); root.style.setProperty('--s', S); lastS = -1; }
   addEventListener('resize', resize); resize();
