@@ -1,26 +1,25 @@
 # Oh SolGil 현재 상태
 
-기준: 2026-11-17. 실제 사이트(`/portfolio/`)는 2026-11-06 통합 배포본 그대로다. 이번 서가 시안은 시안 폴더에만 있고 사이트 코드는 바꾸지 않았다.
+기준: 2026-11-18. 실제 사이트(`/portfolio/`)를 OSOL LIBRARY 서가(v13)로 교체하는 배포를 진행했다(사용자 결정). 원본은 `sites/portfolio/mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다. 이전 다크 페이지는 `src/legacy/`에 보존.
 
-## 진행 중: 오솔길 서가 시안
+## 현재: OSOL LIBRARY 서가 (실제 /portfolio/)
 
-- 시안: `sites/portfolio/mockups/portfolio-shelf.src.html`, 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
+- 원본: `sites/portfolio/mockups/portfolio-shelf.src.html`(실제 페이지가 그대로 불러옴), 아티팩트 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
 - 레퍼런스·실측값·버전 이력: `REFERENCES.md`
-- 상태: 사용자 열기 동작 확인(2026-11-17). 원본과 같은 치수·색·감속·열기 순서. 내용은 샘플.
-- 저장: 작업 브랜치 `claude/lucid-albattani-pr1jnv` → PR로 main 반영(병합 결과는 HISTORY 최신 항목 참조).
+- 상태: v13(2026-11-18) 가운데 영문 제목, 넓은 유리 분류 메뉴(항목마다 같은 좌우 여백 30px, 양쪽으로 나눔, 양옆 책등에만 걸치고 선택 표지는 메뉴 앞, 모바일은 표지 위 한 줄), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창, 가운데 아래 브레드크럼, 한글 SUIT·제목/영문 메뉴 함렛. 사용자 확정·배포 결정. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
+- 저장: v3까지는 PR #19로 main 병합. v4~v13과 실제 페이지 교체는 작업 브랜치 `claude/determined-brahmagupta-1vorl9` → PR로 main 병합 진행(결과는 HISTORY 최신 항목).
 
 ## 결정 대기 (사용자)
 
-1. 서가 구조를 실제 포트폴리오에 채택할지.
-2. 배경: 시안은 밝은 종이(`#e7e5df`)다. 기존 결정은 다크 고정·파랑 `#2895f7`(`DECISIONS.md`, `sites/portfolio/AGENTS.md`). 채택 시 결정 문서를 먼저 갱신한다.
-3. 실제 프로젝트 목록·표지 이미지·기간·역할·요약(사용자에게 받은 사실만).
-4. 원본 일러스트 대신 쓸 표지 그림 방향(지금은 직접 만든 도형).
+1. 실제 프로젝트 목록·표지 이미지·기간·역할·요약(사용자에게 받은 사실만).
+2. 원본 일러스트 대신 쓸 표지 그림 방향(지금은 직접 만든 도형).
 
 ## 다음 작업
 
-1. 위 결정을 받으면 시안을 다듬거나 `src/`로 이식한다(이식 시 `npm run build`, 모바일·데스크톱 확인).
+0. 유리 분류 메뉴 리터칭(사용자). 문구를 바꾸면 `sites/portfolio/mockups/suit-subset.py`로 SUIT 부분 글꼴을 다시 만든다. 물결 전환은 사용자 레퍼런스를 받은 뒤 다시 만들고, 시작 종이 기울기를 표지(-4°)와 맞춘다.
+1. 실제 프로젝트 내용을 받으면 서가 원본의 ITEMS(제목·분류·기간·역할·요약)와 표지를 채우고 `suit-subset.py`로 글꼴을 다시 만든 뒤 빌드·배포한다.
 2. 기존 미병합 작업(PR #10 그로우 케이스 스터디 시안, PR #3 Figma 기록)은 `../PENDING.md`에서 확인하고 요청 범위만 옮긴다.
-3. Safari 동작 확인(이 Cloud 환경에는 Chromium만 있음).
+3. Safari 동작 확인(사용자가 나중에 확인 예정, 이 Cloud 환경에는 Chromium만 있음).
 
 ## 이전 상태 (2026-11-06)
 
