@@ -48,7 +48,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .snav::after { content: ''; position: absolute; left: 6%; right: 40%; top: 2px; height: 42%; border-radius: 999px; pointer-events: none;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0)); }
-.snav button, .snav .hi span { position: relative; display: flex; align-items: center; height: 32px; padding: 0 22px; border-radius: 999px; white-space: nowrap; font-family: var(--ko); font-weight: 600; font-size: 12.5px; letter-spacing: -0.01em; color: rgba(12, 12, 12, 0.72); }
+/* 네 칸은 같은 폭(좌우 여백을 넓힌 칸, 원본 연대 메뉴처럼). 양쪽 묶음 폭이 같아 가운데 빈칸이 표지 위에 정확히 온다. 좁은 화면은 화면에 맞게 줄인다 */
+.snav { --cell: min(128px, calc((100vw - 300px * var(--s) - 28px - 56px) / 4)); }
+.snav button, .snav .hi span { position: relative; display: flex; align-items: center; justify-content: center; flex: none; width: var(--cell); height: 32px; padding: 0; border-radius: 999px; white-space: nowrap; font-family: var(--ko); font-weight: 600; font-size: 12.5px; letter-spacing: -0.01em; color: rgba(12, 12, 12, 0.72); }
 .snav .en, .snav .hi .en { font-family: var(--kr); font-weight: 700; font-size: 13.5px; letter-spacing: 0.02em; }
 .snav button:hover { color: var(--ink); }
 .snav button + button::before { content: ''; position: absolute; left: 0; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: rgba(12, 12, 12, 0.16); }
@@ -57,7 +59,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .snav .hi { position: absolute; inset: 0; display: flex; padding: 4px; pointer-events: none; }
 .snav .hi span { color: #fff; }
 /* 가운데 빈칸: 선택 표지(기운 폭 약 290×s)가 설 자리. 항목은 양옆 책등 위에 놓인다 */
-.snav .gap, .snav .hi .gap { flex: none; width: calc(300px * var(--s) + 28px); padding: 0; }
+.snav .gap, .snav .hi .gap { flex: none; width: calc(300px * var(--s) + 28px); padding: 0; } /* 이 칸이 표지 뒤에 가려진다 */
 
 
 /* 서가: 상자마다 자기 원근 */
@@ -218,7 +220,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
 @media (max-width: 760px) {
   .top { grid-template-columns: auto 1fr auto; } .sk-label, .sk-kbd { display: none; } .sk-btn { width: 36px; padding: 0; justify-content: center; }
   .foot .crumb { position: absolute; left: 0; right: 0; transform: none; bottom: calc(54px + env(safe-area-inset-bottom, 0px)); text-align: center; }
-  .snav button, .snav .hi span { padding: 0 12px; font-size: 12px; } .snav .en, .snav .hi .en { font-size: 12.5px; }
+  .snav button, .snav .hi span { width: auto; padding: 0 12px; font-size: 12px; } .snav .en, .snav .hi .en { font-size: 12.5px; }
   /* 모바일은 폭이 좁아 가운데를 비우지 않고, 표지 위 16px에 한 줄로 띄운다 */
   .snav { top: calc(50% - 250px * var(--s) - 58px); } .snav .gap, .snav .hi .gap { display: none; }
   .snav .gap + button::before { content: ''; position: absolute; left: 0; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: rgba(12, 12, 12, 0.16); }
