@@ -42,7 +42,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .box { position: absolute; left: 0; top: 0; width: 0; height: 0; }
 .box::after { content: ''; position: absolute; left: calc(-34px * var(--s)); width: calc(68px * var(--s)); top: calc(228px * var(--s)); height: calc(70px * var(--s)); background: linear-gradient(rgba(60, 50, 40, 0.34), transparent); filter: blur(5px); pointer-events: none; opacity: var(--sh, 1); }
 /* .cl: 상자의 화면 윤곽을 둥근 모서리로 자르는 2D 틀(그림자·▶ 버튼은 바깥에 둔다) */
-.cl { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.cl { position: absolute; left: var(--cx, 0); top: var(--cy, 0); width: 0; height: 0; }
+/* .rf: 바닥 반사 틀. 아래 변이 책의 가장 낮은 점(바닥선)에 오도록 JS가 높이를 맞추고, 그 선을 기준으로 거울처럼 비춘다.
+   기운 책(.cl 회전)을 감싼 바깥에서 비추므로 반사는 바닥에 맞게 반대로 기운다. 지원하지 않는 브라우저는 기존 그림자를 쓴다 */
+.rf { position: absolute; }
+.box.off { visibility: hidden; } /* 화면 밖 책은 그리지 않는다 */
+@supports (-webkit-box-reflect: below) {
+  .rf { -webkit-box-reflect: below 0 linear-gradient(transparent 80%, rgba(255, 255, 255, 0.05) 88%, rgba(255, 255, 255, 0.2)); }
+  .box::after { display: none; }
+}
 .rot { position: absolute; left: calc(-39px * var(--s)); top: calc(-232.5px * var(--s)); width: calc(78px * var(--s)); height: calc(465px * var(--s)); transform-style: preserve-3d; cursor: pointer; }
 .face { position: absolute; top: 0; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
 .fr { left: 0; width: 100%; transform: translateZ(calc(125px * var(--s))); background: linear-gradient(180deg, var(--t1), var(--t2)); color: var(--tx);
@@ -192,7 +200,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 <script>
 (function () {
   var N = 9, POOL = 29, HALF = 14;
-  var F = 78, D = 250, H = 465, PERS = 2400, LIFT = 72, REST = 3.5, OPEN = -86, K = 0.068;
+  var F = 78, D = 250, H = 465, PERS = 2400, LIFT = 72, REST = 3.5, OPEN = -86, K = 0.068, TILT = -4;
   var TH = [
     { t1: '#7f2f2a', t2: '#4d201c', t3: '#2a1210', tx: '#f1e3d1', cp: '#e3d6bd', ci: '#1d1a17', ct: '#1d1a17', acc: '#c8402f' },
     { t1: '#554d42', t2: '#2c2925', t3: '#161412', tx: '#ebe1ce', cp: '#d8c9aa', ci: '#17120e', ct: '#17120e', acc: '#7a6244' },
@@ -246,8 +254,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   var els = [];
   for (var k = 0; k < POOL; k++) {
     var b = document.createElement('div'); b.className = 'box'; b._slot = k; b._item = -1; b._hov = 0;
-    b.innerHTML = '<div class="cl"><div class="rot" role="option"><div class="face fr"><span class="art"></span><span class="ttl"></span><span class="mk"><i>SOLGIL</i><b>CASE</b></span><i class="wr"></i></div><div class="face sd cvf"></div><div class="face sd bkf"><i class="wr"></i></div></div></div><span class="play"></span>';
-    b._cl = b.firstChild; b._rot = b._cl.firstChild; b._play = b.lastChild; shelf.appendChild(b); els.push(b);
+    b.innerHTML = '<div class="rf"><div class="cl"><div class="rot" role="option"><div class="face fr"><span class="art"></span><span class="ttl"></span><span class="mk"><i>SOLGIL</i><b>CASE</b></span><i class="wr"></i></div><div class="face sd cvf"></div><div class="face sd bkf"><i class="wr"></i></div></div></div></div><span class="play"></span>';
+    b._rf = b.firstChild; b._cl = b._rf.firstChild; b._rot = b._cl.firstChild; b._play = b.lastChild; shelf.appendChild(b); els.push(b);
   }
   function fill(b, idx) {
     var it = ITEMS[idx], th = it.th; b._item = idx;
@@ -301,8 +309,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
       var X = c * x + sn * zz, Z = -sn * x + c * zz - z * S, w = P / (P - Z);
       pts.push([X * w, y * w]);
     }
-    var v = 'polygon(' + roundHull(hull(pts), r).map(function (p) { return p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px'; }).join(',') + ')';
-    return v;
+    var poly = roundHull(hull(pts), r);
+    return { pts: poly, css: 'polygon(' + poly.map(function (p) { return p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px'; }).join(',') + ')' };
   }
   function frame() {
     var W = stage.clientWidth, cx = W / 2;
@@ -324,14 +332,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
       b._a = o.a; b._d = o.d; b._cx = o.c + off; // 서가는 화면 왼쪽 0에서 시작
       var hov = (hoverSlot === b._slot && o.e < 0.5) ? 1 : 0; b._hov += (hov - b._hov) * 0.2;
       var z = (D / 2) * Math.abs(Math.cos(o.ang * RAD)) + (F / 2) * Math.abs(Math.sin(o.ang * RAD)) - LIFT * Math.pow(Math.abs(Math.sin(o.ang * RAD)), 6);
+      var vis = Math.abs(o.c + off - cx) < cx + 200 * S; if (vis !== b._vis) { b._vis = vis; b.classList.toggle('off', !vis); }
       b.style.transform = 'translate3d(' + (o.c + off).toFixed(2) + 'px,' + (-12 * S * b._hov).toFixed(2) + 'px,0)';
       b._rot.style.transform = 'perspective(' + PERS * S + 'px) translateZ(' + (-z * S).toFixed(2) + 'px) rotateY(' + o.ang.toFixed(3) + 'deg)';
       // 각도가 바뀐 상자만 윤곽을 다시 계산(쉬는 책은 그대로). 모서리 반경은 책마다 9~13px로 조금씩 다르게 닳았다
-      var ck = o.ang.toFixed(1) + '|' + S + '|' + idx; // 0.1° 단위로만 다시 계산(각도가 정해지면 z도 정해진다)
-      if (b._ck !== ck) { b._ck = ck; var cl = silhouette(o.ang, z, (9 + 4 * hash(idx, 3)) * S); b._cl.style.webkitClipPath = cl; b._cl.style.clipPath = cl; }
+      // 선택된 책은 원본처럼 평면 안에서 시계 반대 방향으로 약 4° 기운다(넘김 진행 e에 비례)
+      var tilt = TILT * o.e, ck = o.ang.toFixed(1) + '|' + tilt.toFixed(2) + '|' + S + '|' + idx; // 바뀐 상자만 다시 계산
+      if (b._ck !== ck) {
+        b._ck = ck; var sil = silhouette(o.ang, z, (9 + 4 * hash(idx, 3)) * S);
+        b._cl.style.webkitClipPath = sil.css; b._cl.style.clipPath = sil.css;
+        b._cl.style.transform = tilt ? 'rotate(' + tilt.toFixed(2) + 'deg)' : '';
+        // 바닥선 = 기운 윤곽의 가장 낮은 점. 반사 틀의 아래 변을 거기에 맞춘다
+        // 반사 틀 = 기운 윤곽을 감싸는 사각형(아래 변 = 가장 낮은 점 = 바닥선). 틀이 작을수록 반사 계산이 가볍다
+        var tc = Math.cos(tilt * RAD), ts = Math.sin(tilt * RAD), x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+        sil.pts.forEach(function (q) { var X = q[0] * tc - q[1] * ts, Y = q[0] * ts + q[1] * tc; x0 = Math.min(x0, X); x1 = Math.max(x1, X); y0 = Math.min(y0, Y); y1 = Math.max(y1, Y); });
+        x0 = Math.floor(x0) - 2; y0 = Math.floor(y0) - 2;
+        var rs = b._rf.style; rs.left = x0 + 'px'; rs.top = y0 + 'px'; rs.width = (Math.ceil(x1) + 2 - x0) + 'px'; rs.height = (y1 - y0).toFixed(1) + 'px';
+        b._cl.style.setProperty('--cx', -x0 + 'px'); b._cl.style.setProperty('--cy', -y0 + 'px');
+      }
       b.style.zIndex = 100 - Math.round(Math.abs(o.d) * 4);
       b.style.setProperty('--sh', (1 - o.e).toFixed(3));
-      var pw = (F * Math.abs(Math.cos(o.ang * RAD)) + D * Math.abs(Math.sin(o.ang * RAD))) * S; b._play.style.left = (-pw / 2 - 15 * S).toFixed(1) + 'px'; b._play.style.top = (232.5 * S * 0.62).toFixed(1) + 'px';
+      var pw = (F * Math.abs(Math.cos(o.ang * RAD)) + D * Math.abs(Math.sin(o.ang * RAD))) * S; var px0 = -pw / 2 - 15 * S, py0 = 232.5 * S * 0.62, pr = TILT * o.e * RAD; // ▶ 버튼도 기운 표지 왼쪽 가장자리를 따라간다
+      b._play.style.left = (px0 * Math.cos(pr) - py0 * Math.sin(pr)).toFixed(1) + 'px'; b._play.style.top = (px0 * Math.sin(pr) + py0 * Math.cos(pr)).toFixed(1) + 'px';
       b._play.style.opacity = Math.pow(o.e, 6).toFixed(3);
       b._rot.setAttribute('aria-selected', String(Math.abs(o.d) < 0.5));
     });
