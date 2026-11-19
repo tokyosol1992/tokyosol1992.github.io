@@ -2,6 +2,7 @@
 
 - 소스는 이 폴더, 상태·결정·기록은 `../../docs/portfolio/`다. 루트 공통 규칙도 적용한다.
 - 2026-11-18부터 실제 `/portfolio/` 페이지는 OSOL LIBRARY 서가다. 원본은 `mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다(아티팩트 게시본과 같은 파일). 서가를 고칠 때는 이 파일을 고치고 `npm run build`로 확인한다. 한글 문구를 바꾸면 `mockups/suit-subset.py`로 SUIT 부분 글꼴을 다시 만든다.
+- 서가의 책 목록은 원본의 `PROJECTS` 배열(제목 줄·회사·분류·화면 틀 종류·색)이다. 이미지는 `mockups/posters/NN.png`(목록 순서, 0부터)이고 `python3 mockups/poster-build.py`로 넣는다. 책을 추가·삭제하면 이미지 번호도 맞춘다.
 - 표지는 프로젝트별 메인 화면 포스터 템플릿(`.cv.pst`)이다. `it.poster = { kind: app|web, bg, fg, pa, co }`와 `mockups/posters/NN.png`(프로젝트 번호 0부터)를 두고 `python3 mockups/poster-build.py`로 단일 파일에 이미지를 넣는다. 사용자에게 받은 프로젝트 사실만 쓴다.
 - 서가 기준: 밝은 종이 배경 `#e7e5df`, 포인트 파랑 `#1c3694`, 함렛은 가운데 제목(OSOL LIBRARY)에만, 메뉴(AI/AX 포함)·한글은 SUIT, 이름은 영문 OSOL LIBRARY. 결정은 `../../docs/portfolio/DECISIONS.md`.
 - 경력·성과·요약·연락처는 사용자에게 받은 사실만 쓴다. 지금 서가 내용(샘플 프로젝트 01~09, YYYY 기간, 역할 입력 예정)은 자리표시다.
