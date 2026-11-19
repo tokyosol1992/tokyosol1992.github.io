@@ -38,8 +38,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .top .r { justify-self: end; padding-top: 7px; }
 /* 서가 분류 메뉴: 유리(글래스모피즘) 알약. 원본처럼 파란 채움이 서가 위치를 따라 항목 사이를 연속으로 미끄러지고,
    채움이 덮은 부분의 글자만 흰색이 된다(흰 글자 층을 채움 모양으로 잘라 겹침) */
-/* 메뉴도 서가 비율(--s)로 줄인다. 글자가 너무 작아지지 않게 0.72배 아래로는 줄이지 않는다(--m) */
-.snav { --m: max(var(--s), 0.72); position: absolute; z-index: 99; left: 50%; top: calc(50% - 250px * var(--s) - 2px - 72px * var(--m)); /* 네 항목이 같은 좌우 여백으로 이어진 한 줄. 선택 표지 윗변 위 32×m px에 뜬다(메뉴 높이 40×m + 테두리 2px + 간격 32×m) */ transform: translateX(-50%); display: flex; padding: calc(4px * var(--m)); border-radius: 999px;
+/* 메뉴도 서가 비율(--s)로 줄인다. 글자가 너무 작아지지 않게 0.72배 아래로는 줄이지 않는다(--m0). 2026-11-19: 메뉴 크기를 30% 키움(--m = --m0 × 1.3), 표지와의 간격은 --m0 기준 그대로 */
+.snav { --m0: max(var(--s), 0.72); --m: calc(var(--m0) * 1.3); position: absolute; z-index: 99; left: 50%; top: calc(50% - 250px * var(--s) - 2px - 40px * var(--m) - 32px * var(--m0)); /* 네 항목이 같은 좌우 여백으로 이어진 한 줄. 메뉴 크기는 서가 비율의 1.3배(--m), 선택 표지 윗변과의 간격은 그대로 32×m0 px(메뉴 높이 40×m + 테두리 2px + 간격 32×m0) */ transform: translateX(-50%); display: flex; padding: calc(4px * var(--m)); border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.05)); border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.4), inset 1px 0 0 rgba(255, 255, 255, 0.35), inset -1px 0 0 rgba(255, 255, 255, 0.2), 0 12px 26px -8px rgba(60, 45, 30, 0.16), 0 1px 1px rgba(60, 45, 30, 0.08);
   -webkit-backdrop-filter: blur(4px) saturate(1.6); backdrop-filter: blur(4px) saturate(1.6); }
@@ -122,6 +122,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cv .art { position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); }
 .cv .mk { position: absolute; right: 7%; bottom: 3%; font-family: var(--display); font-weight: 700; font-size: calc(13px * var(--cs, var(--s))); padding: calc(2px * var(--cs, var(--s))) calc(7px * var(--cs, var(--s))); border: 1.5px solid currentColor; letter-spacing: 0.04em; z-index: 2; }
 .cv .mk2 { position: absolute; left: 7%; bottom: 3.6%; font-family: var(--sans); font-weight: 600; font-size: calc(7.5px * var(--cs, var(--s))); letter-spacing: 0.2em; z-index: 2; }
+/* 포스터 표지 템플릿(2026-11-19): 프로젝트 메인 화면을 포스터처럼 세운 표지. 종류 app(폰 틀)·web(브라우저 틀), 색은 --pb 배경 · --pf 글자 · --pa 포인트 */
+.cv.pst { --u: var(--cs, var(--s)); background: var(--pb); color: var(--pf); }
+.pst .pe { position: absolute; left: 7.2%; top: 3.4%; font-family: var(--sans); font-weight: 600; font-size: calc(8px * var(--u)); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; z-index: 2; }
+.cv.pst h3 { left: 7.2%; right: 8%; top: 8%; text-align: left; font-family: var(--ko); font-weight: 800; font-size: calc(27px * var(--u)); line-height: 1.14; letter-spacing: -0.02em; text-transform: none; word-break: keep-all; color: var(--pf); }
+.pst .mk { top: 2.6%; bottom: auto; right: 6.4%; }
+.pst .mk2 { display: none; }
+.pst .wr { opacity: 0.55; } /* 포스터는 화면 글자가 읽히도록 종이 헤짐 얼룩을 옅게 */
+.pst .dv { position: absolute; z-index: 1; background: #111; box-shadow: 0 calc(10px * var(--u)) calc(24px * var(--u)) rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.28); }
+.pst .dv .sc { display: block; width: 100%; height: 100%; overflow: hidden; background: #fff center top / cover no-repeat; }
+.pst .dv.app { left: 50%; top: 32%; width: 62%; aspect-ratio: 9 / 19.5; transform: translateX(-50%); padding: calc(4.5px * var(--u)); border-radius: calc(26px * var(--u)); }
+.pst .dv.app .sc { border-radius: calc(21.5px * var(--u)); }
+.pst .dv.web { left: 7.2%; right: 7.2%; top: 41%; padding: calc(15px * var(--u)) 0 0; border-radius: calc(8px * var(--u)); aspect-ratio: 16 / 11.4; background: #1d1d1f; }
+.pst .dv.web::before { content: ''; position: absolute; left: calc(7px * var(--u)); top: calc(5px * var(--u)); width: calc(4px * var(--u)); height: calc(4px * var(--u)); border-radius: 50%; background: #ff5f57; box-shadow: calc(7px * var(--u)) 0 #febc2e, calc(14px * var(--u)) 0 #28c840; }
+.pst .dv.web::after { content: ''; position: absolute; z-index: -1; inset: calc(8px * var(--u)) calc(-8px * var(--u)) calc(-8px * var(--u)) calc(8px * var(--u)); border-radius: calc(8px * var(--u)); background: var(--pa); opacity: 0.9; box-shadow: none; }
+.pst .dv.web .sc { border-radius: 0 0 calc(7px * var(--u)) calc(7px * var(--u)); }
 .play { position: absolute; z-index: 5; width: calc(30px * var(--s)); height: calc(30px * var(--s)); border-radius: 50%; border: 1px solid var(--blue); background: var(--paper-2); color: var(--blue); display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; }
 .play::before { content: ''; margin-left: 2px; border-left: calc(8px * var(--s)) solid currentColor; border-top: calc(5px * var(--s)) solid transparent; border-bottom: calc(5px * var(--s)) solid transparent; }
 
@@ -217,7 +232,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
 @media (max-width: 760px) {
   .top { grid-template-columns: auto 1fr auto; } .sk-label, .sk-kbd { display: none; } .sk-btn { width: 36px; padding: 0; justify-content: center; }
   .foot .crumb { position: absolute; left: 0; right: 0; transform: none; bottom: calc(54px + env(safe-area-inset-bottom, 0px)); text-align: center; }
-  .snav button, .snav .hi span { width: auto; padding: 0 12px; font-size: 12px; }
+  .snav button, .snav .hi span { width: auto; padding: 0 calc(12px * 1.3); font-size: calc(12px * 1.3); }
   /* 모바일은 폭이 좁아 가운데를 비우지 않고, 표지 위 16px에 한 줄로 띄운다 */
   .cap h2 { font-size: 24px; }
   .d-grid { grid-template-columns: 1fr; align-content: center; padding: 80px var(--gr) 24px var(--gl); gap: 22px; }
@@ -299,6 +314,9 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
   var ITEMS = [];
   for (var i = 0; i < N; i++) { var n2 = '0' + (i + 1); ITEMS.push({ ko: '샘플 프로젝트 ' + n2, en: 'Sample ' + n2, g: GROUP[i], th: TH[ORDER[i]], m: i, n: n2 }); }
 
+  // 샘플 01(앱)·02(웹)에 포스터 템플릿을 먼저 적용해 모양을 본다. 실제 프로젝트 내용은 사용자에게 받은 뒤 채운다
+  [['app', 0], ['web', 1]].forEach(function (a) { var it = ITEMS[a[1]]; it.poster = { kind: a[0], bg: it.th.t1, fg: it.th.tx, pa: it.th.acc, co: 'SAMPLE COMPANY' }; });
+
   function motif(k, w, h, ink, acc) {
     var o = '', i;
     if (k === 0) { o += '<circle cx="' + w / 2 + '" cy="' + h * 0.3 + '" r="' + w * 0.27 + '" fill="' + acc + '"/>'; for (i = 0; i < 8; i++) o += '<rect x="' + (w * (0.5 - (0.34 - i * 0.03))) + '" y="' + (h * 0.6 + i * h * 0.045) + '" width="' + (w * (0.68 - i * 0.06)) + '" height="' + Math.max(1.2, h * 0.012) + '" fill="' + ink + '"/>'; o += '<rect x="0" y="' + h * 0.58 + '" width="' + w + '" height="' + Math.max(1.5, h * 0.012) + '" fill="' + ink + '"/>'; }
@@ -335,7 +353,23 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
     return 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '")';
   }
   function rubs(it) { if (!it._rf) { it._rf = rub(78, 465, 3 + it.m * 5); it._rc = rub(250, 465, 41 + it.m * 5); } return it; }
-  function coverHTML(it) { return '<span class="cv" style="--cp:' + it.th.cp + ';--ci:' + it.th.ci + ';--ct:' + it.th.ct + '"><span class="tag">' + NAME.tag + '</span><h3>' + it.en.replace(' ', '<br>') + '</h3><span class="art"></span><span class="mk2">' + NAME.mk + '</span><span class="mk">CASE</span><i class="wr"></i></span>'; }
+  // ===== 포스터 표지 템플릿: it.poster = { kind: 'app' | 'web', bg, fg, pa, co(회사 표기), img(메인 화면 data URI, 없으면 자리표시 화면) } =====
+  // POSTERS:BEGIN
+  var POSTER_IMG = {}; // 키 = 프로젝트 번호(it.m). 메인 화면 이미지는 mockups/posters/ 아래 PNG에서 poster-build.py로 채운다
+  // POSTERS:END
+  function skeleton(pa) {
+    var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='90' height='195' viewBox='0 0 90 195'><rect width='90' height='195' fill='#f6f5f1'/><rect x='6' y='16' width='40' height='6' rx='3' fill='#d9d6cc'/><rect x='6' y='28' width='78' height='46' rx='6' fill='" + pa + "'/>" +
+      [0, 1].map(function (r) { return [0, 1, 2, 3].map(function (c) { return "<rect x='" + (6 + c * 20) + "' y='" + (84 + r * 28) + "' width='16' height='16' rx='5' fill='#dedbd1'/><rect x='" + (7 + c * 20) + "' y='" + (104 + r * 28) + "' width='14' height='3' rx='1.5' fill='#e6e3da'/>"; }).join(''); }).join('') +
+      "<rect x='6' y='142' width='78' height='24' rx='5' fill='#e9e6dc'/><rect x='6' y='172' width='78' height='3' rx='1.5' fill='#d9d6cc'/></svg>";
+    return "url('data:image/svg+xml;utf8," + encodeURIComponent(svg).replace(/'/g, '%27') + "')"; // style 속성(큰따옴표) 안에 들어가므로 작은따옴표로 감싼다
+  }
+  function posterHTML(it) {
+    var P = it.poster, img = POSTER_IMG[it.m] ? "url('" + POSTER_IMG[it.m] + "')" : skeleton(P.pa);
+    return '<span class="cv pst" style="--pb:' + P.bg + ';--pf:' + P.fg + ';--pa:' + P.pa + '"><span class="pe">' + (P.co || NAME.tag) + '</span><h3>' + it.ko + '</h3>' +
+      '<span class="dv ' + P.kind + '"><span class="sc" style="background-image:' + img + '"></span></span><span class="mk">CASE</span><i class="wr"></i></span>';
+  }
+  function coverHTML(it) { if (it.poster) return posterHTML(it); return coverHTML0(it); }
+  function coverHTML0(it) { return '<span class="cv" style="--cp:' + it.th.cp + ';--ci:' + it.th.ci + ';--ct:' + it.th.ct + '"><span class="tag">' + NAME.tag + '</span><h3>' + it.en.replace(' ', '<br>') + '</h3><span class="art"></span><span class="mk2">' + NAME.mk + '</span><span class="mk">CASE</span><i class="wr"></i></span>'; }
   var els = [];
   for (var k = 0; k < POOL; k++) {
     var b = document.createElement('div'); b.className = 'box'; b._slot = k; b._item = -1; b._hov = 0;
@@ -350,7 +384,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
     var fr = b.querySelector('.fr');
     fr.querySelector('.art').innerHTML = motif(it.m, 62 * S, 128 * S, th.tx, th.acc);
     fr.querySelector('.ttl').textContent = it.ko; fr.querySelector('.mk i').textContent = NAME.mk;
-    var cf = b.querySelector('.cvf'); cf.innerHTML = coverHTML(it); cf.querySelector('.art').innerHTML = motif(it.m, 200 * S, 270 * S, th.ci, th.acc);
+    var cf = b.querySelector('.cvf'); cf.innerHTML = coverHTML(it); var ca = cf.querySelector('.art'); if (ca) ca.innerHTML = motif(it.m, 200 * S, 270 * S, th.ci, th.acc);
     b._rot.setAttribute('aria-label', it.ko);
   }
 
@@ -591,7 +625,7 @@ kbd { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacin
     setClip(reduce ? null : front(0, 0)); // 보이기 전에 표지 크기로 먼저 잘라 둔다(깜박임 방지)
     sheet.classList.add('on'); sheet.setAttribute('aria-hidden', 'false');
     var ch = dcv.getBoundingClientRect(); dcv.style.setProperty('--cs', ch.width / 250);
-    dcv.querySelector('.art').innerHTML = motif(it.m, ch.width * 0.8, ch.height * 0.56, it.th.ci, it.th.acc);
+    var da = dcv.querySelector('.art'); if (da) da.innerHTML = motif(it.m, ch.width * 0.8, ch.height * 0.56, it.th.ci, it.th.acc);
     var pl = splitPara(p);
     // p의 줄을 meta 다음 순서에 끼워 넣기
     var ordered = [lines[0], lines[1], lines[2], lines[3]].concat(pl, [lines[4], lines[5]]); lines = ordered;
