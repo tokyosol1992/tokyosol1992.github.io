@@ -7,6 +7,7 @@
 - 원본: `sites/portfolio/mockups/portfolio-shelf.src.html`(실제 페이지가 그대로 불러옴), 아티팩트 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
 - 레퍼런스·실측값·버전 이력: `REFERENCES.md`
 - 상태: 배포본(2026-11-18) 가운데 영문 제목(함렛), 서가 위 유리 분류 메뉴(AI/AX·플랫폼·디자인 시스템·기타가 같은 여백으로 이어진 한 줄, 표지 위 32px(서가 비율로 축소), 모두 SUIT), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창, 가운데 아래 브레드크럼, 한글 SUIT. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
+- 2026-11-19: Figma에 표지·설명·상세(스크롤형) 템플릿 초안 생성([템플릿 페이지](https://www.figma.com/design/WqDqO6r4ukeLLNhAm4qIRl/-%EC%B5%9C%EC%A2%85--26_PF_%EC%9E%91%EC%97%85%EC%A4%91?node-id=146-1627)). 코드는 변경 없음. 다음은 22권 표지·설명·상세 제작과 Figma→사이트 연결 방식.
 - 2026-11-19(v15, 브랜치 `claude/sharp-volta-tdqx1r`, 미병합): 서가를 실제 프로젝트 22권(최근 재직 순)과 포스터 표지로 교체. 분류·색·대표 화면은 가안, 기간·역할·요약은 입력 예정. 목록 근거는 `PROJECTS.md`.
 - 2026-11-19 작업(브랜치 `claude/sharp-volta-tdqx1r`, 미병합): 유리 메뉴 30% 확대(표지와의 간격 유지), 프로젝트 메인 화면 포스터 표지 템플릿 v1(앱·웹 틀, 샘플 01·02에 자리표시 적용). 사용자 확인: 열기 물결 전환은 현재 그대로, Safari 확인 완료.
 - 저장: v3까지는 PR #19, v4~v13과 실제 페이지 교체는 [PR #20](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/20)으로 main 병합(`c05dcd0`)·배포 완료. 배포 주소를 이 Cloud 환경에서 직접 열어 확인하지는 못했다.

@@ -6,3 +6,7 @@
 - `../PENDING.md`의 PR #3 패치에는 추가 Figma 기록과 할인꾹 인수인계가 있다. 프로젝트별 후속 범위를 확인하고 재개한다.
 - 대표 화면 렌더링 비교, 누락 폰트·슬라이스·아이콘·마스크 모서리 점검을 유지한다. 중복 레이어는 숨김 전후 화면이 같을 때만 삭제한다.
 - 사용자는 화면 이름과 눈에 보이는 상태로 설명받는다. 경력·성과는 제공된 사실만 사용한다.
+
+## 2026-11-19 · OSOL LIBRARY 템플릿 (표지·설명·상세)
+
+[최종 26_PF 파일의 `템플릿` 페이지](https://www.figma.com/design/WqDqO6r4ukeLLNhAm4qIRl/-%EC%B5%9C%EC%A2%85--26_PF_%EC%9E%91%EC%97%85%EC%A4%91?node-id=146-1627): README, 01 표지(`Cover` 세트 + 안전 여백 가이드), 02 설명(`Info` + 글자 칸 이름 표), 03 상세(스크롤형 1440). 변수 컬렉션 `OSOL Base`(종이·잉크·파랑 등)와 `Cover Color`(프로젝트별 모드). 설명 글자 칸 이름은 `#title #company #group #kind #period #team #role #contribution #summary #problem #process #result #link`로 고정한다.
