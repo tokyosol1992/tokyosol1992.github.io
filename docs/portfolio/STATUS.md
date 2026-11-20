@@ -1,5 +1,7 @@
 # Oh SolGil 현재 상태
 
+> 이어받는 AI는 먼저 [HANDOFF.md](HANDOFF.md)(2026-11-19 인수인계)를 읽는다.
+
 기준: 2026-11-19. 실제 사이트(`/portfolio/`)를 OSOL LIBRARY 서가(v13)로 교체해 배포했다(사용자 결정, PR #20 main 병합, Pages 배포 실행 #19 성공). 원본은 `sites/portfolio/mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다. 이전 다크 페이지는 `src/legacy/`에 보존.
 
 ## 현재: OSOL LIBRARY 서가 (실제 /portfolio/)

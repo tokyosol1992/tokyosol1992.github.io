@@ -1,3 +1,9 @@
+## 2026-11-20 · 다른 AI 이어받기용 인수인계 정리
+
+- 요청: 지금까지 작업을 git에 저장하고 다른 AI에서도 이어갈 수 있게 기록.
+- 변경: `HANDOFF.md` 신규(저장 상태, 서가 구조, 책 22권별 Figma 파일·노드 출처, Figma 템플릿 노드·변수, 환경에서 알게 된 제약, 우선순위별 다음 작업, 지킬 규칙). 도구 보관: `mockups/tools/figma-top-frames.py`(Figma 메타데이터 파일에서 큰 프레임 추출), `mockups/tools/shelf-check.js`(Playwright 서가 확인). 루트·포트폴리오 `AGENTS.md`, `STATUS.md`가 `HANDOFF.md`를 가리키게 했다.
+- 상태 구분: 로컬 저장 · 원격 푸시(`claude/sharp-volta-tdqx1r`)까지 완료, PR·main 병합·배포는 하지 않음.
+
 ## 2026-11-19 · 핀터레스트 레퍼런스 시도 (보류)
 
 - 요청: 핀터레스트 `my_pins` 검색(포트폴리오)을 레퍼런스로 표지·상세 디자인 수정.

@@ -1,5 +1,6 @@
 # Oh SolGil 포트폴리오
 
+- 다른 AI·새 세션이 이어받을 때는 먼저 `../../docs/portfolio/HANDOFF.md`를 읽는다(2026-11-19 인수인계: 저장 상태, 서가 구조, 책별 Figma 출처, 템플릿 노드, 다음 작업). 서가는 이제 실제 프로젝트 22권이며 배포는 아직 안 했다.
 - 소스는 이 폴더, 상태·결정·기록은 `../../docs/portfolio/`다. 루트 공통 규칙도 적용한다.
 - 2026-11-18부터 실제 `/portfolio/` 페이지는 OSOL LIBRARY 서가다. 원본은 `mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다(아티팩트 게시본과 같은 파일). 서가를 고칠 때는 이 파일을 고치고 `npm run build`로 확인한다. 한글 문구를 바꾸면 `mockups/suit-subset.py`로 SUIT 부분 글꼴을 다시 만든다.
 - 서가의 책 목록은 원본의 `PROJECTS` 배열(제목 줄·회사·분류·화면 틀 종류·색)이다. 이미지는 `mockups/posters/NN.png`(목록 순서, 0부터)이고 `python3 mockups/poster-build.py`로 넣는다. 책을 추가·삭제하면 이미지 번호도 맞춘다.
