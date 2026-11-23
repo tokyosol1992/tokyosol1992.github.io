@@ -5,6 +5,7 @@
 - 로고와 같은 함렛의 영문 분류 메뉴를 한 줄로 두고 항목별 좌우 여백을 조정했다. 승인 시안 대비 1440×960에서 684.9px → 634.9px, 390×800에서 353.7px → 343.7px로 줄었다.
 - Node.js 24에서 MoHo와 포트폴리오 빌드가 성공했다. Chromium에서 320~1440px 너비와 모바일 터치로 메뉴와 서가 이동, 이력서 열기·닫기, PDF 다운로드, 검색, 기존 프로젝트 상세를 확인했다.
 - `codex/portfolio-resume`에 구현을 푸시하고 검토 PR을 열었다. [구현 커밋 224c16c](https://github.com/tokyosol1992/tokyosol1992.github.io/commit/224c16c) · [PR #24](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/24)
+- 사용자가 병합과 공개 반영을 승인했다. 저장소 README에 변경·검증과 공개 배포 경로를 남겼다. [README](../../README.md) · [Pages 배포 이력](https://github.com/tokyosol1992/tokyosol1992.github.io/actions/workflows/deploy.yml?query=branch%3Amain)
 
 ## 2026-11-18 · 배포 후 수정: 메뉴를 표지에서 더 띄움
 

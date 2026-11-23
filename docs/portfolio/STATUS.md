@@ -1,12 +1,12 @@
 # Oh SolGil 현재 상태
 
-## 2026-11-23 · 이력서와 영문 분류 메뉴 검토
+## 2026-11-23 · 이력서와 영문 분류 메뉴
 
 - 서가 첫 권의 이력서를 열면 데스크톱에서는 펼침면, 모바일에서는 한 열로 소개와 경력을 읽을 수 있다. PDF를 내려받거나 `CLOSE / 닫기`로 보고 있던 책에 돌아갈 수 있다.
 - RESUME · AI/AX · PLATFORM · DESIGN SYSTEM · OTHER에 로고와 같은 함렛을 적용했다. 분류 메뉴를 한 줄로 유지하며 폭을 승인 시안 대비 데스크톱 약 50px, 모바일 약 10px 줄였다.
-- 원격 브랜치는 `codex/portfolio-resume`이며 검토 중이다. 운영 화면은 아래 배포 기록을 참고한다. [PR #24](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/24)
+- 작업과 검증은 PR #24와 저장소 README에 기록했다. 병합 상태는 PR에서, 공개 버전과 배포 상태는 포트폴리오와 Pages 배포 이력에서 확인할 수 있다. [변경 PR](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/24) · [공개 포트폴리오](https://tokyosol1992.github.io/portfolio/) · [Pages 배포 이력](https://github.com/tokyosol1992/tokyosol1992.github.io/actions/workflows/deploy.yml?query=branch%3Amain)
 
-## 운영 배포본 · OSOL LIBRARY 서가
+## 2026-11-18 · 이전 서가 배포
 
 - 2026-11-18에 실제 `/portfolio/`를 OSOL LIBRARY 서가로 교체했다. `src/pages/index.astro`가 서가 원본을 불러오고, 이전 다크 페이지는 `src/legacy/`에 보존했다.
 - 원본: `sites/portfolio/mockups/portfolio-shelf.src.html`(실제 페이지가 그대로 불러옴), 아티팩트 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
