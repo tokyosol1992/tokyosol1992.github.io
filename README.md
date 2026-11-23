@@ -8,6 +8,14 @@ MoHo 개인 사이트와 Oh SolGil 포트폴리오를 한 저장소에서 작업
 | 포트폴리오 | `sites/portfolio/` | [현재 상태](docs/portfolio/STATUS.md) · [히스토리](docs/portfolio/HISTORY.md) | `/portfolio/` |
 | 공통 환경 | `scripts/` | [클라우드 연결](docs/workspace/CLOUD.md) · [이전 기록](docs/workspace/MIGRATION.md) | — |
 
+## 2026-11-23 · OSOL LIBRARY 이력서와 서가 메뉴
+
+- 서가의 첫 권을 이력서로 배치하고 표지 아래에 오솔길의 한 줄 소개를 넣었습니다. 이력서를 열면 데스크톱에서는 소개·PDF 다운로드와 경력을 펼침면에, 모바일에서는 한 열에 표시합니다. `CLOSE / 닫기`를 누르면 보고 있던 책으로 돌아갑니다.
+- 분류 메뉴는 RESUME · AI/AX · PLATFORM · DESIGN SYSTEM · OTHER 순서이며 로고와 같은 함렛을 사용합니다. 승인 시안 대비 메뉴 폭을 1440px 화면에서 약 685px → 635px, 390px 화면에서 약 354px → 344px로 줄였습니다.
+- 두 사이트 빌드를 통과했습니다. Chromium에서 데스크톱·모바일 화면의 이력서 열기·닫기, PDF 다운로드, 검색, 프로젝트 이동을 확인했습니다. 경력 항목과 PDF는 공개용 자료가 준비될 때까지 시안으로 표시합니다.
+
+[공개 포트폴리오](https://tokyosol1992.github.io/portfolio/) · [PR #24](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/24) · [작업 히스토리](docs/portfolio/HISTORY.md) · [Pages 배포 이력](https://github.com/tokyosol1992/tokyosol1992.github.io/actions/workflows/deploy.yml?query=branch%3Amain)
+
 ## 설치와 실행
 
 Node.js 24를 선택한 다음 저장소 루트에서 실행합니다.

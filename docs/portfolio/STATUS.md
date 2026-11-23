@@ -1,9 +1,14 @@
 # Oh SolGil 현재 상태
 
-기준: 2026-11-18. 실제 사이트(`/portfolio/`)를 OSOL LIBRARY 서가(v13)로 교체해 배포했다(사용자 결정, PR #20 main 병합, Pages 배포 실행 #19 성공). 원본은 `sites/portfolio/mockups/portfolio-shelf.src.html` 한 파일이고 `src/pages/index.astro`가 그대로 불러온다. 이전 다크 페이지는 `src/legacy/`에 보존.
+## 2026-11-23 · 이력서와 영문 분류 메뉴
 
-## 현재: OSOL LIBRARY 서가 (실제 /portfolio/)
+- 서가 첫 권의 이력서를 열면 데스크톱에서는 펼침면, 모바일에서는 한 열로 소개와 경력을 읽을 수 있다. PDF를 내려받거나 `CLOSE / 닫기`로 보고 있던 책에 돌아갈 수 있다.
+- RESUME · AI/AX · PLATFORM · DESIGN SYSTEM · OTHER에 로고와 같은 함렛을 적용했다. 분류 메뉴를 한 줄로 유지하며 폭을 승인 시안 대비 데스크톱 약 50px, 모바일 약 10px 줄였다.
+- 작업과 검증은 PR #24와 저장소 README에 기록했다. 병합 상태는 PR에서, 공개 버전과 배포 상태는 포트폴리오와 Pages 배포 이력에서 확인할 수 있다. [변경 PR](https://github.com/tokyosol1992/tokyosol1992.github.io/pull/24) · [공개 포트폴리오](https://tokyosol1992.github.io/portfolio/) · [Pages 배포 이력](https://github.com/tokyosol1992/tokyosol1992.github.io/actions/workflows/deploy.yml?query=branch%3Amain)
 
+## 2026-11-18 · 이전 서가 배포
+
+- 2026-11-18에 실제 `/portfolio/`를 OSOL LIBRARY 서가로 교체했다. `src/pages/index.astro`가 서가 원본을 불러오고, 이전 다크 페이지는 `src/legacy/`에 보존했다.
 - 원본: `sites/portfolio/mockups/portfolio-shelf.src.html`(실제 페이지가 그대로 불러옴), 아티팩트 게시본 https://claude.ai/artifact/94oDmyLEhfM49CYWkNja8s
 - 레퍼런스·실측값·버전 이력: `REFERENCES.md`
 - 상태: 배포본(2026-11-18) 가운데 영문 제목(함렛), 서가 위 유리 분류 메뉴(AI/AX·플랫폼·디자인 시스템·기타가 같은 여백으로 이어진 한 줄, 표지 위 32px(서가 비율로 축소), 모두 SUIT), 둥근 HOME, 오른쪽 위 검색 버튼+⌘K/Ctrl+K와 유리 검색 창, 가운데 아래 브레드크럼, 한글 SUIT. 열기 물결 전환(v4)은 레퍼런스 대기. Safari는 사용자가 나중에 확인. 내용은 샘플.
@@ -16,10 +21,11 @@
 
 ## 다음 작업
 
-0. 유리 분류 메뉴 리터칭(사용자). 문구를 바꾸면 `sites/portfolio/mockups/suit-subset.py`로 SUIT 부분 글꼴을 다시 만든다. 물결 전환은 사용자 레퍼런스를 받은 뒤 다시 만들고, 시작 종이 기울기를 표지(-4°)와 맞춘다.
-1. 실제 프로젝트 내용을 받으면 서가 원본의 ITEMS(제목·분류·기간·역할·요약)와 표지를 채우고 `suit-subset.py`로 글꼴을 다시 만든 뒤 빌드·배포한다.
-2. 기존 미병합 작업(PR #10 그로우 케이스 스터디 시안, PR #3 Figma 기록)은 `../PENDING.md`에서 확인하고 요청 범위만 옮긴다.
-3. Safari 동작 확인(사용자가 나중에 확인 예정, 이 Cloud 환경에는 Chromium만 있음).
+1. 공개용 이력서 자료를 받으면 웹의 경력 입력 자리와 다운로드할 시안 PDF를 교체한다.
+2. 실제 프로젝트 내용을 받으면 서가 원본의 ITEMS(제목·분류·기간·역할·요약)와 표지를 채우고 `suit-subset.py`로 글꼴을 다시 만든 뒤 빌드·배포한다.
+3. 물결 전환은 사용자 레퍼런스를 받은 뒤 다시 만들고 시작 종이 기울기를 표지(-4°)와 맞춘다.
+4. 기존 미병합 작업(PR #10 그로우 케이스 스터디 시안, PR #3 Figma 기록)은 `../PENDING.md`에서 확인하고 요청 범위만 옮긴다.
+5. Safari 동작을 확인한다. 이 시안의 브라우저 검증은 Chromium에서 진행했다.
 
 ## 이전 상태 (2026-11-06)
 
